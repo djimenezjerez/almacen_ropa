@@ -1,0 +1,58 @@
+// Vuetify
+@import '~vuetify/dist/vuetify.min.css';
+@import '~@mdi/font/css/materialdesignicons.min.css';
+
+// Fonts
+$fonts-dir: "/fonts/";
+@font-face {
+    font-family: "Roboto";
+    src: url('#{$fonts-dir}/Roboto/Roboto-Black.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-BlackItalic.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-Bold.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-BoldItalic.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-Italic.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-Light.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-LightItalic.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-Medium.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-MediumItalic.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-Regular.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-Thin.ttf') format("truetype")
+    url('#{$fonts-dir}/Roboto/Roboto-ThinItalic.ttf') format("truetype");
+}
+
+.datatables {
+    border-collapse: collapse !important;
+    width: 100% !important;
+}
+
+.datatables td, .datatables th {
+    border: 1px solid #ccc !important;
+    border-top: 1px solid #000 !important;
+    border-bottom: 1px solid #000 !important;
+}
+
+.datatables tbody tr {
+    height: 45px !important;
+}
+
+.datatables tbody tr:nth-child(odd) {
+    background-color: #f8f9fa !important;
+}
+
+.datatables tbody tr:nth-child(even) {
+    background-color: #e9ecef !important;
+}
+
+.datatables tbody tr:hover {
+    background:#6c757d !important;
+    color: #fff !important;
+}
+
+.datatables th {
+    background-color: #000000;
+    color: #fff !important;
+}
+
+.v-data-table-header__icon {
+    color: #fff !important;
+}
