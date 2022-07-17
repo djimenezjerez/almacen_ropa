@@ -19,18 +19,32 @@ class RolesSeeder extends Seeder
         $roles = [
             [
                 'name' => 'ADMINISTRADOR',
+                'display_name' => 'Super Administrador',
+                'order' => 1,
+                'permissions' => [
+                    'USUARIOS',
+                ],
+            ], [
+                'name' => 'GERENTE',
+                'display_name' => 'Gerente',
+                'order' => 2,
                 'permissions' => [
                     'USUARIOS',
                 ],
             ], [
                 'name' => 'CAJERO',
+                'display_name' => 'Cajero',
+                'order' => 3,
                 'permissions' => [],
             ]
         ];
 
         foreach($roles as $role) {
-            $new_role = Role::firstOrCreate([
+            $new_role = Role::updateOrCreate([
                 'name' => $role['name'],
+            ], [
+                'display_name' => $role['display_name'],
+                'order' => $role['order'],
             ]);
 
             foreach($role['permissions'] as $permission) {

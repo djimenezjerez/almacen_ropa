@@ -1,4 +1,4 @@
-# Sistema de gestión de distribución de material escolar
+# Sistema de gestión de almacén de ropa
 
 # Pasos para la instalación
 

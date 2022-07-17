@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 
-class CityController extends Controller
+class DocumentTypeController extends Controller
 {
     public function index()
     {
         return [
-            'message' => 'Lista de ciudades',
+            'message' => 'Lista de tipos de documento',
             'payload' => [
-                'data' => DB::table('cities')->orderBy('id')->get(),
+                'data' => DB::table('document_types')->orderBy('id')->get(),
             ],
         ];
     }

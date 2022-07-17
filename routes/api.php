@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\DocumentTypeController;
 
 // Autenticación
 Route::post('login', [AuthController::class, 'store']);
@@ -19,7 +20,9 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 
     // Ciudades
     Route::get('city', [CityController::class, 'index']);
-    Route::get('city/{city}', [CityController::class, 'show']);
+
+    // Documentos de identidad
+    Route::get('document_type', [DocumentTypeController::class, 'index']);
 
     // Usuarios
     Route::get('role/{role}', [RoleController::class, 'show'])->middleware('can:USUARIOS');

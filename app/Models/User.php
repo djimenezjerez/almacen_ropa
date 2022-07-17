@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -13,29 +12,20 @@ use Spatie\Permission\Models\Role;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
+    use HasApiTokens, Notifiable, SoftDeletes, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'first_name',
-        'last_name',
-        'identity_card',
-        'city_id',
+        'username',
         'password',
-        'email',
-        'phone',
-        'role_id',
+        'access_attempts',
+        'active',
+        'person_id',
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
+    protected $casts = [
+        'active' => 'boolean',
+    ];
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -43,28 +33,18 @@ class User extends Authenticatable
 
     public $timestamps = true;
 
-    public function city()
+    public function person()
     {
-        return $this->belongsTo(City::class);
+        return $this->belongsTo(Person::class);
     }
 
-    public function role()
+    public function stores()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsToMany(Store::class, 'model_has_roles', 'model_id', 'model_id')->wherePivot('model_type', 'App\Models\User');
     }
 
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
-    }
-
-    public function setEmailAttribute($value)
-    {
-        $this->attributes['email'] = trim(mb_strtolower($value));
-    }
-
-    public function getFullNameAttribute()
-    {
-        return $this->first_name . ' ' . $this->last_name;
     }
 }

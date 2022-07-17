@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCitiesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class CreateCitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('cities', function (Blueprint $table) {
+        Schema::create('document_types', function (Blueprint $table) {
             $table->tinyIncrements('id');
             $table->string('name')->comment('Nombre');
             $table->string('code')->unique()->comment('Código');
+            $table->unsignedTinyInteger('order')->default(0)->comment('Orden');
         });
     }
 
@@ -27,6 +28,6 @@ class CreateCitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cities');
+        Schema::dropIfExists('document_types');
     }
-}
+};

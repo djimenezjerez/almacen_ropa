@@ -6,7 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\City;
 
-class CitiesSeeder extends Seeder
+class CitySeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,42 +15,52 @@ class CitiesSeeder extends Seeder
      */
     public function run()
     {
-        $cities = [
+        $data = [
             [
-                'name' => 'Chuquisaca',
-                'code' => 'CH',
+                'name' => 'Santa Cruz',
+                'code' => 'SC',
+                'order' => 1
             ],[
                 'name' => 'La Paz',
                 'code' => 'LP',
+                'order' => 2
             ],[
                 'name' => 'Cochabamba',
                 'code' => 'CB',
-            ],[
-                'name' => 'Oruro',
-                'code' => 'OR',
-            ],[
-                'name' => 'Potosí',
-                'code' => 'PT',
-            ],[
-                'name' => 'Tarija',
-                'code' => 'TJ',
-            ],[
-                'name' => 'Santa Cruz',
-                'code' => 'SC',
+                'order' => 3
             ],[
                 'name' => 'Beni',
                 'code' => 'BE',
+                'order' => 4
             ],[
                 'name' => 'Pando',
                 'code' => 'PD',
+                'order' => 5
+            ],[
+                'name' => 'Oruro',
+                'code' => 'OR',
+                'order' => 6
+            ],[
+                'name' => 'Potosí',
+                'code' => 'PT',
+                'order' => 7
+            ],[
+                'name' => 'Chuquisaca',
+                'code' => 'CH',
+                'order' => 8
+            ],[
+                'name' => 'Tarija',
+                'code' => 'TJ',
+                'order' => 9
             ],
         ];
 
-        foreach($cities as $city) {
+        foreach($data as $item) {
             City::firstOrCreate([
-                'code' => $city['code'],
+                'code' => $item['code'],
             ], [
-                'name' => $city['name'],
+                'name' => $item['name'],
+                'order' => $item['order'],
             ]);
         }
     }

@@ -32,7 +32,9 @@ class CreatePermissionTables extends Migration
         Schema::create($tableNames['roles'], function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('name');       // For MySQL 8.0 use string('name', 125);
+            $table->string('display_name');       // For MySQL 8.0 use string('name', 125);
             $table->string('guard_name'); // For MySQL 8.0 use string('guard_name', 125);
+            $table->unsignedSmallInteger('order')->default(0)->comment('Orden');
             $table->timestamps();
 
             $table->unique(['name', 'guard_name']);
@@ -55,18 +57,23 @@ class CreatePermissionTables extends Migration
         });
 
         Schema::create($tableNames['model_has_roles'], function (Blueprint $table) use ($tableNames, $columnNames) {
+            $table->unsignedBigInteger('store_id');
             $table->unsignedSmallInteger('role_id');
 
             $table->string('model_type');
             $table->unsignedSmallInteger($columnNames['model_morph_key']);
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_roles_model_id_model_type_index');
 
+            $table->foreign('store_id')
+                ->references('id')
+                ->on('stores')
+                ->onDelete('cascade');
             $table->foreign('role_id')
                 ->references('id')
                 ->on($tableNames['roles'])
                 ->onDelete('cascade');
 
-            $table->primary(['role_id', $columnNames['model_morph_key'], 'model_type'],
+            $table->primary(['store_id', 'role_id', $columnNames['model_morph_key'], 'model_type'],
                     'model_has_roles_role_model_type_primary');
         });
 

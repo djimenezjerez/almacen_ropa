@@ -16,8 +16,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->command->info('Unguarding models');
         Model::unguard();
+        $this->call(CitySeeder::class);
+        $this->call(DocumentTypeSeeder::class);
+        $this->call(StoreSeeder::class);
         $this->call(RolesSeeder::class);
-        $this->call(CitiesSeeder::class);
-        $this->call(UsersSeeder::class);
+        $this->call(UserSeeder::class);
     }
 }
