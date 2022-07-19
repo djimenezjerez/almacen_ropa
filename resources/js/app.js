@@ -12,12 +12,14 @@ import ProgressBar from '@/components/shared/ProgressBar'
 import AddButton from '@/components/shared/AddButton'
 import SearchInput from '@/components/shared/SearchInput'
 import DialogRemove from '@/components/shared/DialogRemove'
+import LoadingOverlay from '@/components/shared/LoadingOverlay'
 
 Vue.component('tool-bar-title', ToolBarTitle)
 Vue.component('progress-bar', ProgressBar)
 Vue.component('add-button', AddButton)
 Vue.component('search-input', SearchInput)
 Vue.component('dialog-remove', DialogRemove)
+Vue.component('loading-overlay', LoadingOverlay)
 
 export const bus = new Vue()
 

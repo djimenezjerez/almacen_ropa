@@ -11,16 +11,18 @@ const vuexLocal = new VuexPersistence({
 
 export default new Vuex.Store({
   state: {
+    loading: false,
     loggedIn: false,
     acccessToken: '',
     tokenType: '',
-    qrPrefix: '',
     user: {},
+    role: {},
+    store: {},
     permissions: [],
   },
   getters: {
-    qrPrefix(state) {
-      return state.qrPrefix
+    loading(state) {
+      return state.loading
     },
     isLoggedIn(state) {
       return state.loggedIn
@@ -37,27 +39,41 @@ export default new Vuex.Store({
         permissions: state.permissions,
       }
     },
+    role(state) {
+      return state.role
+    },
+    store(state) {
+      return state.store
+    },
   },
   mutations: {
+    loading(state, data) {
+      state.loading = data
+    },
     login(state, data) {
       Vue.prototype.$http.defaults.headers.common['Authorization'] = `${data.token_type} ${data.access_token}`
       state.acccessToken = data.access_token
       state.tokenType = data.token_type
       state.user = data.user
+      state.role = data.role
+      state.store = data.store
       state.permissions = data.permissions
-      state.qrPrefix = data.qr_prefix
       state.loggedIn = true
     },
     logout(state) {
       state.acccessToken = ''
       state.tokenType = ''
-      state.qrPrefix = ''
       state.user = {}
+      state.role = {}
+      state.store = {}
       state.permissions = []
       state.loggedIn = false
     },
   },
   actions: {
+    loading({commit}, data) {
+      commit('loading', data)
+    },
     login({commit}, data) {
       return new Promise(async (resolve, reject) => {
         try {

@@ -11,7 +11,7 @@ class CityController extends Controller
         return [
             'message' => 'Lista de ciudades',
             'payload' => [
-                'data' => DB::table('cities')->orderBy('id')->get(),
+                'data' => DB::table('cities')->orderBy('order')->get(),
             ],
         ];
     }

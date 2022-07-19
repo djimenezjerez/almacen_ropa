@@ -33,6 +33,11 @@ class User extends Authenticatable
 
     public $timestamps = true;
 
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'model_has_roles', config('permission.column_names.model_morph_key'), 'role_id')->withPivot('store_id');
+    }
+
     public function person()
     {
         return $this->belongsTo(Person::class);
@@ -40,7 +45,17 @@ class User extends Authenticatable
 
     public function stores()
     {
-        return $this->belongsToMany(Store::class, 'model_has_roles', 'model_id', 'model_id')->wherePivot('model_type', 'App\Models\User');
+        return $this->belongsToMany(Store::class, 'model_has_roles', 'model_id', 'model_id')->wherePivot('model_type', 'App\Models\User')->withPivot('role_id');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'remember_role_id');
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'remember_store_id');
     }
 
     public function setPasswordAttribute($value)

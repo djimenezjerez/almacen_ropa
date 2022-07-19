@@ -26,6 +26,13 @@ class StoreSeeder extends Seeder
                 'phone' => 76543210,
                 'city' => 'SC',
                 'document_type' => 'NIT',
+            ], [
+                'name' => 'Casa Moda',
+                'document' => '987654321',
+                'email' => 'modabella@moda.com',
+                'phone' => 76543210,
+                'city' => 'SC',
+                'document_type' => 'NIT',
             ],
         ];
 
@@ -34,10 +41,10 @@ class StoreSeeder extends Seeder
             $document_type = DocumentType::where('code', $item['document_type'])->firstOrFail();
 
             $person = Person::updateOrCreate([
+                'name' => $item['name'],
                 'document' => $item['document'],
                 'document_type_id' => $document_type->id,
             ], [
-                'name' => $item['name'],
                 'email' => $item['email'],
                 'phone' => $item['phone'],
                 'city_id' => $city->id,

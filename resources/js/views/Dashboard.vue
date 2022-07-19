@@ -29,7 +29,6 @@ export default {
   },
   data() {
     return {
-      loading: false,
       measurements: [],
     }
   },
@@ -39,7 +38,7 @@ export default {
   methods: {
     async fetchDashboard() {
       try {
-        this.loading = true
+        this.$store.dispatch('loading', true)
         let response = await axios.get('dashboard')
         this.measurements = response.data.payload.data
         this.$nextTick(() => {
@@ -48,7 +47,7 @@ export default {
       } catch(error) {
         console.error(error)
       } finally {
-        this.loading = false
+        this.$store.dispatch('loading', false)
       }
     },
   },

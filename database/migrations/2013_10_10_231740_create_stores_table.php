@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
             $table->boolean('active')->default(true)->comment('Estado activo');
-            $table->unsignedBigInteger('person_id')->comment('Ciudad de expedición');
+            $table->unsignedBigInteger('person_id')->unique()->comment('Referencia a los datos de persona');
             $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();

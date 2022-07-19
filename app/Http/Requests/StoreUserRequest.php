@@ -7,33 +7,22 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreUserRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
-        /** @var \App\Models\User */
-        $user = Auth::user();
-        return $user->can('USUARIOS');
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
-            'first_name' => 'required|alpha_spaces|min:3',
-            'last_name' => 'required|alpha_spaces|min:3',
-            'role_id' => 'required|exists:roles,id',
+            'name' => 'required|alpha_spaces|min:3',
+            'document' => 'required|min:3',
+            'address' => 'nullable|min:3',
             'email' => 'nullable|email:rfc',
             'phone' => 'nullable|numeric',
-            'city_id' => 'required|exists:cities,id',
-            'identity_card' => 'required|unique:users,identity_card',
+            'city_id' => 'nullable|exists:cities,id',
+            'username' => 'required|alpha_dash|min:3|unique:users,username',
+            'password' => 'nullable',
         ];
     }
 }

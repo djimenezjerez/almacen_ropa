@@ -39,7 +39,7 @@
             >
               mdi-account
             </v-icon>
-            {{ $store.getters.user.first_name.split(' ')[0] + ' ' + $store.getters.user.last_name.split(' ')[0] }}
+            {{ $store.getters.user.name }}
           </v-btn>
         </template>
         <v-list>
@@ -77,12 +77,35 @@
           ></v-img>
         </v-col>
       </v-row>
+      <v-row align="center" justify="center" class="tertiary" dense v-show="!drawer">
+        <v-col cols="12" sm="11" md="10" class="text-center pt-3 pb-0">
+          <v-text-field
+            light
+            :value="$store.getters.store.name"
+            label="Tienda"
+            dense
+            readonly
+            hide-details
+            outlined
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="11" md="10" class="text-center pt-2 pb-2">
+          <v-text-field
+            light
+            :value="$store.getters.role.display_name"
+            label="Rol"
+            dense
+            readonly
+            hide-details
+            outlined
+          ></v-text-field>
+        </v-col>
+      </v-row>
       <v-divider></v-divider>
       <v-list
         nav
         dense
       >
-
         <!-- Usuarios -->
         <v-list-item link :to="{ name: 'users' }" v-if="$store.getters.user.permissions.includes('USUARIOS')">
           <v-list-item-icon>
@@ -95,6 +118,7 @@
     <v-main class="blue-grey lighten-5">
       <router-view></router-view>
     </v-main>
+    <loading-overlay></loading-overlay>
   </v-app>
 </template>
 

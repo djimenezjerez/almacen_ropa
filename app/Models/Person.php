@@ -12,11 +12,11 @@ class Person extends Model
     protected $fillable = [
         'name',
         'document',
+        'document_type_id',
         'address',
         'email',
         'phone',
         'city_id',
-        'document_type_id',
     ];
 
     public $timestamps = true;
@@ -31,9 +31,9 @@ class Person extends Model
         return $this->belongsTo(DocumentType::class);
     }
 
-    public function users()
+    public function user()
     {
-        return $this->hasMany(User::class);
+        return $this->hasOne(User::class);
     }
 
     public function setEmailAttribute($value)

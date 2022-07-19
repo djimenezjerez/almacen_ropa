@@ -5,17 +5,14 @@
     max-width="600"
     @keydown.esc="dialog = false"
   >
-    <v-card
-      :disabled="loading"
-    >
+    <v-card>
       <template slot="progress">
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="edit ? 'Editar usuario' : 'Agregar usuario'"/>
+        <tool-bar-title :title="readOnly ? 'Datos de usuario' : (edit ? 'Editar usuario' : 'Agregar usuario')"/>
         <v-spacer></v-spacer>
         <v-btn
-          :disabled="loading"
           icon
           @click.stop="dialog = false"
         >
@@ -26,19 +23,19 @@
       </v-toolbar>
       <div class="px-5 pb-5">
         <validation-observer ref="userObserver" v-slot="{ invalid }">
-          <form v-on:submit.prevent="submit">
+          <v-form @submit.prevent="submit" :readonly="readOnly">
             <v-card-text>
               <v-row dense>
-                <v-col cols="12" md="6">
+                <v-col cols="12">
                   <validation-provider
                     v-slot="{ errors }"
-                    name="first_name"
+                    name="name"
                     rules="required|min:3|alpha_spaces"
                   >
                     <v-text-field
                       label="Nombre"
-                      v-model="userForm.first_name"
-                      data-vv-name="first_name"
+                      v-model="userForm.name"
+                      data-vv-name="name"
                       :error-messages="errors"
                       prepend-icon="mdi-account-circle"
                       autofocus
@@ -48,31 +45,16 @@
                 <v-col cols="12" md="6">
                   <validation-provider
                     v-slot="{ errors }"
-                    name="last_name"
-                    rules="required|min:3|alpha_spaces"
-                  >
-                    <v-text-field
-                      label="Apellido"
-                      v-model="userForm.last_name"
-                      data-vv-name="last_name"
-                      :error-messages="errors"
-                      prepend-icon="mdi-account-circle-outline"
-                    ></v-text-field>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="identity_card"
+                    name="document"
                     rules="required|min:3|alpha_dash"
                   >
                     <v-text-field
                       label="Documento de Identidad"
-                      v-model="userForm.identity_card"
-                      data-vv-name="identity_card"
+                      v-model="userForm.document"
+                      data-vv-name="document"
                       :error-messages="errors"
                       prepend-icon="mdi-card-account-details"
-                      @input="value => userForm.identity_card = value.toUpperCase()"
+                      @input="value => userForm.document = value.toUpperCase()"
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
@@ -80,7 +62,7 @@
                   <validation-provider
                     v-slot="{ errors }"
                     name="city_id"
-                    rules="required"
+                    rules="integer"
                   >
                     <v-select
                       :items="cities"
@@ -90,40 +72,22 @@
                       v-model="userForm.city_id"
                       data-vv-name="city_id"
                       :error-messages="errors"
-                      prepend-icon="mdi-map-marker"
+                      prepend-icon="mdi-map"
                     ></v-select>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col cols="12">
                   <validation-provider
                     v-slot="{ errors }"
-                    name="role_id"
-                    rules="required"
-                  >
-                    <v-select
-                      :items="roles"
-                      item-text="name"
-                      item-value="id"
-                      label="Rol"
-                      v-model="userForm.role_id"
-                      data-vv-name="role_id"
-                      :error-messages="errors"
-                      prepend-icon="mdi-key-variant"
-                    ></v-select>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="email"
-                    rules="required|email"
+                    name="address"
+                    rules="min:3"
                   >
                     <v-text-field
-                      label="Email"
-                      v-model="userForm.email"
-                      data-vv-name="email"
+                      label="Direcciòn"
+                      v-model="userForm.address"
+                      data-vv-name="address"
                       :error-messages="errors"
-                      prepend-icon="mdi-at"
+                      prepend-icon="mdi-map-marker"
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
@@ -131,7 +95,7 @@
                   <validation-provider
                     v-slot="{ errors }"
                     name="phone"
-                    rules="required|min:7|integer"
+                    rules="min:7|integer"
                   >
                     <v-text-field
                       label="Teléfono"
@@ -145,9 +109,53 @@
                 <v-col cols="12" md="6">
                   <validation-provider
                     v-slot="{ errors }"
+                    name="email"
+                    rules="email"
+                  >
+                    <v-text-field
+                      label="Email"
+                      v-model="userForm.email"
+                      data-vv-name="email"
+                      :error-messages="errors"
+                      prepend-icon="mdi-at"
+                    ></v-text-field>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12" md="9">
+                  <validation-provider
+                    v-slot="{ errors }"
+                    name="username"
+                    rules="required|min:3"
+                  >
+                    <v-text-field
+                      label="Usuario"
+                      v-model="userForm.username"
+                      data-vv-name="username"
+                      :error-messages="errors"
+                      prepend-icon="mdi-account"
+                    ></v-text-field>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12" md="3">
+                  <validation-provider
+                    v-slot="{ errors }"
+                    name="active"
+                    rules="required"
+                  >
+                    <v-checkbox
+                      label="Activo"
+                      v-model="userForm.active"
+                      data-vv-name="active"
+                      :error-messages="errors"
+                      prepend-icon="mdi-check-all"
+                    ></v-checkbox>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12" v-if="edit && !readOnly">
+                  <validation-provider
+                    v-slot="{ errors }"
                     name="password"
                     :rules="edit ? '' : 'required|min:4'"
-                    v-if="edit"
                   >
                     <v-text-field
                       label="Contraseña"
@@ -170,14 +178,23 @@
                     block
                     type="submit"
                     color="info"
-                    :disabled="invalid || loading"
+                    :disabled="invalid"
+                    v-if="!readOnly"
                   >
                     Guardar
+                  </v-btn>
+                  <v-btn
+                    block
+                    color="error"
+                    v-else
+                    @click.stop="dialog = false"
+                  >
+                    Cerrar
                   </v-btn>
                 </v-col>
               </v-row>
             </v-card-actions>
-          </form>
+          </v-form>
         </validation-observer>
       </div>
     </v-card>
@@ -192,33 +209,31 @@ export default {
       type: Array,
       required: true
     },
-    roles: {
-      type: Array,
-      required: true
-    },
   },
   data: function() {
     return {
       dialog: false,
+      readOnly: false,
       edit: false,
       shadowPassword: true,
       userForm: {
         id: null,
-        first_name: '',
-        last_name: '',
-        identity_card: '',
-        password: '',
-        email: '',
-        phone: '',
+        name: null,
+        active: true,
+        document: null,
+        address: null,
+        email: null,
+        phone: null,
         city_id: null,
-        role_id: null,
+        username: null,
+        password: null,
       },
-      loading: false,
     }
   },
   methods: {
-    showDialog(user = null) {
+    showDialog(user = null, readOnly = false) {
       this.shadowPassword = true
+      this.readOnly = readOnly
       if (user) {
         this.edit = true
         this.userForm = {
@@ -228,14 +243,15 @@ export default {
         this.edit = false
         this.userForm = {
           id: null,
-          first_name: '',
-          last_name: '',
-          identity_card: '',
-          password: '',
-          email: '',
-          phone: '',
+          name: null,
+          active: true,
+          document: null,
+          address: null,
+          email: null,
+          phone: null,
           city_id: null,
-          role_id: null,
+          username: null,
+          password: null,
         }
       }
       this.dialog = true
@@ -247,7 +263,7 @@ export default {
       try {
         let valid = await this.$refs.userObserver.validate()
         if (valid) {
-          this.loading = true
+          this.$store.dispatch('loading', true)
           if (this.edit) {
             const response = await axios.patch(`user/${this.userForm.id}`, this.userForm)
             this.$toast.success(response.data.message)
@@ -264,7 +280,7 @@ export default {
           this.$refs.userObserver.setErrors(error.response.data.errors)
         }
       } finally {
-        this.loading = false
+        this.$store.dispatch('loading', false)
       }
     }
   },

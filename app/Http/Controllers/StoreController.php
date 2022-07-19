@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Store;
 use App\Http\Requests\StoreStoreRequest;
 use App\Http\Requests\UpdateStoreRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StoreController extends Controller
 {
@@ -13,9 +15,16 @@ class StoreController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->has('combo')) {
+            return [
+                'message' => 'Lista de tiendas',
+                'payload' => [
+                    'data' => DB::table('stores')->select('stores.id', 'people.name')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('stores.active', true)->orderBy('people.name')->get(),
+                ],
+            ];
+        }
     }
 
     /**

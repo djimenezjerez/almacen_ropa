@@ -32,7 +32,6 @@
           order-md="last"
         >
           <add-button
-            :disabled="loading"
             text="Agregar usuario"
             :block="$vuetify.breakpoint.smAndDown"
             @click="$refs.userForm.showDialog()"
@@ -48,7 +47,6 @@
           :items="users"
           :options.sync="options"
           :server-items-length="totalItems"
-          :disabled="loading"
           :footer-props="{
             itemsPerPageOptions: [8, 15, 30]
           }"
@@ -58,16 +56,41 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
-          <template v-slot:[`item.deleted_at`]="{ item }">
-            {{ isActive(item.deleted_at) ? 'ACTIVO' : 'INACTIVO' }}
+          <template v-slot:[`item.active`]="{ item }">
+            <v-chip
+              :color="isActive(item.active) ? 'success' : 'error'"
+              dark
+              small
+            >
+              {{ isActive(item.active) ? 'ACTIVO' : 'INACTIVO' }}
+            </v-chip>
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="6" v-if="isActive(item.deleted_at)">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
-                      :disabled="loading"
+                      icon
+                      v-bind="attrs"
+                      v-on="on"
+                      color="warning"
+                      @click="$refs.userForm.showDialog(item, true)"
+                    >
+                      <v-icon
+                        dense
+                      >
+                        mdi-eye
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Ver</span>
+                </v-tooltip>
+              </v-col>
+              <v-col cols="4">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
                       icon
                       v-bind="attrs"
                       v-on="on"
@@ -81,29 +104,27 @@
                       </v-icon>
                     </v-btn>
                   </template>
-                  <span>Editar Usuario</span>
+                  <span>Editar</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
-                      :disabled="loading"
                       icon
                       v-bind="attrs"
                       v-on="on"
-                      :color="isActive(item.deleted_at) ? 'error' : 'success'"
-                      :dark="isActive(item.deleted_at)"
-                      @click="$refs.userSwitch.showDialog(item)"
+                      color="error"
+                      @click="$refs.dialogRemove.showDialog(item)"
                     >
                       <v-icon
                         dense
                       >
-                        {{ isActive(item.deleted_at) ? 'mdi-close-circle' : 'mdi-restore' }}
+                        mdi-close-circle
                       </v-icon>
                     </v-btn>
                   </template>
-                  <span>{{ isActive(item.deleted_at) ? 'Desactivar usuario' : 'Reactivar usuario' }}</span>
+                  <span>Remover</span>
                 </v-tooltip>
               </v-col>
             </v-row>
@@ -111,8 +132,8 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <user-form ref="userForm" :cities="cities" :roles="roles" v-on:updateList="fetchUsers"/>
-    <user-switch ref="userSwitch" v-on:updateList="fetchUsers"/>
+    <user-form ref="userForm" :cities="cities" v-on:updateList="fetchUsers"/>
+    <dialog-remove ref="dialogRemove" type="usuario" url="user" v-on:updateList="fetchUsers"/>
   </v-container>
 </template>
 
@@ -121,18 +142,15 @@ export default {
   name: 'Users',
   components: {
     'user-form': () => import('@/components/users/UserForm.vue'),
-    'user-switch': () => import('@/components/users/UserSwitch.vue'),
   },
   data() {
     return {
-      loading: false,
       search: null,
       cities: [],
-      roles: [],
       options: {
         page: 1,
         itemsPerPage: 8,
-        sortBy: ['first_name'],
+        sortBy: ['name'],
         sortDesc: [false]
       },
       totalItems: 0,
@@ -147,27 +165,22 @@ export default {
           text: 'NOMBRE',
           align: 'center',
           sortable: true,
-          value: 'first_name',
-        }, {
-          text: 'APELLIDO',
-          align: 'center',
-          sortable: true,
-          value: 'last_name',
+          value: 'name',
         }, {
           text: 'CÉDULA DE IDENTIDAD',
           align: 'center',
           sortable: true,
-          value: 'identity_card',
+          value: 'document',
         }, {
           text: 'EXPEDICIÓN',
           align: 'center',
-          sortable: false,
+          sortable: true,
           value: 'city_code',
         }, {
-          text: 'ROL',
+          text: 'USUARIO',
           align: 'center',
-          sortable: false,
-          value: 'role_name',
+          sortable: true,
+          value: 'username',
         }, {
           text: 'TELÉFONO',
           align: 'center',
@@ -182,7 +195,7 @@ export default {
           text: 'ESTADO',
           align: 'center',
           sortable: true,
-          value: 'deleted_at',
+          value: 'active',
         }, {
           text: 'ACCIONES',
           align: 'center',
@@ -203,7 +216,6 @@ export default {
   created() {
     this.fetchUsers()
     this.fetchCities()
-    this.fetchRoles()
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -216,20 +228,8 @@ export default {
     }
   },
   methods: {
-    isActive(deleted) {
-      return deleted == null
-    },
-    async fetchRoles() {
-      try {
-        let response = await axios.get('role', {
-          params: {
-            combo: true,
-          }
-        })
-        this.roles = response.data.payload.data
-      } catch(error) {
-        console.error(error)
-      }
+    isActive(active) {
+      return active == true
     },
     async fetchCities() {
       try {
@@ -245,7 +245,7 @@ export default {
     },
     async fetchUsers() {
       try {
-        this.loading = true
+        this.$store.dispatch('loading', true)
         let response = await axios.get('user', {
           params: {
             page: this.options.page,
@@ -262,7 +262,7 @@ export default {
       } catch(error) {
         console.error(error)
       } finally {
-        this.loading = false
+        this.$store.dispatch('loading', false)
       }
     }
   },

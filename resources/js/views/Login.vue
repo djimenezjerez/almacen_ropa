@@ -7,7 +7,7 @@
             <v-card
               class="white rounded-lg"
               elevation="15"
-              :disabled="loading"
+
             >
               <template slot="progress">
                 <v-progress-linear
@@ -37,13 +37,13 @@
                   <v-card-text class="grey lighten-4">
                     <validation-provider
                       v-slot="{ errors }"
-                      name="identity_card"
+                      name="username"
                       rules="required|min:3"
                     >
                       <v-text-field
-                        label="Cédula de Identidad"
-                        v-model="loginForm.identity_card"
-                        data-vv-name="identity_card"
+                        label="Usuario"
+                        v-model="loginForm.username"
+                        data-vv-name="username"
                         :error-messages="errors"
                         prepend-icon="mdi-account"
                         autofocus
@@ -65,6 +65,22 @@
                         :type="shadowPassword ? 'password' : 'text'"
                       ></v-text-field>
                     </validation-provider>
+                    <validation-provider
+                      v-slot="{ errors }"
+                      name="store_id"
+                      rules="required|integer"
+                    >
+                      <v-select
+                        :items="stores"
+                        item-text="name"
+                        item-value="id"
+                        label="Tienda"
+                        v-model="loginForm.store_id"
+                        data-vv-name="store_id"
+                        :error-messages="errors"
+                        prepend-icon="mdi-store"
+                      ></v-select>
+                    </validation-provider>
                   </v-card-text>
                   <v-divider></v-divider>
                   <v-card-actions>
@@ -72,7 +88,7 @@
                       block
                       type="submit"
                       color="info"
-                      :disabled="invalid || loading"
+                      :disabled="invalid"
                     >
                       Ingresar
                     </v-btn>
@@ -94,18 +110,34 @@ export default {
     return {
       shadowPassword: true,
       loginForm: {
-        identity_card: null,
+        username: null,
         password: '',
+        store_id: null,
       },
-      loading: false,
+      stores: [],
     }
   },
+  mounted() {
+    this.fetchStores()
+  },
   methods: {
+    async fetchStores() {
+      try {
+        let response = await axios.get('store', {
+          params: {
+            combo: true,
+          }
+        })
+        this.stores = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      }
+    },
     async submit() {
       try {
         let valid = await this.$refs.loginObserver.validate()
         if (valid) {
-          this.loading = true
+          this.$store.dispatch('loading', true)
           await axios.get('sanctum/csrf-cookie')
           await this.$store.dispatch('login', this.loginForm)
           this.$router.push({
@@ -119,7 +151,7 @@ export default {
           this.$refs.loginObserver.setErrors(error.response.data.errors)
         }
       } finally {
-        this.loading = false
+        this.$store.dispatch('loading', false)
       }
     },
   },

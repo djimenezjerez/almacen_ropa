@@ -33,7 +33,7 @@ export default {
   },
   methods: {
     inputUpdated: _.debounce(function (value) {
-        if (value == null || value.length >= 3 || value.length == 0) {
+        if (value == null || value.length >= 2 || value.length == 0) {
           this.$emit('input', value)
         }
       }, 500

@@ -6,7 +6,7 @@
           cols="12"
           md="6"
         >
-          <v-card :disabled="loading">
+          <v-card >
             <template slot="progress">
               <progress-bar />
             </template>
@@ -22,15 +22,11 @@
                   <tbody>
                     <tr>
                       <td class="text-right">Nombre: </td>
-                      <td class="font-weight-bold">{{ user.first_name }}</td>
-                    </tr>
-                    <tr>
-                      <td class="text-right">Apellido: </td>
-                      <td class="font-weight-bold">{{ user.last_name }}</td>
+                      <td class="font-weight-bold">{{ user.name }}</td>
                     </tr>
                     <tr>
                       <td class="text-right">Cédula de identidad: </td>
-                      <td class="font-weight-bold">{{ user.identity_card }}</td>
+                      <td class="font-weight-bold">{{ user.document }}</td>
                     </tr>
                     <tr>
                       <td class="text-right">Expedición: </td>
@@ -45,8 +41,16 @@
                       <td class="font-weight-bold">{{ user.email }}</td>
                     </tr>
                     <tr>
+                      <td class="text-right">Usuario: </td>
+                      <td class="font-weight-bold">{{ user.username }}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-right">Tienda: </td>
+                      <td class="font-weight-bold">{{ $store.getters.store.name }}</td>
+                    </tr>
+                    <tr>
                       <td class="text-right">Rol: </td>
-                      <td class="font-weight-bold">{{ user.role_name }}</td>
+                      <td class="font-weight-bold">{{ $store.getters.role.display_name }}</td>
                     </tr>
                   </tbody>
                 </template>
@@ -58,7 +62,7 @@
           cols="12"
           md="6"
         >
-          <v-card :disabled="loading">
+          <v-card >
             <template slot="progress">
               <progress-bar />
             </template>
@@ -108,7 +112,7 @@
                       block
                       type="submit"
                       color="info"
-                      :disabled="invalid || loading"
+                      :disabled="invalid"
                     >Enviar</v-btn>
                   </v-card-actions>
                 </v-form>
@@ -127,12 +131,13 @@ export default {
   data: function() {
     return {
       shadowPassword: true,
-      loading: false,
       passwordForm: {
         old_password: '',
         password: '',
       },
       user: {},
+      role: {},
+      store: {},
     }
   },
   created() {
@@ -141,13 +146,15 @@ export default {
   methods: {
     async fetchUser() {
       try {
-        this.loading = true
+        this.$store.dispatch('loading', true)
         const response = await axios.get(`user/${this.$store.getters.user.id}`)
         this.user = response.data.payload.user
+        this.role = response.data.payload.role
+        this.store = response.data.payload.store
       } catch(error) {
         console.error(error)
       } finally {
-        this.loading = false
+        this.$store.dispatch('loading', false)
       }
     },
     async changePassword() {
@@ -160,10 +167,10 @@ export default {
             })
             this.passwordForm.password = ''
           } else {
-            this.loading = true
+            this.$store.dispatch('loading', true)
             const response = await axios.patch(`user/${this.$store.getters.user.id}`, this.passwordForm)
             await this.$store.dispatch('logout')
-            this.loading = false
+            this.$store.dispatch('loading', false)
             this.$toast.success(response.data.message)
             this.$router.push({
               name: 'login',
@@ -176,7 +183,7 @@ export default {
         if ('errors' in error.response.data) {
           this.$refs.passwordObserver.setErrors(error.response.data.errors)
         }
-        this.loading = false
+        this.$store.dispatch('loading', false)
       }
     },
   }

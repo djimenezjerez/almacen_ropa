@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    :disabled="loading"
+
     :color="color"
     :block="block"
     @click="$emit('click', $event)"
@@ -33,10 +33,6 @@ export default {
       default: 'info'
     },
     block: {
-      type: Boolean,
-      default: false,
-    },
-    loading: {
       type: Boolean,
       default: false,
     },

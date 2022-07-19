@@ -6,7 +6,7 @@
     @keydown.esc="dialog = false"
   >
     <v-card
-      :disabled="loading"
+
       class="rounded-lg"
     >
       <template slot="progress">
@@ -33,7 +33,7 @@
               <v-btn
                 color="success darken-1"
                 @click="switchStatus"
-                :disabled="loading"
+
               >
                 <v-icon left>
                   mdi-check
@@ -45,7 +45,7 @@
               <v-btn
                 color="error"
                 @click="dialog = false"
-                :disabled="loading"
+
               >
                 <v-icon left>
                   mdi-close
@@ -66,7 +66,6 @@ export default {
   data: function() {
     return {
       dialog: false,
-      loading: false,
       user: {},
     }
   },
@@ -77,7 +76,7 @@ export default {
     },
     async switchStatus() {
       try {
-        this.loading = true
+        this.$store.dispatch('loading', true)
         if (this.user.deleted_at == null) {
           const response = await axios.delete(`user/${this.user.id}`)
           this.$toast.success(response.data.message)
@@ -90,7 +89,7 @@ export default {
       } catch(error) {
         console.error(error)
       } finally {
-        this.loading = false
+        this.$store.dispatch('loading', false)
       }
     }
   },

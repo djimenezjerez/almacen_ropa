@@ -6,7 +6,7 @@
     @keydown.esc="dialog = false"
   >
     <v-card
-      :disabled="loading"
+
       class="rounded-lg"
     >
       <template slot="progress">
@@ -34,7 +34,7 @@
               <v-btn
                 color="success darken-1"
                 @click="removeItem"
-                :disabled="loading"
+
               >
                 <v-icon left>
                   mdi-check
@@ -46,7 +46,7 @@
               <v-btn
                 color="error"
                 @click="dialog = false"
-                :disabled="loading"
+
               >
                 <v-icon left>
                   mdi-close
@@ -82,7 +82,6 @@ export default {
   data: function() {
     return {
       dialog: false,
-      loading: false,
       item: {},
     }
   },
@@ -93,7 +92,7 @@ export default {
     },
     async removeItem() {
       try {
-        this.loading = true
+        this.$store.dispatch('loading', true)
         const response = await axios.delete(`${this.url}/${this.item.id}`)
         this.$toast.success(response.data.message)
         this.$emit('updateList')
@@ -101,7 +100,7 @@ export default {
       } catch(error) {
         console.error(error)
       } finally {
-        this.loading = false
+        this.$store.dispatch('loading', false)
       }
     }
   },
