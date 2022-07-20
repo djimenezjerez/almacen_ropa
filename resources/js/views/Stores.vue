@@ -4,7 +4,7 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Usuarios"/>
+        <tool-bar-title title="Tiendas"/>
       </v-toolbar>
       <v-row
         class="pt-4 px-4"
@@ -32,9 +32,9 @@
           order-md="last"
         >
           <add-button
-            text="Agregar usuario"
+            text="Agregar tienda"
             :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.userForm.showDialog()"
+            @click="$refs.storeForm.showDialog()"
           />
         </v-col>
       </v-row>
@@ -44,7 +44,7 @@
         <v-data-table
           id="datatable"
           :headers="headers"
-          :items="users"
+          :items="stores"
           :options.sync="options"
           :server-items-length="totalItems"
           :footer-props="{
@@ -67,7 +67,7 @@
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="3">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -75,7 +75,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="$refs.userForm.showDialog(item, true)"
+                      @click="$refs.storeForm.showDialog(item, true)"
                     >
                       <v-icon
                         dense
@@ -87,7 +87,7 @@
                   <span>Ver</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -95,7 +95,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="info"
-                      @click="$refs.userForm.showDialog(item)"
+                      @click="$refs.storeForm.showDialog(item)"
                     >
                       <v-icon
                         dense
@@ -107,28 +107,7 @@
                   <span>Editar</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="success"
-                      @click="$refs.userSwitch.showDialog(item)"
-                      :disabled="item.access_attempts < 5"
-                    >
-                      <v-icon
-                        dense
-                      >
-                        mdi-restore
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Restaurar acceso</span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="3">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -153,18 +132,16 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <user-form ref="userForm" :cities="cities" v-on:updateList="fetchUsers"/>
-    <user-switch ref="userSwitch" v-on:updateList="fetchUsers"/>
-    <dialog-remove ref="dialogRemove" type="usuario" url="user" v-on:updateList="fetchUsers"/>
+    <store-form ref="storeForm" :cities="cities" v-on:updateList="fetchStores"/>
+    <dialog-remove ref="dialogRemove" type="tienda" url="store" v-on:updateList="fetchStores"/>
   </v-container>
 </template>
 
 <script>
 export default {
-  name: 'Users',
+  name: 'Stores',
   components: {
-    'user-form': () => import('@/components/users/UserForm.vue'),
-    'user-switch': () => import('@/components/users/UserSwitch.vue'),
+    'store-form': () => import('@/components/stores/StoreForm.vue'),
   },
   data() {
     return {
@@ -177,7 +154,7 @@ export default {
         sortDesc: [false]
       },
       totalItems: 0,
-      users: [],
+      stores: [],
       headers: [
         {
           text: 'NRO',
@@ -190,20 +167,15 @@ export default {
           sortable: true,
           value: 'name',
         }, {
-          text: 'CÉDULA DE IDENTIDAD',
+          text: 'NIT',
           align: 'center',
           sortable: true,
           value: 'document',
         }, {
-          text: 'EXPEDICIÓN',
+          text: 'CIUDAD',
           align: 'center',
           sortable: true,
-          value: 'city_code',
-        }, {
-          text: 'USUARIO',
-          align: 'center',
-          sortable: true,
-          value: 'username',
+          value: 'city_name',
         }, {
           text: 'TELÉFONO',
           align: 'center',
@@ -224,7 +196,7 @@ export default {
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '9%',
+          width: '7%',
         },
       ],
     }
@@ -237,17 +209,17 @@ export default {
     }
   },
   created() {
-    this.fetchUsers()
+    this.fetchStores()
     this.fetchCities()
   },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.fetchUsers()
+        this.fetchStores()
       }
     },
     search: function() {
-      this.fetchUsers()
+      this.fetchStores()
     }
   },
   methods: {
@@ -266,10 +238,10 @@ export default {
         console.error(error)
       }
     },
-    async fetchUsers() {
+    async fetchStores() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get('user', {
+        let response = await axios.get('store', {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,
@@ -278,7 +250,7 @@ export default {
             search: this.search,
           },
         })
-        this.users = response.data.payload.data
+        this.stores = response.data.payload.data
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)

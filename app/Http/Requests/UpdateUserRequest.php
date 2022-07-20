@@ -23,12 +23,14 @@ class UpdateUserRequest extends FormRequest
             'city_id' => 'sometimes|nullable|exists:cities,id',
             'username' => 'sometimes|required|alpha_dash|min:3|unique:users,username,'.$this->id,
             'password' => 'sometimes|string|min:3|required_with:old_password',
+            'access_attempts' => 'sometimes|numeric|min:0|max:0',
         ];
         if ($this->id == auth()->user()->id) {
             $rules['name'] = 'prohibited';
             $rules['active'] = 'prohibited';
             $rules['document'] = 'prohibited';
             $rules['username'] = 'prohibited';
+            $rules['access_attempts'] = 'prohibited';
             $rules['old_password'] = 'sometimes|string|min:3';
         }
         return $rules;

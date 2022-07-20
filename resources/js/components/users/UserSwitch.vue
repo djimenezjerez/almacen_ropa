@@ -20,10 +20,10 @@
         <v-card-text>
           <div class="text-center text-lg-h6 text-md-subtitle-1 text-sm-subtitle-2 text-body-1">
             <div>
-              ¿Seguro que desea {{ user.deleted_at == null ? 'remover' : 'reactivar' }} al usuario:
+              ¿Seguro que desea restaurar el acceso para el usuario:
             </div>
             <div>
-              {{ [user.first_name, user.last_name].join(' ') }}?
+              {{ user.name }}?
             </div>
           </div>
         </v-card-text>
@@ -77,13 +77,10 @@ export default {
     async switchStatus() {
       try {
         this.$store.dispatch('loading', true)
-        if (this.user.deleted_at == null) {
-          const response = await axios.delete(`user/${this.user.id}`)
-          this.$toast.success(response.data.message)
-        } else {
-          const response = await axios.patch(`deleted/user/${this.user.id}`)
-          this.$toast.success(response.data.message)
-        }
+        const response = await axios.patch(`user/${this.user.id}`, {
+          access_attempts: 0
+        })
+        this.$toast.success(response.data.message)
         this.$emit('updateList')
         this.dialog = false
       } catch(error) {

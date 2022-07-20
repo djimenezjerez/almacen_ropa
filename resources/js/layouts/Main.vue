@@ -113,6 +113,13 @@
           </v-list-item-icon>
           <v-list-item-content>Usuarios</v-list-item-content>
         </v-list-item>
+        <!-- Tiendas -->
+        <v-list-item link :to="{ name: 'stores' }" v-if="$store.getters.user.permissions.includes('TIENDAS')">
+          <v-list-item-icon>
+            <v-icon>mdi-store</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>Tiendas</v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-main class="blue-grey lighten-5">

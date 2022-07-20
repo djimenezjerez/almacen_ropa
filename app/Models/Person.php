@@ -36,6 +36,11 @@ class Person extends Model
         return $this->hasOne(User::class);
     }
 
+    public function store()
+    {
+        return $this->hasOne(Store::class);
+    }
+
     public function setEmailAttribute($value)
     {
         $this->attributes['email'] = trim(mb_strtolower($value));

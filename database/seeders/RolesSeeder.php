@@ -23,6 +23,7 @@ class RolesSeeder extends Seeder
                 'order' => 1,
                 'permissions' => [
                     'USUARIOS',
+                    'TIENDAS',
                 ],
             ], [
                 'name' => 'GERENTE',
@@ -30,6 +31,7 @@ class RolesSeeder extends Seeder
                 'order' => 2,
                 'permissions' => [
                     'USUARIOS',
+                    'TIENDAS',
                 ],
             ], [
                 'name' => 'CAJERO',

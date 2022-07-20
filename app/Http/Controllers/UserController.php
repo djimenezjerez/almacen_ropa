@@ -58,7 +58,7 @@ class UserController extends Controller
             ])->only('name', 'document', 'document_type_id', 'address', 'email', 'phone', 'city_id'));
             $user = $person->user()->create($request->merge([
                 'password' => $person->document,
-            ])->only('username', 'password', 'access_attempts', 'active'));
+            ])->only('username', 'password'));
             DB::commit();
             return [
                 'message' => 'Usuario registrado',
@@ -113,7 +113,7 @@ class UserController extends Controller
         } catch(Exception) {
             DB::rollBack();
             return [
-                'message' => 'Error al actualizar los datos',
+                'message' => 'Error al actualizar',
             ];
         }
     }

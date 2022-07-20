@@ -40,4 +40,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::post('user', [UserController::class, 'store']);
         Route::delete('user/{user}', [UserController::class, 'destroy']);
     });
+
+    // Tiendas
+    Route::group(['middleware' => ['can:TIENDAS']], function() {
+        // Usuarios
+        Route::post('store', [StoreController::class, 'store']);
+        Route::get('store/{store}', [StoreController::class, 'show']);
+        Route::patch('store/{store}', [StoreController::class, 'update']);
+        Route::delete('store/{store}', [StoreController::class, 'destroy']);
+    });
 });

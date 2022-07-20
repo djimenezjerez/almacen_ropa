@@ -13,7 +13,7 @@ class UpdateStoreRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,13 @@ class UpdateStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => 'required|alpha_spaces|min:3',
+            'active' => 'required|boolean',
+            'document' => 'required|min:3',
+            'address' => 'nullable|min:3',
+            'email' => 'nullable|email:rfc',
+            'phone' => 'nullable|numeric',
+            'city_id' => 'nullable|exists:cities,id',
         ];
     }
 }
