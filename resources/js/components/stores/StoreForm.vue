@@ -182,7 +182,6 @@ export default {
       dialog: false,
       readOnly: false,
       edit: false,
-      shadowPassword: true,
       storeForm: {
         id: null,
         name: null,
@@ -197,7 +196,6 @@ export default {
   },
   methods: {
     showDialog(store = null, readOnly = false) {
-      this.shadowPassword = true
       this.readOnly = readOnly
       if (store) {
         this.edit = true

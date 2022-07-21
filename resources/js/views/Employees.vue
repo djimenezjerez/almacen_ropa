@@ -4,12 +4,42 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Tiendas"/>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="breadcrumbs[0].to">{{ breadcrumbs[0].text }}</router-link>
+        <span class="white--text px-3">/</span>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
       </v-toolbar>
       <v-row
-        class="pt-4 px-4"
+        class="pb-0 pt-2 px-4"
+        align="center"
+        justify="end"
+        dense
+      >
+        <v-col cols="12">
+          <v-simple-table dense>
+            <template v-slot:default>
+              <tbody>
+                <tr>
+                  <td class="text-right">Tienda: </td>
+                  <td class="font-weight-bold">{{ store.name }}</td>
+                  <td class="text-right">NIT: </td>
+                  <td class="font-weight-bold">{{ store.document }}</td>
+                </tr>
+                <tr>
+                  <td class="text-right">Dirección: </td>
+                  <td class="font-weight-bold">{{ store.address }}</td>
+                  <td class="text-right">Ciudad: </td>
+                  <td class="font-weight-bold">{{ store.city_name }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-col>
+      </v-row>
+      <v-row
+        class="px-4"
         align="center"
         justify="start"
+        dense
       >
         <v-col
           cols="12"
@@ -32,9 +62,9 @@
           order-md="last"
         >
           <add-button
-            text="Agregar tienda"
+            text="Agregar empleado"
             :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.storeForm.showDialog()"
+            @click="$refs.employeeForm.showDialog()"
           />
         </v-col>
       </v-row>
@@ -44,7 +74,7 @@
         <v-data-table
           id="datatable"
           :headers="headers"
-          :items="stores"
+          :items="employees"
           :options.sync="options"
           :server-items-length="totalItems"
           :footer-props="{
@@ -56,15 +86,6 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
-          <template v-slot:[`item.active`]="{ item }">
-            <v-chip
-              :color="isActive(item.active) ? 'success' : 'error'"
-              dark
-              small
-            >
-              {{ isActive(item.active) ? 'ACTIVO' : 'INACTIVO' }}
-            </v-chip>
-          </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
               <v-col cols="3">
@@ -75,7 +96,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="$refs.storeForm.showDialog(item, true)"
+                      @click="$refs.employeeForm.showDialog(item, true)"
                     >
                       <v-icon
                         dense
@@ -95,7 +116,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="info"
-                      @click="$refs.storeForm.showDialog(item)"
+                      @click="$refs.employeeForm.showDialog(item)"
                     >
                       <v-icon
                         dense
@@ -114,28 +135,8 @@
                       icon
                       v-bind="attrs"
                       v-on="on"
-                      color="success"
-                      @click="gotoEmployees(item.id)"
-                    >
-                      <v-icon
-                        dense
-                      >
-                        mdi-account
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Empleados</span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="3">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
                       color="error"
-                      @click="$refs.dialogRemove.showDialog(item)"
+                      @click="$refs.employeeRemove.showDialog(item)"
                     >
                       <v-icon
                         dense
@@ -152,29 +153,50 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <store-form ref="storeForm" :cities="cities" v-on:updateList="fetchStores"/>
-    <dialog-remove ref="dialogRemove" type="tienda" url="store" v-on:updateList="fetchStores"/>
+    <employee-form ref="employeeForm" :users="users" :employees="employees.map(i => i.user_id)" :storeId="parseInt($route.query.store_id)" :roles="roles" v-on:updateList="fetchEmployees"/>
+    <employee-remove ref="employeeRemove" v-on:updateList="fetchEmployees"/>
   </v-container>
 </template>
 
 <script>
 export default {
-  name: 'Stores',
+  name: 'Employees',
   components: {
-    'store-form': () => import('@/components/stores/StoreForm.vue'),
+    'employee-form': () => import('@/components/employees/EmployeeForm.vue'),
+    'employee-remove': () => import('@/components/employees/EmployeeRemove.vue'),
   },
   data() {
     return {
+      breadcrumbs: [
+        {
+          text: 'Tiendas',
+          disabled: false,
+          to: {
+            path: '/stores',
+          },
+        }, {
+          text: 'Empleados',
+          disabled: true,
+          to: {
+            path: '/employees',
+            query: {
+              store_id: this.$route.query.store_id,
+            },
+          },
+        },
+      ],
       search: null,
-      cities: [],
       options: {
         page: 1,
         itemsPerPage: 8,
-        sortBy: ['name'],
+        sortBy: ['people.name'],
         sortDesc: [false]
       },
       totalItems: 0,
-      stores: [],
+      store: {},
+      employees: [],
+      roles: [],
+      users: [],
       headers: [
         {
           text: 'NRO',
@@ -185,38 +207,18 @@ export default {
           text: 'NOMBRE',
           align: 'center',
           sortable: true,
-          value: 'name',
+          value: 'person_name',
         }, {
-          text: 'NIT',
+          text: 'ROL',
           align: 'center',
           sortable: true,
-          value: 'document',
-        }, {
-          text: 'CIUDAD',
-          align: 'center',
-          sortable: true,
-          value: 'city_name',
-        }, {
-          text: 'TELÉFONO',
-          align: 'center',
-          sortable: true,
-          value: 'phone',
-        }, {
-          text: 'EMAIL',
-          align: 'center',
-          sortable: true,
-          value: 'email',
-        }, {
-          text: 'ESTADO',
-          align: 'center',
-          sortable: true,
-          value: 'active',
+          value: 'role_display_name',
         }, {
           text: 'ACCIONES',
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '9%',
+          width: '7%',
         },
       ],
     }
@@ -229,42 +231,58 @@ export default {
     }
   },
   created() {
-    this.fetchStores()
-    this.fetchCities()
+    this.fetchEmployees()
+    this.fetchStore()
+    this.fetchRoles()
+    this.fetchUsers()
   },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.fetchStores()
+        this.fetchEmployees()
       }
     },
     search: function() {
-      this.fetchStores()
+      this.fetchEmployees()
     }
   },
   methods: {
-    gotoEmployees(store_id) {
-      this.$router.push({ path: '/employees', query: { store_id: store_id } })
-    },
-    isActive(active) {
-      return active == true
-    },
-    async fetchCities() {
+    async fetchUsers() {
       try {
-        let response = await axios.get('city', {
+        let response = await axios.get('user', {
           params: {
             combo: true,
           }
         })
-        this.cities = response.data.payload.data
+        this.users = response.data.payload.data
       } catch(error) {
         console.error(error)
       }
     },
-    async fetchStores() {
+    async fetchRoles() {
+      try {
+        let response = await axios.get('role', {
+          params: {
+            combo: true,
+          }
+        })
+        this.roles = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      }
+    },
+    async fetchStore() {
+      try {
+        let response = await axios.get(`store/${this.$route.query.store_id}`)
+        this.store = response.data.payload.store
+      } catch(error) {
+        console.error(error)
+      }
+    },
+    async fetchEmployees() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get('store', {
+        let response = await axios.get(`store/${this.$route.query.store_id}/employee`, {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,
@@ -273,7 +291,7 @@ export default {
             search: this.search,
           },
         })
-        this.stores = response.data.payload.data
+        this.employees = response.data.payload.data
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)

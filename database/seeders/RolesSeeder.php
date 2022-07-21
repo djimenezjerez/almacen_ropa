@@ -19,7 +19,7 @@ class RolesSeeder extends Seeder
         $roles = [
             [
                 'name' => 'ADMINISTRADOR',
-                'display_name' => 'Super Administrador',
+                'display_name' => 'Administrador',
                 'order' => 1,
                 'permissions' => [
                     'USUARIOS',

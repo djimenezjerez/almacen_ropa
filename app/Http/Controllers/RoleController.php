@@ -16,7 +16,7 @@ class RoleController extends Controller
         return [
             'message' => 'Lista de roles',
             'payload' => [
-                'data' => DB::table('roles')->select('id', 'name')->orderBy('order')->get(),
+                'data' => DB::table('roles')->select('id', 'display_name')->orderBy('order')->get(),
             ],
         ];
     }

@@ -32,21 +32,22 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::get('role', [RoleController::class, 'index'])->middleware('can:USUARIOS');
 
     // Usuarios
+    Route::get('user', [UserController::class, 'index']);
     Route::get('user/{user}', [UserController::class, 'show']);
     Route::patch('user/{user}', [UserController::class, 'update']);
     Route::group(['middleware' => ['can:USUARIOS']], function() {
-        // Usuarios
-        Route::get('user', [UserController::class, 'index']);
         Route::post('user', [UserController::class, 'store']);
         Route::delete('user/{user}', [UserController::class, 'destroy']);
     });
 
     // Tiendas
     Route::group(['middleware' => ['can:TIENDAS']], function() {
-        // Usuarios
         Route::post('store', [StoreController::class, 'store']);
         Route::get('store/{store}', [StoreController::class, 'show']);
         Route::patch('store/{store}', [StoreController::class, 'update']);
         Route::delete('store/{store}', [StoreController::class, 'destroy']);
+        Route::get('store/{store}/employee', [StoreController::class, 'employee_index']);
+        Route::post('store/{store}/employee', [StoreController::class, 'employee_store']);
+        Route::delete('store/{store_id}/employee/{user_id}', [StoreController::class, 'employee_destroy']);
     });
 });
