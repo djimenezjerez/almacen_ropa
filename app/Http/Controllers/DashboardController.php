@@ -25,7 +25,25 @@ class DashboardController extends Controller
                 'color' => 'amber darken-2',
                 'icon' => 'mdi-account',
                 'link' => 'users',
-                'total' => DB::table('users')->count(),
+                'total' => DB::table('users')->where('deleted_at', '=', null)->count(),
+            ];
+        }
+        if ($user->can('TIENDAS')) {
+            $statistics[] = [
+                'title' => 'Tiendas',
+                'color' => 'grey darken-1',
+                'icon' => 'mdi-store',
+                'link' => 'stores',
+                'total' => DB::table('stores')->where('deleted_at', '=', null)->count(),
+            ];
+        }
+        if ($user->can('ALMACENES')) {
+            $statistics[] = [
+                'title' => 'Almacenes',
+                'color' => 'blue accent-2',
+                'icon' => 'mdi-package-variant',
+                'link' => 'warehouses',
+                'total' => DB::table('warehouses')->where('deleted_at', '=', null)->count(),
             ];
         }
 

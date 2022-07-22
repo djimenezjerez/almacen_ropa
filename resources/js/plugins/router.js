@@ -38,6 +38,10 @@ const router = new VueRouter({
           name: 'stores',
           component: () => import('@/views/Stores.vue'),
         }, {
+          path: '/warehouses',
+          name: 'warehouses',
+          component: () => import('@/views/Warehouses.vue'),
+        }, {
           path: '/employees',
           name: 'employees',
           component: () => import('@/views/Employees.vue'),

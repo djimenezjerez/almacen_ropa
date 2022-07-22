@@ -10,7 +10,7 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="readOnly ? 'Datos de tienda' : (edit ? 'Editar tienda' : 'Agregar tienda')"/>
+        <tool-bar-title :title="readOnly ? 'Datos del almacén' : (edit ? 'Editar almacén' : 'Agregar almacén')"/>
         <v-spacer></v-spacer>
         <v-btn
           icon
@@ -22,7 +22,7 @@
         </v-btn>
       </v-toolbar>
       <div class="px-5 pb-5">
-        <validation-observer ref="storeObserver" v-slot="{ invalid }">
+        <validation-observer ref="warehouseObserver" v-slot="{ invalid }">
           <v-form @submit.prevent="submit" :readonly="readOnly">
             <v-card-text>
               <v-row dense>
@@ -34,46 +34,12 @@
                   >
                     <v-text-field
                       label="Nombre"
-                      v-model="storeForm.name"
+                      v-model="warehouseForm.name"
                       data-vv-name="name"
                       :error-messages="errors"
                       prepend-icon="mdi-account-circle"
                       autofocus
                     ></v-text-field>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="document"
-                    rules="required|min:3|alpha_dash"
-                  >
-                    <v-text-field
-                      label="NIT"
-                      v-model="storeForm.document"
-                      data-vv-name="document"
-                      :error-messages="errors"
-                      prepend-icon="mdi-card-account-details"
-                      @input="value => storeForm.document = value.toUpperCase()"
-                    ></v-text-field>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="city_id"
-                    rules="integer"
-                  >
-                    <v-select
-                      :items="cities"
-                      item-text="name"
-                      item-value="id"
-                      label="Ciudad"
-                      v-model="storeForm.city_id"
-                      data-vv-name="city_id"
-                      :error-messages="errors"
-                      prepend-icon="mdi-map"
-                    ></v-select>
                   </validation-provider>
                 </v-col>
                 <v-col cols="12">
@@ -84,44 +50,50 @@
                   >
                     <v-text-field
                       label="Direcciòn"
-                      v-model="storeForm.address"
+                      v-model="warehouseForm.address"
                       data-vv-name="address"
                       :error-messages="errors"
                       prepend-icon="mdi-map-marker"
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col cols="12">
                   <validation-provider
                     v-slot="{ errors }"
-                    name="phone"
-                    rules="min:7|integer"
+                    name="user_id"
+                    rules="required|numeric"
                   >
-                    <v-text-field
-                      label="Teléfono"
-                      v-model="storeForm.phone"
-                      data-vv-name="phone"
+                    <v-autocomplete
+                      label="Responsable"
+                      v-model="warehouseForm.user_id"
+                      item-text="name"
+                      item-value="id"
+                      :items="users"
+                      data-vv-name="user_id"
                       :error-messages="errors"
-                      prepend-icon="mdi-phone"
-                    ></v-text-field>
+                      prepend-icon="mdi-account-circle"
+                    ></v-autocomplete>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col cols="12" :md="edit ? 9 : 12">
                   <validation-provider
                     v-slot="{ errors }"
-                    name="email"
-                    rules="email"
+                    name="city_id"
+                    rules="integer"
                   >
-                    <v-text-field
-                      label="Email"
-                      v-model="storeForm.email"
-                      data-vv-name="email"
+                    <v-select
+                      :items="cities"
+                      item-text="name"
+                      item-value="id"
+                      label="Ciudad"
+                      v-model="warehouseForm.city_id"
+                      data-vv-name="city_id"
                       :error-messages="errors"
-                      prepend-icon="mdi-at"
-                    ></v-text-field>
+                      prepend-icon="mdi-map"
+                    ></v-select>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" md="12">
+                <v-col cols="12" md="3" v-if="edit">
                   <validation-provider
                     v-slot="{ errors }"
                     name="active"
@@ -129,7 +101,7 @@
                   >
                     <v-checkbox
                       label="Activo"
-                      v-model="storeForm.active"
+                      v-model="warehouseForm.active"
                       data-vv-name="active"
                       :error-messages="errors"
                       prepend-icon="mdi-check-all"
@@ -170,9 +142,13 @@
 
 <script>
 export default {
-  name: 'StoreForm',
+  name: 'warehouseForm',
   props: {
     cities: {
+      type: Array,
+      required: true
+    },
+    users: {
       type: Array,
       required: true
     },
@@ -182,63 +158,59 @@ export default {
       dialog: false,
       readOnly: false,
       edit: false,
-      storeForm: {
+      warehouseForm: {
         id: null,
         name: null,
-        active: true,
-        document: null,
         address: null,
-        email: null,
-        phone: null,
+        active: true,
         city_id: null,
+        user_id: null,
       },
     }
   },
   methods: {
-    showDialog(store = null, readOnly = false) {
+    showDialog(warehouse = null, readOnly = false) {
       this.readOnly = readOnly
-      if (store) {
+      if (warehouse) {
         this.edit = true
-        this.storeForm = {
-          ...store
+        this.warehouseForm = {
+          ...warehouse
         }
       } else {
         this.edit = false
-        this.storeForm = {
+        this.warehouseForm = {
           id: null,
           name: null,
-          active: true,
-          document: null,
           address: null,
-          email: null,
-          phone: null,
+          active: true,
           city_id: null,
+          user_id: null,
         }
       }
       this.dialog = true
       this.$nextTick(() => {
-        this.$refs.storeObserver.reset()
+        this.$refs.warehouseObserver.reset()
       })
     },
     async submit() {
       try {
-        let valid = await this.$refs.storeObserver.validate()
+        let valid = await this.$refs.warehouseObserver.validate()
         if (valid) {
           this.$store.dispatch('loading', true)
           if (this.edit) {
-            const response = await axios.patch(`store/${this.storeForm.id}`, this.storeForm)
+            const response = await axios.patch(`warehouse/${this.warehouseForm.id}`, this.warehouseForm)
             this.$toast.success(response.data.message)
           } else {
-            const response = await axios.post('store', this.storeForm)
+            const response = await axios.post('warehouse', this.warehouseForm)
             this.$toast.success(response.data.message)
           }
           this.$emit('updateList')
           this.dialog = false
         }
       } catch(error) {
-        this.$refs.storeObserver.reset()
+        this.$refs.warehouseObserver.reset()
         if ('errors' in error.response.data) {
-          this.$refs.storeObserver.setErrors(error.response.data.errors)
+          this.$refs.warehouseObserver.setErrors(error.response.data.errors)
         }
       } finally {
         this.$store.dispatch('loading', false)

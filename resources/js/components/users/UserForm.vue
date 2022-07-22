@@ -121,7 +121,7 @@
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" md="9">
+                <v-col cols="12" :md="edit ? 9 : 12">
                   <validation-provider
                     v-slot="{ errors }"
                     name="username"
@@ -136,7 +136,7 @@
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" md="3" v-if="edit">
                   <validation-provider
                     v-slot="{ errors }"
                     name="active"

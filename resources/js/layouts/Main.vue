@@ -106,19 +106,23 @@
         nav
         dense
       >
-        <!-- Usuarios -->
         <v-list-item link :to="{ name: 'users' }" v-if="$store.getters.user.permissions.includes('USUARIOS')">
           <v-list-item-icon>
             <v-icon>mdi-account</v-icon>
           </v-list-item-icon>
           <v-list-item-content>Usuarios</v-list-item-content>
         </v-list-item>
-        <!-- Tiendas -->
         <v-list-item link :to="{ name: 'stores' }" v-if="$store.getters.user.permissions.includes('TIENDAS')">
           <v-list-item-icon>
             <v-icon>mdi-store</v-icon>
           </v-list-item-icon>
           <v-list-item-content>Tiendas</v-list-item-content>
+        </v-list-item>
+        <v-list-item link :to="{ name: 'warehouses' }" v-if="$store.getters.user.permissions.includes('ALMACENES')">
+          <v-list-item-icon>
+            <v-icon>mdi-package-variant</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>Almacenes</v-list-item-content>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>

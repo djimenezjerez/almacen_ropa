@@ -3,11 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\DocumentTypeController;
+use App\Http\Controllers\WarehouseController;
 
 // Autenticación
 Route::post('login', [AuthController::class, 'store']);
@@ -46,8 +48,17 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('store/{store}', [StoreController::class, 'show']);
         Route::patch('store/{store}', [StoreController::class, 'update']);
         Route::delete('store/{store}', [StoreController::class, 'destroy']);
-        Route::get('store/{store}/employee', [StoreController::class, 'employee_index']);
-        Route::post('store/{store}/employee', [StoreController::class, 'employee_store']);
-        Route::delete('store/{store_id}/employee/{user_id}', [StoreController::class, 'employee_destroy']);
+        // Empleados
+        Route::get('store/{store}/employee', [EmployeeController::class, 'index']);
+        Route::post('store/{store}/employee', [EmployeeController::class, 'store']);
+        Route::delete('store/{store_id}/employee/{user_id}', [EmployeeController::class, 'destroy']);
+    });
+
+    // Almacenes
+    Route::group(['middleware' => ['can:ALMACENES']], function() {
+        Route::get('warehouse', [WarehouseController::class, 'index']);
+        Route::post('warehouse', [WarehouseController::class, 'store']);
+        Route::patch('warehouse/{warehouse}', [WarehouseController::class, 'update']);
+        Route::delete('warehouse/{warehouse}', [WarehouseController::class, 'destroy']);
     });
 });
