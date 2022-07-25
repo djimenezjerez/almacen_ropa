@@ -10,6 +10,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\ClientController;
 
 // Autenticación
 Route::post('login', [AuthController::class, 'store']);
@@ -60,5 +62,21 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::post('warehouse', [WarehouseController::class, 'store']);
         Route::patch('warehouse/{warehouse}', [WarehouseController::class, 'update']);
         Route::delete('warehouse/{warehouse}', [WarehouseController::class, 'destroy']);
+    });
+
+    // Proveedores
+    Route::group(['middleware' => ['can:PROVEEDORES']], function() {
+        Route::get('supplier', [SupplierController::class, 'index']);
+        Route::post('supplier', [SupplierController::class, 'store']);
+        Route::patch('supplier/{supplier}', [SupplierController::class, 'update']);
+        Route::delete('supplier/{supplier}', [SupplierController::class, 'destroy']);
+    });
+
+    // Clientes
+    Route::group(['middleware' => ['can:CLIENTES']], function() {
+        Route::get('client', [ClientController::class, 'index']);
+        Route::post('client', [ClientController::class, 'store']);
+        Route::patch('client/{client}', [ClientController::class, 'update']);
+        Route::delete('client/{client}', [ClientController::class, 'destroy']);
     });
 });

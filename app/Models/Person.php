@@ -41,6 +41,16 @@ class Person extends Model
         return $this->hasOne(Store::class);
     }
 
+    public function supplier()
+    {
+        return $this->hasOne(Supplier::class);
+    }
+
+    public function client()
+    {
+        return $this->hasOne(Client::class);
+    }
+
     public function setEmailAttribute($value)
     {
         $this->attributes['email'] = trim(mb_strtolower($value));

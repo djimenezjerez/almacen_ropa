@@ -124,6 +124,18 @@
           </v-list-item-icon>
           <v-list-item-content>Almacenes</v-list-item-content>
         </v-list-item>
+        <v-list-item link :to="{ name: 'suppliers' }" v-if="$store.getters.user.permissions.includes('PROVEEDORES')">
+          <v-list-item-icon>
+            <v-icon>mdi-van-utility</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>Proveedores</v-list-item-content>
+        </v-list-item>
+        <v-list-item link :to="{ name: 'clients' }" v-if="$store.getters.user.permissions.includes('CLIENTES')">
+          <v-list-item-icon>
+            <v-icon>mdi-account-cash</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>Clientes</v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-main class="blue-grey lighten-5">

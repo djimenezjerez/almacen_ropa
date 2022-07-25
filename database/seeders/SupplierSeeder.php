@@ -5,28 +5,28 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Person;
-use App\Models\Store;
+use App\Models\Supplier;
 use App\Models\City;
 use App\Models\DocumentType;
 
-class StoreSeeder extends Seeder
+class SupplierSeeder extends Seeder
 {
     public function run()
     {
         $data = [
             [
-                'name' => 'Moda Bella',
-                'document' => '987654321',
-                'email' => 'modabella@ropa.com',
-                'phone' => 76543210,
-                'city' => 'SC',
+                'name' => 'Hansa',
+                'document' => '11223344',
                 'document_type' => 'NIT',
+                'email' => 'contacto@hansa.com',
+                'phone' => 76543210,
+                'city' => 'CB',
             ], [
-                'name' => 'Casa Moda',
-                'document' => '987654321',
+                'name' => 'Lider',
+                'document' => '123123123',
                 'document_type' => 'NIT',
-                'email' => 'modabella@moda.com',
-                'phone' => 76543210,
+                'email' => 'contacto@lider.com',
+                'phone' => 6543540,
                 'city' => 'SC',
             ],
         ];
@@ -45,7 +45,7 @@ class StoreSeeder extends Seeder
                 'city_id' => $city->id,
             ]);
 
-            Store::firstOrCreate([
+            Supplier::firstOrCreate([
                 'person_id' => $person->id,
             ]);
         }

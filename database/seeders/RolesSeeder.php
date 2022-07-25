@@ -25,6 +25,8 @@ class RolesSeeder extends Seeder
                     'USUARIOS',
                     'TIENDAS',
                     'ALMACENES',
+                    'PROVEEDORES',
+                    'CLIENTES',
                 ],
             ], [
                 'name' => 'GERENTE',
@@ -34,6 +36,8 @@ class RolesSeeder extends Seeder
                     'USUARIOS',
                     'TIENDAS',
                     'ALMACENES',
+                    'PROVEEDORES',
+                    'CLIENTES',
                 ],
             ], [
                 'name' => 'CAJERO',

@@ -4,12 +4,12 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class StoreResource extends JsonResource
+class SupplierResource extends JsonResource
 {
     public function toArray($request)
     {
         return [
-            // Store
+            // Supplier
             'id' => $this->id,
             'active' => $this->active,
             'person_id' => $this->person_id,

@@ -56,6 +56,15 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
+          <template v-slot:[`item.email`]="{ item }">
+            {{ item.email || '-' }}
+          </template>
+          <template v-slot:[`item.phone`]="{ item }">
+            {{ item.phone || '-' }}
+          </template>
+          <template v-slot:[`item.city_code`]="{ item }">
+            {{ item.city_code || '-' }}
+          </template>
           <template v-slot:[`item.active`]="{ item }">
             <v-chip
               :color="isActive(item.active) ? 'success' : 'error'"

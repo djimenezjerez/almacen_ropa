@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateStoreRequest extends FormRequest
+class UpdateSupplierRequest extends FormRequest
 {
     public function authorize()
     {
@@ -17,6 +17,7 @@ class UpdateStoreRequest extends FormRequest
             'name' => 'required|alpha_spaces|min:3',
             'active' => 'required|boolean',
             'document' => 'required|min:3',
+            'document_type_id' => 'required|exists:document_types,id',
             'address' => 'nullable|min:3',
             'email' => 'nullable|email:rfc',
             'phone' => 'nullable|numeric',

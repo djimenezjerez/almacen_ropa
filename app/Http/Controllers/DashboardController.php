@@ -46,6 +46,24 @@ class DashboardController extends Controller
                 'total' => DB::table('warehouses')->where('deleted_at', '=', null)->count(),
             ];
         }
+        if ($user->can('PROVEEDORES')) {
+            $statistics[] = [
+                'title' => 'Proveedores',
+                'color' => 'teal accent-4',
+                'icon' => 'mdi-van-utility',
+                'link' => 'suppliers',
+                'total' => DB::table('suppliers')->where('deleted_at', '=', null)->count(),
+            ];
+        }
+        if ($user->can('CLIENTES')) {
+            $statistics[] = [
+                'title' => 'Clientes',
+                'color' => 'amber darken-4',
+                'icon' => 'mdi-account-cash',
+                'link' => 'clients',
+                'total' => DB::table('clients')->where('deleted_at', '=', null)->count(),
+            ];
+        }
 
         return [
             'message' => 'Estadísticas',

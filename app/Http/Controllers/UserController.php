@@ -20,7 +20,7 @@ class UserController extends Controller
             return [
                 'message' => 'Lista de usuarios',
                 'payload' => [
-                    'data' => DB::table('users')->select('users.id', 'people.name')->leftJoin('people', 'people.id', '=', 'users.person_id')->orderBy('people.name')->get(),
+                    'data' => DB::table('users')->select('users.id', 'people.name')->leftJoin('people', 'people.id', '=', 'users.person_id')->where('users.deleted_at', '=', null)->orderBy('people.name')->get(),
                 ],
             ];
         }

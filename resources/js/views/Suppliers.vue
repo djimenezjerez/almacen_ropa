@@ -4,7 +4,7 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Tiendas"/>
+        <tool-bar-title title="Proveedores"/>
       </v-toolbar>
       <v-row
         class="pt-4 px-4"
@@ -32,9 +32,9 @@
           order-md="last"
         >
           <add-button
-            text="Agregar tienda"
+            text="Agregar proveedore"
             :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.storeForm.showDialog()"
+            @click="$refs.supplierForm.showDialog()"
           />
         </v-col>
       </v-row>
@@ -44,7 +44,7 @@
         <v-data-table
           id="datatable"
           :headers="headers"
-          :items="stores"
+          :items="suppliers"
           :options.sync="options"
           :server-items-length="totalItems"
           :footer-props="{
@@ -76,7 +76,7 @@
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="3">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -84,7 +84,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="$refs.storeForm.showDialog(item, true)"
+                      @click="$refs.supplierForm.showDialog(item, true)"
                     >
                       <v-icon
                         dense
@@ -96,7 +96,7 @@
                   <span>Ver</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -104,7 +104,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="info"
-                      @click="$refs.storeForm.showDialog(item)"
+                      @click="$refs.supplierForm.showDialog(item)"
                     >
                       <v-icon
                         dense
@@ -116,27 +116,7 @@
                   <span>Editar</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="success"
-                      @click="gotoEmployees(item.id)"
-                    >
-                      <v-icon
-                        dense
-                      >
-                        mdi-account
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Empleados</span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="3">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -161,20 +141,21 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <store-form ref="storeForm" :cities="cities" v-on:updateList="fetchStores"/>
-    <dialog-remove ref="dialogRemove" type="tienda" url="store" v-on:updateList="fetchStores"/>
+    <supplier-form ref="supplierForm" :documentTypes="documentTypes" :cities="cities" v-on:updateList="fetchSuppliers"/>
+    <dialog-remove ref="dialogRemove" type="proveedore" url="supplier" v-on:updateList="fetchSuppliers"/>
   </v-container>
 </template>
 
 <script>
 export default {
-  name: 'Stores',
+  name: 'Suppliers',
   components: {
-    'store-form': () => import('@/components/stores/StoreForm.vue'),
+    'supplier-form': () => import('@/components/suppliers/SupplierForm.vue'),
   },
   data() {
     return {
       search: null,
+      documentTypes: [],
       cities: [],
       options: {
         page: 1,
@@ -183,7 +164,7 @@ export default {
         sortDesc: [false]
       },
       totalItems: 0,
-      stores: [],
+      suppliers: [],
       headers: [
         {
           text: 'NRO',
@@ -196,10 +177,15 @@ export default {
           sortable: true,
           value: 'name',
         }, {
-          text: 'NIT',
+          text: 'DOCUMENTO',
           align: 'center',
           sortable: true,
           value: 'document',
+        }, {
+          text: 'TIPO DE DOCUMENTO',
+          align: 'center',
+          sortable: true,
+          value: 'document_type_code',
         }, {
           text: 'CIUDAD',
           align: 'center',
@@ -238,25 +224,35 @@ export default {
     }
   },
   created() {
-    this.fetchStores()
+    this.fetchSuppliers()
+    this.fetchDocumentTypes()
     this.fetchCities()
   },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.fetchStores()
+        this.fetchSuppliers()
       }
     },
     search: function() {
-      this.fetchStores()
+      this.fetchSuppliers()
     }
   },
   methods: {
-    gotoEmployees(store_id) {
-      this.$router.push({ path: '/employees', query: { store_id: store_id } })
-    },
     isActive(active) {
       return active == true
+    },
+    async fetchDocumentTypes() {
+      try {
+        let response = await axios.get('document_type', {
+          params: {
+            combo: true,
+          }
+        })
+        this.documentTypes = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      }
     },
     async fetchCities() {
       try {
@@ -270,10 +266,10 @@ export default {
         console.error(error)
       }
     },
-    async fetchStores() {
+    async fetchSuppliers() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get('store', {
+        let response = await axios.get('supplier', {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,
@@ -282,7 +278,7 @@ export default {
             search: this.search,
           },
         })
-        this.stores = response.data.payload.data
+        this.suppliers = response.data.payload.data
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)

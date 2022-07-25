@@ -5,35 +5,35 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Person;
-use App\Models\Store;
+use App\Models\Client;
 use App\Models\City;
 use App\Models\DocumentType;
 
-class StoreSeeder extends Seeder
+class ClientSeeder extends Seeder
 {
     public function run()
     {
         $data = [
             [
-                'name' => 'Moda Bella',
-                'document' => '987654321',
-                'email' => 'modabella@ropa.com',
-                'phone' => 76543210,
-                'city' => 'SC',
+                'name' => 'Sin Nombre',
+                'document' => '0',
                 'document_type' => 'NIT',
+                'email' => null,
+                'phone' => null,
+                'city' => null,
             ], [
-                'name' => 'Casa Moda',
-                'document' => '987654321',
-                'document_type' => 'NIT',
-                'email' => 'modabella@moda.com',
-                'phone' => 76543210,
-                'city' => 'SC',
+                'name' => 'Pedro Ramos',
+                'document' => '44556677',
+                'document_type' => 'CI',
+                'email' => null,
+                'phone' => null,
+                'city' => null,
             ],
         ];
 
         foreach($data as $item) {
-            $city = City::where('code', $item['city'])->firstOrFail();
-            $document_type = DocumentType::where('code', $item['document_type'])->firstOrFail();
+            $city = City::where('code', $item['city'])->first();
+            $document_type = DocumentType::where('code', $item['document_type'])->first();
 
             $person = Person::updateOrCreate([
                 'name' => $item['name'],
@@ -42,10 +42,10 @@ class StoreSeeder extends Seeder
             ], [
                 'email' => $item['email'],
                 'phone' => $item['phone'],
-                'city_id' => $city->id,
+                'city_id' => $city ? $city->id : null,
             ]);
 
-            Store::firstOrCreate([
+            Client::firstOrCreate([
                 'person_id' => $person->id,
             ]);
         }

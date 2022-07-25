@@ -14,18 +14,13 @@ use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         $data = [
             [
-                'name' => 'SUPER ADMINISTRADOR',
+                'name' => 'Pablo Ugarte',
                 'document' => '987654321',
-                'email' => 'ADMINISTRADOR@ropa.com',
+                'email' => 'pugarte@ropa.com',
                 'phone' => 76543210,
                 'city' => 'SC',
                 'document_type' => 'CI',
@@ -40,6 +35,24 @@ class UserSeeder extends Seeder
                         'role' => 'GERENTE',
                     ]
                 ],
+            ], [
+                'name' => 'Pedro Ramos',
+                'document' => '987654321',
+                'email' => 'pugarte@ropa.com',
+                'phone' => 76543210,
+                'city' => 'SC',
+                'document_type' => 'CI',
+                'username' => 'admin',
+                'password' => 'password',
+                'stores' => [
+                    [
+                        'name' => 'Moda Bella',
+                        'role' => 'GERENTE',
+                    ], [
+                        'name' => 'Casa Moda',
+                        'role' => 'CAJERO',
+                    ]
+                ],
             ],
         ];
 
@@ -47,10 +60,10 @@ class UserSeeder extends Seeder
             $city = City::where('code', $item['city'])->firstOrFail();
             $document_type = DocumentType::where('code', $item['document_type'])->firstOrFail();
             $person = Person::updateOrCreate([
+                'name' => $item['name'],
                 'document' => $item['document'],
                 'document_type_id' => $document_type->id,
             ], [
-                'name' => $item['name'],
                 'email' => $item['email'],
                 'phone' => $item['phone'],
                 'city_id' => $city->id,
