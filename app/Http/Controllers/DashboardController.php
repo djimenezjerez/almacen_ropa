@@ -64,6 +64,15 @@ class DashboardController extends Controller
                 'total' => DB::table('clients')->where('deleted_at', '=', null)->count(),
             ];
         }
+        if ($user->can('PRODUCTOS')) {
+            $statistics[] = [
+                'title' => 'Productos',
+                'color' => 'green darken-3',
+                'icon' => 'mdi-tshirt-crew',
+                'link' => 'products',
+                'total' => DB::table('products')->where('deleted_at', '=', null)->count(),
+            ];
+        }
 
         return [
             'message' => 'Estadísticas',

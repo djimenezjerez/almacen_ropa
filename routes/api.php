@@ -12,6 +12,12 @@ use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\SizeController;
+use App\Http\Controllers\SizeTypeController;
+use App\Http\Controllers\ColorController;
+use App\Http\Controllers\ProductController;
 
 // Autenticación
 Route::post('login', [AuthController::class, 'store']);
@@ -78,5 +84,29 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::post('client', [ClientController::class, 'store']);
         Route::patch('client/{client}', [ClientController::class, 'update']);
         Route::delete('client/{client}', [ClientController::class, 'destroy']);
+    });
+
+    // Categorías
+    Route::group(['middleware' => ['can:CATEGORIAS']], function() {
+        Route::get('category', [CategoryController::class, 'index']);
+        Route::post('category', [CategoryController::class, 'store']);
+        Route::patch('category/{category}', [CategoryController::class, 'update']);
+        Route::delete('category/{category}', [CategoryController::class, 'destroy']);
+    });
+
+    // Productos
+    Route::group(['middleware' => ['can:PRODUCTOS']], function() {
+        Route::get('product', [ProductController::class, 'index']);
+        Route::post('product', [ProductController::class, 'store']);
+        Route::patch('product/{product}', [ProductController::class, 'update']);
+        Route::delete('product/{product}', [ProductController::class, 'destroy']);
+        // Marcas
+        Route::get('brand', [BrandController::class, 'index']);
+        // Tallas
+        Route::get('size', [SizeController::class, 'index']);
+        // Tipos de tallas
+        Route::get('size_type', [SizeTypeController::class, 'index']);
+        // Colores
+        Route::get('color', [ColorController::class, 'index']);
     });
 });

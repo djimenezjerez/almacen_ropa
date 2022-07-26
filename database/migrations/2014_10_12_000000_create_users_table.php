@@ -19,7 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('password')->comment('Contraseña');
             $table->unsignedTinyInteger('access_attempts')->default(0)->comment('Intentos de acceso');
             $table->boolean('active')->default(true)->comment('Estado activo');
-            $table->unsignedBigInteger('person_id')->comment('Ciudad de expedición');
+            $table->unsignedBigInteger('person_id')->unique()->comment('Ciudad de expedición');
             $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedSmallInteger('remember_role_id')->nullable()->comment('Último rol de login');
             $table->foreign('remember_role_id')->references('id')->on('roles')->onDelete('cascade')->onUpdate('cascade');

@@ -136,6 +136,28 @@
           </v-list-item-icon>
           <v-list-item-content>Clientes</v-list-item-content>
         </v-list-item>
+        <v-list-group color="white" v-if="$store.getters.user.permissions.includes('PRODUCTOS')">
+          <template v-slot:activator>
+            <v-list-item class="px-0">
+              <v-list-item-icon>
+                <v-icon>mdi-tshirt-crew</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>Productos</v-list-item-content>
+            </v-list-item>
+          </template>
+          <v-list-item link :to="{ name: 'products' }" :class="drawer ? 'ml-1' : 'ml-4'">
+            <v-list-item-icon>
+              <v-icon>mdi-hanger</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Inventario</v-list-item-content>
+          </v-list-item>
+          <v-list-item link :to="{ name: 'categories' }" :class="drawer ? 'ml-1' : 'ml-4'" v-if="$store.getters.user.permissions.includes('CATEGORIAS')">
+            <v-list-item-icon>
+              <v-icon>mdi-format-list-bulleted-type</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Categorías</v-list-item-content>
+          </v-list-item>
+        </v-list-group>
       </v-list>
     </v-navigation-drawer>
     <v-main class="blue-grey lighten-5">

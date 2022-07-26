@@ -4,7 +4,7 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Proveedores"/>
+        <tool-bar-title title="Productos"/>
       </v-toolbar>
       <v-row
         class="pt-4 px-4"
@@ -32,9 +32,9 @@
           order-md="last"
         >
           <add-button
-            text="Agregar proveedor"
+            text="Agregar producto"
             :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.supplierForm.showDialog()"
+            @click="$refs.productForm.showDialog()"
           />
         </v-col>
       </v-row>
@@ -44,7 +44,7 @@
         <v-data-table
           id="datatable"
           :headers="headers"
-          :items="suppliers"
+          :items="products"
           :options.sync="options"
           :server-items-length="totalItems"
           :footer-props="{
@@ -55,15 +55,6 @@
         >
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
-          </template>
-          <template v-slot:[`item.email`]="{ item }">
-            {{ item.email || '-' }}
-          </template>
-          <template v-slot:[`item.phone`]="{ item }">
-            {{ item.phone || '-' }}
-          </template>
-          <template v-slot:[`item.city_name`]="{ item }">
-            {{ item.city_name || '-' }}
           </template>
           <template v-slot:[`item.active`]="{ item }">
             <v-chip
@@ -84,7 +75,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="$refs.supplierForm.showDialog(item, true)"
+                      @click="$refs.productForm.showDialog(item, true)"
                     >
                       <v-icon
                         dense
@@ -104,7 +95,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="info"
-                      @click="$refs.supplierForm.showDialog(item)"
+                      @click="$refs.productForm.showDialog(item)"
                     >
                       <v-icon
                         dense
@@ -141,22 +132,25 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <supplier-form ref="supplierForm" :documentTypes="documentTypes" :cities="cities" v-on:updateList="fetchSuppliers"/>
-    <dialog-remove ref="dialogRemove" type="proveedor" url="supplier" v-on:updateList="fetchSuppliers"/>
+    <product-form ref="productForm" :categories="categories" :brands="brands" :sizes="sizes" :sizeTypes="sizeTypes" :colors="colors" v-on:updateList="fetchProducts"/>
+    <dialog-remove ref="dialogRemove" type="producto" url="product" v-on:updateList="fetchProducts"/>
   </v-container>
 </template>
 
 <script>
 export default {
-  name: 'Suppliers',
+  name: 'products',
   components: {
-    'supplier-form': () => import('@/components/suppliers/SupplierForm.vue'),
+    'product-form': () => import('@/components/products/ProductForm.vue'),
   },
   data() {
     return {
       search: null,
-      documentTypes: [],
-      cities: [],
+      categories: [],
+      brands: [],
+      sizes: [],
+      sizeTypes: [],
+      colors: [],
       options: {
         page: 1,
         itemsPerPage: 8,
@@ -164,7 +158,7 @@ export default {
         sortDesc: [false]
       },
       totalItems: 0,
-      suppliers: [],
+      products: [],
       headers: [
         {
           text: 'NRO',
@@ -177,30 +171,30 @@ export default {
           sortable: true,
           value: 'name',
         }, {
-          text: 'DOCUMENTO',
+          text: 'CATEGORÍA',
           align: 'center',
           sortable: true,
-          value: 'document',
+          value: 'category_name',
         }, {
-          text: 'TIPO DE DOCUMENTO',
+          text: 'MARCA',
           align: 'center',
           sortable: true,
-          value: 'document_type_code',
+          value: 'brand_name',
         }, {
-          text: 'CIUDAD',
+          text: 'TALLA',
           align: 'center',
           sortable: true,
-          value: 'city_name',
+          value: 'size_name',
         }, {
-          text: 'TELÉFONO',
+          text: 'TIPO DE TALLA',
           align: 'center',
           sortable: true,
-          value: 'phone',
+          value: 'size_type_name',
         }, {
-          text: 'EMAIL',
+          text: 'COLOR',
           align: 'center',
           sortable: true,
-          value: 'email',
+          value: 'color_name',
         }, {
           text: 'ESTADO',
           align: 'center',
@@ -224,52 +218,91 @@ export default {
     }
   },
   created() {
-    this.fetchSuppliers()
-    this.fetchDocumentTypes()
-    this.fetchCities()
+    this.fetchProducts()
+    this.fetchCategories()
+    this.fetchBrands()
+    this.fetchSizes()
+    this.fetchSizeTypes()
+    this.fetchColors()
   },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.fetchSuppliers()
+        this.fetchProducts()
       }
     },
     search: function() {
-      this.fetchSuppliers()
+      this.fetchProducts()
     }
   },
   methods: {
     isActive(active) {
       return active == true
     },
-    async fetchDocumentTypes() {
+    async fetchSizeTypes() {
       try {
-        let response = await axios.get('document_type', {
+        let response = await axios.get('size_type', {
           params: {
             combo: true,
           }
         })
-        this.documentTypes = response.data.payload.data
+        this.sizeTypes = response.data.payload.data
       } catch(error) {
         console.error(error)
       }
     },
-    async fetchCities() {
+    async fetchColors() {
       try {
-        let response = await axios.get('city', {
+        let response = await axios.get('color', {
           params: {
             combo: true,
           }
         })
-        this.cities = response.data.payload.data
+        this.colors = response.data.payload.data
       } catch(error) {
         console.error(error)
       }
     },
-    async fetchSuppliers() {
+    async fetchSizes() {
+      try {
+        let response = await axios.get('size', {
+          params: {
+            combo: true,
+          }
+        })
+        this.sizes = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      }
+    },
+    async fetchCategories() {
+      try {
+        let response = await axios.get('category', {
+          params: {
+            combo: true,
+          }
+        })
+        this.categories = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      }
+    },
+    async fetchBrands() {
+      try {
+        let response = await axios.get('brand', {
+          params: {
+            combo: true,
+          }
+        })
+        this.brands = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      }
+    },
+    async fetchProducts() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get('supplier', {
+        let response = await axios.get('product', {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,
@@ -278,7 +311,7 @@ export default {
             search: this.search,
           },
         })
-        this.suppliers = response.data.payload.data
+        this.products = response.data.payload.data
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)

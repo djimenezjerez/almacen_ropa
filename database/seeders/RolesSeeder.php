@@ -27,6 +27,8 @@ class RolesSeeder extends Seeder
                     'ALMACENES',
                     'PROVEEDORES',
                     'CLIENTES',
+                    'PRODUCTOS',
+                    'CATEGORIAS',
                 ],
             ], [
                 'name' => 'GERENTE',
@@ -38,6 +40,8 @@ class RolesSeeder extends Seeder
                     'ALMACENES',
                     'PROVEEDORES',
                     'CLIENTES',
+                    'PRODUCTOS',
+                    'CATEGORIAS',
                 ],
             ], [
                 'name' => 'CAJERO',

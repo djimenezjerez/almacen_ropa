@@ -121,7 +121,7 @@
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" :md="edit ? 9 : 12">
+                <v-col cols="12">
                   <validation-provider
                     v-slot="{ errors }"
                     name="city_id"
@@ -139,7 +139,7 @@
                     ></v-select>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" md="3" v-if="edit">
+                <v-col cols="3" v-if="edit">
                   <validation-provider
                     v-slot="{ errors }"
                     name="active"

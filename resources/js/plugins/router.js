@@ -53,6 +53,14 @@ const router = new VueRouter({
           path: '/clients',
           name: 'clients',
           component: () => import('@/views/Clients.vue'),
+        }, {
+          path: '/products',
+          name: 'products',
+          component: () => import('@/views/Products.vue'),
+        }, {
+          path: '/categories',
+          name: 'categories',
+          component: () => import('@/views/Categories.vue'),
         }
       ]
     },

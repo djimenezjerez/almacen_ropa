@@ -10,7 +10,7 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="readOnly ? 'Datos del almacén' : (edit ? 'Editar almacén' : 'Agregar almacén')"/>
+        <tool-bar-title :title="readOnly ? 'Datos de la categoría' : (edit ? 'Editar categoría' : 'Agregar categoría')"/>
         <v-spacer></v-spacer>
         <v-btn
           icon
@@ -22,7 +22,7 @@
         </v-btn>
       </v-toolbar>
       <div class="px-5 pb-5">
-        <validation-observer ref="warehouseObserver" v-slot="{ invalid }">
+        <validation-observer ref="categoryObserver" v-slot="{ invalid }">
           <v-form @submit.prevent="submit" :readonly="readOnly">
             <v-card-text>
               <v-row dense>
@@ -30,67 +30,16 @@
                   <validation-provider
                     v-slot="{ errors }"
                     name="name"
-                    rules="required|min:3|alpha_spaces"
+                    rules="required|min:3"
                   >
                     <v-text-field
                       label="Nombre"
-                      v-model="warehouseForm.name"
+                      v-model="clientForm.name"
                       data-vv-name="name"
                       :error-messages="errors"
-                      prepend-icon="mdi-account-circle"
+                      prepend-icon="mdi-format-list-bulleted-type"
                       autofocus
                     ></v-text-field>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="address"
-                    rules="min:3"
-                  >
-                    <v-text-field
-                      label="Direcciòn"
-                      v-model="warehouseForm.address"
-                      data-vv-name="address"
-                      :error-messages="errors"
-                      prepend-icon="mdi-map-marker"
-                    ></v-text-field>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="user_id"
-                    rules="required|numeric"
-                  >
-                    <v-autocomplete
-                      label="Responsable"
-                      v-model="warehouseForm.user_id"
-                      item-text="name"
-                      item-value="id"
-                      :items="users"
-                      data-vv-name="user_id"
-                      :error-messages="errors"
-                      prepend-icon="mdi-account-circle"
-                    ></v-autocomplete>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="city_id"
-                    rules="integer"
-                  >
-                    <v-select
-                      :items="cities"
-                      item-text="name"
-                      item-value="id"
-                      label="Ciudad"
-                      v-model="warehouseForm.city_id"
-                      data-vv-name="city_id"
-                      :error-messages="errors"
-                      prepend-icon="mdi-map"
-                    ></v-select>
                   </validation-provider>
                 </v-col>
                 <v-col cols="3" v-if="edit">
@@ -101,7 +50,7 @@
                   >
                     <v-checkbox
                       label="Activo"
-                      v-model="warehouseForm.active"
+                      v-model="clientForm.active"
                       data-vv-name="active"
                       :error-messages="errors"
                       prepend-icon="mdi-check-all"
@@ -142,75 +91,59 @@
 
 <script>
 export default {
-  name: 'warehouseForm',
-  props: {
-    cities: {
-      type: Array,
-      required: true
-    },
-    users: {
-      type: Array,
-      required: true
-    },
-  },
+  name: 'ClientForm',
   data: function() {
     return {
       dialog: false,
       readOnly: false,
       edit: false,
-      warehouseForm: {
+      clientForm: {
         id: null,
         name: null,
-        address: null,
         active: true,
-        city_id: null,
-        user_id: null,
       },
     }
   },
   methods: {
-    showDialog(warehouse = null, readOnly = false) {
+    showDialog(client = null, readOnly = false) {
       this.readOnly = readOnly
-      if (warehouse) {
+      if (client) {
         this.edit = true
-        this.warehouseForm = {
-          ...warehouse
+        this.clientForm = {
+          ...client
         }
       } else {
         this.edit = false
-        this.warehouseForm = {
+        this.clientForm = {
           id: null,
           name: null,
-          address: null,
           active: true,
-          city_id: null,
-          user_id: null,
         }
       }
       this.dialog = true
       this.$nextTick(() => {
-        this.$refs.warehouseObserver.reset()
+        this.$refs.categoryObserver.reset()
       })
     },
     async submit() {
       try {
-        let valid = await this.$refs.warehouseObserver.validate()
+        let valid = await this.$refs.categoryObserver.validate()
         if (valid) {
           this.$store.dispatch('loading', true)
           if (this.edit) {
-            const response = await axios.patch(`warehouse/${this.warehouseForm.id}`, this.warehouseForm)
+            const response = await axios.patch(`category/${this.clientForm.id}`, this.clientForm)
             this.$toast.success(response.data.message)
           } else {
-            const response = await axios.post('warehouse', this.warehouseForm)
+            const response = await axios.post('category', this.clientForm)
             this.$toast.success(response.data.message)
           }
           this.$emit('updateList')
           this.dialog = false
         }
       } catch(error) {
-        this.$refs.warehouseObserver.reset()
+        this.$refs.categoryObserver.reset()
         if ('errors' in error.response.data) {
-          this.$refs.warehouseObserver.setErrors(error.response.data.errors)
+          this.$refs.categoryObserver.setErrors(error.response.data.errors)
         }
       } finally {
         this.$store.dispatch('loading', false)
