@@ -11,7 +11,7 @@ class DocumentTypeController extends Controller
         return [
             'message' => 'Lista de tipos de documento',
             'payload' => [
-                'data' => DB::table('document_types')->orderBy('order')->get(),
+                'data' => DB::table('document_types')->select('id', 'name', 'code')->orderBy('order')->get(),
             ],
         ];
     }

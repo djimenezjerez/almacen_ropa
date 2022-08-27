@@ -4,12 +4,14 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\ProductName;
 use App\Models\Color;
 use App\Models\Size;
 use App\Models\SizeType;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Gender;
 
 class ProductSeeder extends Seeder
 {
@@ -19,53 +21,95 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Jean clásico',
                 'category' => 'Jeans',
-                'brand' => 'American Colt',
-                'size' => '42',
-                'color' => 'Negro',
+                'genders' => ['Unisex'],
+                'brands' => ['American Colt', 'Tommy Hilfiger'],
+                'sizes' => ['40', '42', '44', '46', '48', '50'],
+                'size_type' => 'Adultos',
+                'colors' => ['Negro', 'Azul'],
             ], [
-                'name' => 'Polera adulto',
-                'category' => 'Poleras',
-                'brand' => 'Tommy Hilfiger',
-                'size' => 'L',
-                'color' => 'Blanco',
+                'name' => 'Jean prelavado',
+                'category' => 'Jeans',
+                'genders' => ['Varón', 'Mujer'],
+                'brands' => ['American Colt', 'Tommy Hilfiger'],
+                'sizes' => ['42', '44', '46', '48'],
+                'size_type' => 'Adultos',
+                'colors' => ['Negro', 'Azul'],
             ], [
-                'name' => 'Polera niño',
-                'category' => 'Poleras',
-                'brand' => 'Nike',
-                'size' => 'XS',
-                'color' => 'Azul',
+                'name' => 'Camiseta deportiva',
+                'category' => 'Camisetas',
+                'genders' => ['Varón', 'Mujer'],
+                'brands' => ['Nike', 'Tommy Hilfiger'],
+                'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
+                'size_type' => 'Adultos',
+                'colors' => ['Negro', 'Blanco', 'Azul'],
             ], [
-                'name' => 'Polerón adulto',
+                'name' => 'Camiseta estampada',
+                'category' => 'Camisetas',
+                'genders' => ['Varón', 'Mujer'],
+                'brands' => ['Nike', 'Tommy Hilfiger'],
+                'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
+                'size_type' => 'Adultos',
+                'colors' => ['Negro', 'Blanco', 'Azul'],
+            ], [
+                'name' => 'Polerón deportivo',
                 'category' => 'Polerones',
-                'brand' => 'Tommy Hilfiger',
-                'size' => 'M',
-                'color' => 'Verde',
+                'genders' => ['Unisex'],
+                'brands' => ['Chico', 'Nike', 'Adidas'],
+                'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
+                'size_type' => 'Infantes',
+                'colors' => ['Negro', 'Blanco', 'Azul'],
+            ], [
+                'name' => 'Zapatillas ortopédicas',
+                'category' => 'Zapatillas',
+                'genders' => ['Varón', 'Mujer'],
+                'brands' => ['Chico', 'Nike', 'Adidas'],
+                'sizes' => ['20', '22', '24', '26'],
+                'size_type' => 'Infantes',
+                'colors' => ['Negro', 'Blanco', 'Azul'],
             ],
         ];
 
         foreach($data as $item) {
-            $size_type = SizeType::first();
-            $color = Color::firstOrCreate([
-                'name' => $item['color']
-            ]);
-            $size = Size::firstOrCreate([
-                'name' => $item['size']
-            ]);
-            $brand = Brand::firstOrCreate([
-                'name' => $item['brand']
+            $product_name = ProductName::firstOrCreate([
+                'name' => $item['name'],
             ]);
             $category = Category::firstOrCreate([
-                'name' => $item['category']
+                'name' => $item['category'],
             ]);
-            Product::firstOrCreate([
-                'name' => $item['name']
-            ], [
-                'category_id' => $category->id,
-                'brand_id' => $brand->id,
-                'size_id' => $size->id,
-                'size_type_id' => $size_type->id,
-                'color_id' => $color->id,
+            $size_type = SizeType::firstOrCreate([
+                'name' => $item['size_type'],
             ]);
+            foreach ($item['sizes'] as $item_size) {
+                $size = Size::firstOrCreate([
+                    'name' => $item_size,
+                    'size_type_id' => $size_type->id,
+                ], [
+                    'numeric' => is_numeric($item_size),
+                ]);
+                foreach ($item['brands'] as $item_brand) {
+                    $brand = Brand::firstOrCreate([
+                        'name' => $item_brand,
+                    ]);
+                    foreach ($item['colors'] as $item_color) {
+                        $color = Color::firstOrCreate([
+                            'name' => $item_color,
+                        ]);
+                        foreach ($item['genders'] as $item_gender) {
+                            $gender = Gender::firstOrCreate([
+                                'name' => $item_gender,
+                            ]);
+                            Product::firstOrCreate([
+                                'product_name_id' => $product_name->id,
+                                'category_id' => $category->id,
+                                'brand_id' => $brand->id,
+                                'gender_id' => $gender->id,
+                                'size_id' => $size->id,
+                                'color_id' => $color->id,
+                            ]);
+                        }
+                    }
+                }
+            }
         }
     }
 }

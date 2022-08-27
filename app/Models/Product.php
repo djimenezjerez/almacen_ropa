@@ -10,13 +10,14 @@ class Product extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name',
         'active',
+        'product_name_id',
         'category_id',
         'brand_id',
+        'gender_id',
         'size_id',
-        'size_type_id',
         'color_id',
+        'stock',
     ];
 
     protected $casts = [
@@ -24,6 +25,11 @@ class Product extends Model
     ];
 
     public $timestamps = true;
+
+    public function name()
+    {
+        return $this->belongsTo(ProductName::class);
+    }
 
     public function category()
     {
@@ -35,18 +41,23 @@ class Product extends Model
         return $this->belongsTo(Brand::class);
     }
 
+    public function gender()
+    {
+        return $this->belongsTo(Gender::class);
+    }
+
     public function size()
     {
         return $this->belongsTo(Size::class);
     }
 
-    public function size_type()
-    {
-        return $this->belongsTo(SizeType::class);
-    }
-
     public function color()
     {
         return $this->belongsTo(Color::class);
+    }
+
+    public function stock_transfer_details()
+    {
+        return $this->hasMany(StockTransferDetail::class);
     }
 }

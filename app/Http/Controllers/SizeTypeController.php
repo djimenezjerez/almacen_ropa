@@ -14,7 +14,7 @@ class SizeTypeController extends Controller
         return [
             'message' => 'Lista de tipos de tallas',
             'payload' => [
-                'data' => DB::table('size_types')->select('id', 'name')->where('deleted_at', '=', null)->orderBy('name')->get(),
+                'data' => DB::table('size_types')->select('id', 'name')->orderBy('order')->get(),
             ],
         ];
     }

@@ -13,17 +13,21 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\GenderController;
+use App\Http\Controllers\ProductNameController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\SizeTypeController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StockTransferController;
 
 // Autenticación
 Route::post('login', [AuthController::class, 'store']);
 
 // Tiendas
 Route::get('store', [StoreController::class, 'index']);
+Route::get('warehouse', [WarehouseController::class, 'index']);
 
 Route::group(['middleware' => ['auth:sanctum']], function() {
     // Dashboard
@@ -64,7 +68,6 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 
     // Almacenes
     Route::group(['middleware' => ['can:ALMACENES']], function() {
-        Route::get('warehouse', [WarehouseController::class, 'index']);
         Route::post('warehouse', [WarehouseController::class, 'store']);
         Route::patch('warehouse/{warehouse}', [WarehouseController::class, 'update']);
         Route::delete('warehouse/{warehouse}', [WarehouseController::class, 'destroy']);
@@ -100,6 +103,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::post('product', [ProductController::class, 'store']);
         Route::patch('product/{product}', [ProductController::class, 'update']);
         Route::delete('product/{product}', [ProductController::class, 'destroy']);
+        // Nombres de productos
+        Route::get('product_name', [ProductNameController::class, 'index']);
+        // Géneros
+        Route::get('gender', [GenderController::class, 'index']);
         // Marcas
         Route::get('brand', [BrandController::class, 'index']);
         // Tallas
@@ -108,5 +115,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('size_type', [SizeTypeController::class, 'index']);
         // Colores
         Route::get('color', [ColorController::class, 'index']);
+    });
+
+    // Transferencias de stock
+    Route::group(['middleware' => ['can:TRANSFERENCIAS']], function() {
+        Route::get('stock_transfer', [StockTransferController::class, 'index']);
+        Route::post('stock_transfer', [StockTransferController::class, 'store']);
+        Route::delete('stock_transfer/{stock_transfer}', [StockTransferController::class, 'destroy']);
     });
 });

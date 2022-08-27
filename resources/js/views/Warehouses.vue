@@ -133,7 +133,7 @@
       </v-col>
     </v-row>
     <warehouse-form ref="warehouseForm" :users="users" :cities="cities" v-on:updateList="fetchWarehouses"/>
-    <dialog-remove ref="dialogRemove" type="almacen" url="warehouse" v-on:updateList="fetchWarehouses"/>
+    <dialog-remove ref="dialogRemove" type="almacén" url="warehouse" v-on:updateList="fetchWarehouses"/>
   </v-container>
 </template>
 

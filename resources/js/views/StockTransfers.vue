@@ -4,7 +4,7 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Productos"/>
+        <tool-bar-title title="Transferencias de stock"/>
       </v-toolbar>
       <v-row
         class="pt-4 px-4"
@@ -32,9 +32,9 @@
           order-md="last"
         >
           <add-button
-            text="Agregar producto"
+            text="Agregar transferencia"
             :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.productForm.showDialog()"
+            @click="gotoStockTransferForm"
           />
         </v-col>
       </v-row>
@@ -44,7 +44,7 @@
         <v-data-table
           id="datatable"
           :headers="headers"
-          :items="products"
+          :items="stockTransfers"
           :options.sync="options"
           :server-items-length="totalItems"
           :footer-props="{
@@ -53,12 +53,15 @@
           :calculate-widths="true"
           dense
         >
-          <template v-slot:[`item.product_name_id`]="{ index }">
+          <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
+          </template>
+          <template v-slot:[`item.created_at`]="{ item }">
+            {{ item.created_at | moment('L') }}
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="4">
+              <v-col cols="6">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -66,7 +69,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="$refs.productForm.showDialog(item, true)"
+                      @click="$refs.stockTransferForm.showDialog(item, true)"
                     >
                       <v-icon
                         dense
@@ -78,58 +81,75 @@
                   <span>Ver</span>
                 </v-tooltip>
               </v-col>
+              <v-col cols="6">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      icon
+                      v-bind="attrs"
+                      v-on="on"
+                      color="error"
+                      @click="$refs.dialogRemove.showDialog(item)"
+                    >
+                      <v-icon
+                        dense
+                      >
+                        mdi-close-circle
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Remover</span>
+                </v-tooltip>
+              </v-col>
             </v-row>
           </template>
         </v-data-table>
       </v-col>
     </v-row>
-    <product-form ref="productForm" v-on:updateList="fetchProducts"/>
+    <dialog-remove ref="dialogRemove" type="transferencia" url="stockTransfer" v-on:updateList="fetchstockTransfers"/>
   </v-container>
 </template>
 
 <script>
 export default {
-  name: 'products',
-  components: {
-    'product-form': () => import('@/components/products/ProductForm.vue'),
-  },
+  name: 'StockTransfers',
   data() {
     return {
       search: null,
       options: {
         page: 1,
         itemsPerPage: 8,
-        sortBy: [],
-        sortDesc: []
+        sortBy: ['name'],
+        sortDesc: [false]
       },
       totalItems: 0,
-      products: [],
+      stockTransfers: [],
       headers: [
         {
           text: 'NRO',
           align: 'center',
           sortable: false,
-          value: 'product_name_id',
+          value: 'id',
         }, {
-          text: 'CATEGORÍA',
+          text: 'DESDE',
           align: 'center',
-          sortable: false,
-          value: 'category_name',
+          sortable: true,
+          value: 'origin_store_name',
         }, {
-          text: 'NOMBRE',
+          text: 'HACIA',
           align: 'center',
-          sortable: false,
-          value: 'product_name',
+          sortable: true,
+          value: 'destiny_store_name',
         }, {
-          text: 'TIPO DE TALLA',
+          text: 'FECHA',
           align: 'center',
-          sortable: false,
-          value: 'size_type_name',
+          sortable: true,
+          value: 'created_at',
         }, {
-          text: 'STOCK',
+          text: 'USUARIO',
           align: 'center',
-          sortable: false,
-          value: 'stock',
+          sortable: true,
+          value: 'user_name',
         }, {
           text: 'ACCIONES',
           align: 'center',
@@ -148,23 +168,26 @@ export default {
     }
   },
   created() {
-    this.fetchProducts()
+    this.fetchstockTransfers()
   },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.fetchProducts()
+        this.fetchstockTransfers()
       }
     },
     search: function() {
-      this.fetchProducts()
+      this.fetchstockTransfers()
     }
   },
   methods: {
-    async fetchProducts() {
+    gotoStockTransferForm() {
+      this.$router.push({ path: '/stock_transfer_form' })
+    },
+    async fetchstockTransfers() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get('product', {
+        let response = await axios.get('stock_transfer', {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,
@@ -173,7 +196,7 @@ export default {
             search: this.search,
           },
         })
-        this.products = response.data.payload.data
+        this.stockTransfers = response.data.payload.data
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)

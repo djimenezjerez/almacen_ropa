@@ -252,8 +252,8 @@ export default {
     }
   },
   methods: {
-    gotoEmployees(store_id) {
-      this.$router.push({ path: '/employees', query: { store_id: store_id } })
+    gotoEmployees(storeId) {
+      this.$router.push({ path: '/employees', query: { store_id: storeId } })
     },
     isActive(active) {
       return active == true

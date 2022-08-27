@@ -25,29 +25,47 @@ class UserSeeder extends Seeder
                 'city' => 'SC',
                 'document_type' => 'CI',
                 'username' => 'admin',
-                'password' => 'password',
+                'password' => 'admin',
                 'stores' => [
                     [
                         'name' => 'Moda Bella',
                         'role' => 'ADMINISTRADOR',
                     ], [
                         'name' => 'Casa Moda',
-                        'role' => 'GERENTE',
+                        'role' => 'ADMINISTRADOR',
                     ]
                 ],
             ], [
                 'name' => 'Pedro Ramos',
                 'document' => '987654321',
-                'email' => 'pugarte@ropa.com',
+                'email' => 'pramos@ropa.com',
                 'phone' => 76543210,
                 'city' => 'SC',
                 'document_type' => 'CI',
-                'username' => 'admin',
-                'password' => 'password',
+                'username' => 'gerente',
+                'password' => 'gerente',
                 'stores' => [
                     [
                         'name' => 'Moda Bella',
                         'role' => 'GERENTE',
+                    ], [
+                        'name' => 'Casa Moda',
+                        'role' => 'GERENTE',
+                    ]
+                ],
+            ], [
+                'name' => 'Pedro Ríos',
+                'document' => '987654321',
+                'email' => 'prios@ropa.com',
+                'phone' => 76543210,
+                'city' => 'SC',
+                'document_type' => 'CI',
+                'username' => 'cajero',
+                'password' => 'cajero',
+                'stores' => [
+                    [
+                        'name' => 'Moda Bella',
+                        'role' => 'CAJERO',
                     ], [
                         'name' => 'Casa Moda',
                         'role' => 'CAJERO',

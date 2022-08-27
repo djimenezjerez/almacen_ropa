@@ -21,13 +21,15 @@ class StoreSeeder extends Seeder
                 'phone' => 76543210,
                 'city' => 'SC',
                 'document_type' => 'NIT',
+                'address' => 'Av. Prueba 123',
             ], [
                 'name' => 'Casa Moda',
                 'document' => '987654321',
                 'document_type' => 'NIT',
                 'email' => 'modabella@moda.com',
-                'phone' => 76543210,
-                'city' => 'SC',
+                'phone' => 65432100,
+                'city' => 'LP',
+                'address' => 'Av. Test 456',
             ],
         ];
 
@@ -43,6 +45,7 @@ class StoreSeeder extends Seeder
                 'email' => $item['email'],
                 'phone' => $item['phone'],
                 'city_id' => $city->id,
+                'address' => $item['address'],
             ]);
 
             Store::firstOrCreate([

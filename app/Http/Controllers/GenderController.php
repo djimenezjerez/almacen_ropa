@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 
-class CityController extends Controller
+class GenderController extends Controller
 {
     public function index()
     {
         return [
-            'message' => 'Lista de ciudades',
+            'message' => 'Lista de géneros',
             'payload' => [
-                'data' => DB::table('cities')->select('id', 'name', 'code')->orderBy('order')->get(),
+                'data' => DB::table('genders')->select('id', 'name')->orderBy('order')->get(),
             ],
         ];
     }

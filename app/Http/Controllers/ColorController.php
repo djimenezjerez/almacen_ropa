@@ -14,7 +14,7 @@ class ColorController extends Controller
         return [
             'message' => 'Lista de colores',
             'payload' => [
-                'data' => DB::table('colors')->select('id', 'name')->where('deleted_at', '=', null)->orderBy('name')->get(),
+                'data' => DB::table('colors')->select('id', 'name')->orderBy('name')->get(),
             ],
         ];
     }

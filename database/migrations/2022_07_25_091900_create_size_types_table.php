@@ -14,10 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('size_types', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->comment('Nombre del color');
-            $table->timestamps();
-            $table->softDeletes();
+            $table->smallIncrements('id');
+            $table->string('name')->comment('Tipo de talla');
+            $table->unsignedTinyInteger('order')->default(0)->comment('Orden');
         });
     }
 

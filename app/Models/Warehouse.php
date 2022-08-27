@@ -10,10 +10,8 @@ class Warehouse extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name',
-        'address',
         'active',
-        'city_id',
+        'person_id',
         'user_id',
     ];
 
@@ -23,9 +21,9 @@ class Warehouse extends Model
 
     public $timestamps = true;
 
-    public function city()
+    public function person()
     {
-        return $this->belongsTo(City::class);
+        return $this->belongsTo(Person::class);
     }
 
     public function user()
@@ -33,8 +31,18 @@ class Warehouse extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function person()
+    public function user_person()
     {
         return $this->belongsTo(Person::class, User::class);
+    }
+
+    public function origin_transfers()
+    {
+        return $this->hasMany(StockTransfer::class, 'origin_storable');
+    }
+
+    public function destiny_transfers()
+    {
+        return $this->hasMany(StockTransfer::class, 'destiny_storable');
     }
 }

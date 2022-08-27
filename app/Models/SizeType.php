@@ -2,18 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class SizeType extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = [
         'name',
+        'order',
     ];
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     public function products()
     {

@@ -70,7 +70,7 @@ class DashboardController extends Controller
                 'color' => 'green darken-3',
                 'icon' => 'mdi-tshirt-crew',
                 'link' => 'products',
-                'total' => DB::table('products')->where('deleted_at', '=', null)->count(),
+                'total' => DB::table('product_names')->count(),
             ];
         }
 

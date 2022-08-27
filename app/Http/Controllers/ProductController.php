@@ -16,28 +16,19 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->has('combo')) {
-            return [
-                'message' => 'Lista de productos',
-                'payload' => [
-                    'data' => DB::table('products')->select('products.id', 'products.name', 'categories.name as category_name', 'brands.name as brand_name', 'sizes.name as size_name', 'colors.name as color_name')->leftJoin('categories', 'categories.id', '=', 'products.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.active', '=', true)->where('products.deleted_at', '=', null)->orderBy('products.name')->get(),
-                ],
-            ];
-        }
-
-        $query = DB::table('products')->select('products.*', 'categories.name as category_name', 'brands.name as brand_name', 'sizes.name as size_name', 'size_types.name as size_type_name', 'colors.name as color_name')->leftJoin('categories', 'categories.id', '=', 'products.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'products.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.deleted_at', '=', null);
+        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'size_types.name as size_type_name', 'product_names.name as product_name')->selectRaw('sum(products.stock) as stock')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'products.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->groupBy('products.product_name_id')->where('products.deleted_at', '=', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
             }
         } else {
-            $query->orderBy('products.name', 'ASC');
+            $query->orderBy('categories.name', 'ASC')->orderBy('product_names.name', 'ASC')->orderBy('size_types.name', 'ASC');
         }
 
         if ($request->has('search')) {
             if ($request->search != '') {
                 $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(products.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(brands.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(sizes.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(size_types.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(colors.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(size_types.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
                 });
             }
         }

@@ -61,6 +61,14 @@ const router = new VueRouter({
           path: '/categories',
           name: 'categories',
           component: () => import('@/views/Categories.vue'),
+        }, {
+          path: '/stock_transfers',
+          name: 'stock_transfers',
+          component: () => import('@/views/StockTransfers.vue'),
+        }, {
+          path: '/stock_transfer_form',
+          name: 'stock_transfer_form',
+          component: () => import('@/components/stock_transfers/StockTransferForm.vue'),
         }
       ]
     },

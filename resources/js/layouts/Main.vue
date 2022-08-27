@@ -157,6 +157,12 @@
             </v-list-item-icon>
             <v-list-item-content>Categorías</v-list-item-content>
           </v-list-item>
+          <v-list-item link :to="{ name: 'stock_transfers' }" :class="drawer ? 'ml-1' : 'ml-4'" v-if="$store.getters.user.permissions.includes('TRANSFERENCIAS')">
+            <v-list-item-icon>
+              <v-icon>mdi-swap-horizontal</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Movimiento de stock</v-list-item-content>
+          </v-list-item>
         </v-list-group>
       </v-list>
     </v-navigation-drawer>

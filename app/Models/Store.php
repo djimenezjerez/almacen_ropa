@@ -29,4 +29,14 @@ class Store extends Model
     {
         return $this->belongsToMany(User::class, 'model_has_roles', 'store_id', 'model_id')->wherePivot('model_type', 'App\Models\User');
     }
+
+    public function origin_transfers()
+    {
+        return $this->hasMany(StockTransfer::class, 'origin_warehouse_id', 'id');
+    }
+
+    public function destiny_transfers()
+    {
+        return $this->hasMany(StockTransfer::class, 'destiny_warehouse_id', 'id');
+    }
 }

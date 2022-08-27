@@ -4,24 +4,27 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\SizeType;
+use App\Models\Gender;
 
-class SizeTypeSeeder extends Seeder
+class GenderSeeder extends Seeder
 {
     public function run()
     {
         $data = [
             [
-                'name' => 'Adultos',
+                'name' => 'Varón',
                 'order' => 1,
             ],[
-                'name' => 'Infantes',
+                'name' => 'Mujer',
                 'order' => 2,
+            ],[
+                'name' => 'Unisex',
+                'order' => 3,
             ],
         ];
 
         foreach($data as $item) {
-            SizeType::firstOrCreate([
+            Gender::firstOrCreate([
                 'name' => $item['name'],
             ], [
                 'order' => $item['order'],

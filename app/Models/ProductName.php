@@ -4,24 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Size extends Model
+class ProductName extends Model
 {
     protected $fillable = [
         'name',
-        'size_type_id',
-        'numeric',
-    ];
-
-    protected $casts = [
-        'numeric' => 'boolean',
     ];
 
     public $timestamps = false;
-
-    public function size_type()
-    {
-        return $this->hasMany(SizeType::class);
-    }
 
     public function products()
     {
