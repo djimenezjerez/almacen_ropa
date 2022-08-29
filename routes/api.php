@@ -111,10 +111,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('brand', [BrandController::class, 'index']);
         // Tallas
         Route::get('size', [SizeController::class, 'index']);
+        Route::post('size', [SizeController::class, 'store']);
         // Tipos de tallas
         Route::get('size_type', [SizeTypeController::class, 'index']);
         // Colores
         Route::get('color', [ColorController::class, 'index']);
+        Route::post('color', [ColorController::class, 'store']);
     });
 
     // Transferencias de stock

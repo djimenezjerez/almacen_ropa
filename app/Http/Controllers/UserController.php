@@ -65,9 +65,7 @@ class UserController extends Controller
             ];
         } catch(Exception) {
             DB::rollBack();
-            return [
-                'message' => 'Error al registrar usuario',
-            ];
+            abort(500, 'Error al registrar usuario');
         }
     }
 
@@ -112,9 +110,7 @@ class UserController extends Controller
             ];
         } catch(Exception) {
             DB::rollBack();
-            return [
-                'message' => 'Error al actualizar',
-            ];
+            abort(500, 'Error al actualizar');
         }
     }
 
