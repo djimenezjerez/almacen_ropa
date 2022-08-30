@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductName;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\Color;
@@ -16,7 +17,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'size_types.name as size_type_name', 'product_names.name as product_name')->selectRaw('sum(products.stock) as stock')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'products.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->groupBy('products.product_name_id')->where('products.deleted_at', '=', null);
+        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'size_types.name as size_type_name', 'product_names.name as product_name')->selectRaw('sum(products.stock) as stock')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->groupBy('products.product_name_id')->where('products.deleted_at', '=', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');

@@ -25,7 +25,7 @@ class ColorController extends Controller
             return response()->json([
                 'message' => 'Error al guardar el color',
                 'errors' => [
-                    'name' => ['La color ya existe']
+                    'name' => ['El color ya existe']
                 ]
             ], 422);
         } else {

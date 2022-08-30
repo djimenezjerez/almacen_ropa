@@ -13,8 +13,6 @@ return new class extends Migration
             $table->boolean('active')->default(true)->comment('Estado activo');
             $table->unsignedBigInteger('product_name_id')->comment('Referencia al nombre de producto');
             $table->foreign('product_name_id')->references('id')->on('product_names')->onDelete('cascade')->onUpdate('cascade');
-            $table->unsignedBigInteger('category_id')->comment('Referencia a la categoría');
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('brand_id')->comment('Referencia a la marca');
             $table->foreign('brand_id')->references('id')->on('brands')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedTinyInteger('gender_id')->comment('Referencia al género');

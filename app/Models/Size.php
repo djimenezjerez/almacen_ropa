@@ -20,7 +20,7 @@ class Size extends Model
 
     public function size_type()
     {
-        return $this->hasMany(SizeType::class);
+        return $this->belongsTo(SizeType::class);
     }
 
     public function products()

@@ -10,7 +10,7 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="`Nueva talla ${form.numeric ? 'numérica' : 'alfabética'}`"/>
+        <tool-bar-title :title="`Nueva marca`"/>
         <v-spacer></v-spacer>
         <v-btn
           icon
@@ -33,11 +33,11 @@
                     rules="required|min:1"
                   >
                     <v-text-field
-                      label="Talla"
+                      label="Marca"
                       v-model="form.name"
                       data-vv-name="name"
                       :error-messages="errors"
-                      prepend-icon="mdi-card-text-outline"
+                      prepend-icon="mdi-shopping-outline"
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
@@ -75,23 +75,19 @@
 
 <script>
 export default {
-  name: 'SizeForm',
+  name: 'BrandForm',
   data: function() {
     return {
       dialog: false,
       form: {
         name: null,
-        size_type_id: null,
-        numeric: null,
       },
     }
   },
   methods: {
-    showDialog(size_type_id, numeric) {
+    showDialog() {
       this.form = {
         name: null,
-        size_type_id: size_type_id,
-        numeric: numeric
       }
       this.dialog = true
       this.$nextTick(() => {
@@ -103,9 +99,9 @@ export default {
         let valid = await this.$refs.formObserver.validate()
         if (valid) {
           this.$store.dispatch('loading', true)
-          const response = await axios.post('size', this.form)
+          const response = await axios.post('brand', this.form)
           this.$toast.success(response.data.message)
-          this.$emit('updateSizes', response.data.size, this.form.numeric)
+          this.$emit('updateBrands', response.data.brand)
           this.dialog = false
         }
       } catch(error) {

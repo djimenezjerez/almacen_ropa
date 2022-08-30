@@ -8,6 +8,7 @@ class ProductName extends Model
 {
     protected $fillable = [
         'name',
+        'category_id',
     ];
 
     public $timestamps = false;

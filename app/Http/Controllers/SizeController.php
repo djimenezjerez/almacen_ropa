@@ -13,7 +13,7 @@ class SizeController extends Controller
         return [
             'message' => 'Lista de tallas',
             'payload' => [
-                'data' => DB::table('sizes')->select('id', 'name', 'size_type_id', 'numeric')->orderBy('numeric')->orderBy('name')->get(),
+                'data' => DB::table('sizes')->select('id', 'name', 'size_type_id', 'numeric')->orderBy('numeric')->orderBy('id')->get(),
             ],
         ];
     }
@@ -29,12 +29,21 @@ class SizeController extends Controller
                     ]
                 ], 422);
             }
-            $size = intval($request->name);
+            $size = floatval($request->name);
             if ($size <= 0 or $size > 300) {
                 return response()->json([
                     'message' => 'Error al guardar la talla',
                     'errors' => [
                         'name' => ['La talla debe ser un número mayor a 0']
+                    ]
+                ], 422);
+            }
+        } else {
+            if (is_numeric($request->name)) {
+                return response()->json([
+                    'message' => 'Error al guardar la talla',
+                    'errors' => [
+                        'name' => ['La talla no debe ser de tipo numeral']
                     ]
                 ], 422);
             }

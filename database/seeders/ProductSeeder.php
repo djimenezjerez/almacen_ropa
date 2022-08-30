@@ -70,11 +70,12 @@ class ProductSeeder extends Seeder
         ];
 
         foreach($data as $item) {
-            $product_name = ProductName::firstOrCreate([
-                'name' => $item['name'],
-            ]);
             $category = Category::firstOrCreate([
                 'name' => $item['category'],
+            ]);
+            $product_name = ProductName::firstOrCreate([
+                'name' => $item['name'],
+                'category_id' => $category->id,
             ]);
             $size_type = SizeType::firstOrCreate([
                 'name' => $item['size_type'],
@@ -100,7 +101,6 @@ class ProductSeeder extends Seeder
                             ]);
                             Product::firstOrCreate([
                                 'product_name_id' => $product_name->id,
-                                'category_id' => $category->id,
                                 'brand_id' => $brand->id,
                                 'gender_id' => $gender->id,
                                 'size_id' => $size->id,
