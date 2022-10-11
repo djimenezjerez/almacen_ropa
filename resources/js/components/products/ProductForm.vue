@@ -10,7 +10,7 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="readOnly ? 'Datos de producto' : (edit ? 'Editar producto' : 'Agregar producto')"/>
+        <tool-bar-title :title="readOnly ? 'Datos de producto' : 'Agregar producto'"/>
         <v-spacer></v-spacer>
         <v-btn
           icon
@@ -65,7 +65,7 @@
                     ></v-combobox>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" v-if="!$store.getters.loading">
                   <v-tabs
                     v-model="sizeTypeTab"
                     grow
@@ -137,6 +137,7 @@
                                       v-bind="attrs"
                                       v-on="on"
                                       @click="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.brands = brands.map(o => o.name)"
+                                      :disabled="readOnly"
                                     >
                                       <v-icon>mdi-checkbox-outline</v-icon>
                                     </v-btn>
@@ -154,6 +155,7 @@
                                       v-bind="attrs"
                                       v-on="on"
                                       @click="$refs.brandForm.showDialog()"
+                                      :disabled="readOnly"
                                     >
                                       <v-icon>mdi-plus</v-icon>
                                     </v-btn>
@@ -199,6 +201,7 @@
                                       v-bind="attrs"
                                       v-on="on"
                                       @click="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.numeric_sizes = filteredSizes(true).map(o => o.name)"
+                                      :disabled="readOnly"
                                     >
                                       <v-icon>mdi-checkbox-outline</v-icon>
                                     </v-btn>
@@ -216,6 +219,7 @@
                                       v-bind="attrs"
                                       v-on="on"
                                       @click="$refs.sizeForm.showDialog(sizeTypes[sizeTypeTab].id, true)"
+                                      :disabled="readOnly"
                                     >
                                       <v-icon>mdi-plus</v-icon>
                                     </v-btn>
@@ -261,6 +265,7 @@
                                       v-bind="attrs"
                                       v-on="on"
                                       @click="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.alphabetic_sizes = filteredSizes(false).map(o => o.name)"
+                                      :disabled="readOnly"
                                     >
                                       <v-icon>mdi-checkbox-outline</v-icon>
                                     </v-btn>
@@ -278,6 +283,7 @@
                                       v-bind="attrs"
                                       v-on="on"
                                       @click="$refs.sizeForm.showDialog(sizeTypes[sizeTypeTab].id, false)"
+                                      :disabled="readOnly"
                                     >
                                       <v-icon>mdi-plus</v-icon>
                                     </v-btn>
@@ -323,6 +329,7 @@
                                       v-bind="attrs"
                                       v-on="on"
                                       @click="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.colors = colors.map(o => o.name)"
+                                      :disabled="readOnly"
                                     >
                                       <v-icon>mdi-checkbox-outline</v-icon>
                                     </v-btn>
@@ -340,6 +347,7 @@
                                       v-bind="attrs"
                                       v-on="on"
                                       @click="$refs.colorForm.showDialog()"
+                                      :disabled="readOnly"
                                     >
                                       <v-icon>mdi-plus</v-icon>
                                     </v-btn>
@@ -403,7 +411,6 @@ export default {
       genderTab: null,
       dialog: false,
       readOnly: false,
-      edit: false,
       names: [],
       categories: [],
       brands: [],
@@ -461,12 +468,8 @@ export default {
     showDialog(product = null, readOnly = false) {
       this.readOnly = readOnly
       if (product) {
-        this.edit = true
-        this.productForm = {
-          ...product
-        }
+        this.fetchProduct(product.product_name_id)
       } else {
-        this.edit = false
         this.productForm = {
           id: null,
           name: null,
@@ -550,18 +553,24 @@ export default {
         console.error(error)
       }
     },
+    async fetchProduct(id) {
+      try {
+        this.$store.dispatch('loading', true)
+        let response = await axios.get(`product/${id}`)
+        this.productForm = response.data.product
+      } catch(error) {
+        console.error(error)
+      } finally {
+        this.$store.dispatch('loading', false)
+      }
+    },
     async submit() {
       try {
         let valid = await this.$refs.productObserver.validate()
         if (valid) {
           this.$store.dispatch('loading', true)
-          if (this.edit) {
-            const response = await axios.patch(`product/${this.productForm.id}`, this.productForm)
-            this.$toast.success(response.data.message)
-          } else {
-            const response = await axios.post('product', this.productForm)
-            this.$toast.success(response.data.message)
-          }
+          const response = await axios.post('product', this.productForm)
+          this.$toast.success(response.data.message)
           this.$emit('updateList')
           this.dialog = false
         }

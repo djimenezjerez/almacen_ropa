@@ -20,8 +20,8 @@ class Category extends Model
 
     public $timestamps = true;
 
-    public function products()
+    public function product_names()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(ProductName::class);
     }
 }

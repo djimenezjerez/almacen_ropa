@@ -16,7 +16,7 @@ class WarehouseController extends Controller
             return [
                 'message' => 'Lista de almacenes',
                 'payload' => [
-                    'data' => DB::table('warehouses')->select('warehouses.id', 'warehouses.name', 'warehouses.address', 'cities.name as city_name')->leftJoin('cities', 'cities.id', '=', 'warehouses.city_id')->where('warehouses.active', '=', true)->where('warehouses.deleted_at', '=', null)->orderBy('warehouses.name')->get(),
+                    'data' => DB::table('warehouses')->select('warehouses.id', 'people.name')->leftJoin('people', 'people.id', '=', 'warehouses.person_id')->where('warehouses.active', '=', true)->where('warehouses.deleted_at', '=', null)->orderBy('people.name')->get(),
                 ],
             ];
         }

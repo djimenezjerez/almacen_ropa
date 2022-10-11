@@ -14,13 +14,15 @@ class StoreStockTransferRequest extends FormRequest
     public function rules()
     {
         return [
-            'origin_store_id' => 'nullable|exists:stores,id',
-            'destiny_store_id' => 'nullable|exists:stores,id',
-            'origin_warehouse_id' => 'nullable|exists:warehouses,id',
-            'destiny_warehouse_id' => 'nullable|exists:warehouses,id',
-            'products' => 'required|array:product_id,stock',
-            'products.*.product_id' => 'required|integer|exists:products,id',
-            'products.*.stock' => 'required|integer|min:1|max:18446744073709551615',
+            'type' => 'required|in:transfer,entry,adjustment',
+            'destiny_id' => 'nullable|integer|min:1',
+            'destiny_type' => 'nullable|in:store,warehouse',
+            'origin_id' => 'nullable|integer|min:1',
+            'origin_type' => 'nullable|in:store,warehouse',
+            'products' => 'required|array|min:1',
+            'products.*.products' => 'required|array|min:1',
+            'products.*.products.*.id' => 'required|integer|exists:products,id',
+            'products.*.products.*.quantity' => 'required|integer|max:18446744073709551615|min:1',
         ];
     }
 }

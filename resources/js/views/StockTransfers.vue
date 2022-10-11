@@ -106,7 +106,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <dialog-remove ref="dialogRemove" type="transferencia" url="stockTransfer" v-on:updateList="fetchstockTransfers"/>
+    <dialog-remove ref="dialogRemove" type="transferencia" url="stockTransfer" v-on:updateList="fetchStockTransfers"/>
   </v-container>
 </template>
 
@@ -119,8 +119,8 @@ export default {
       options: {
         page: 1,
         itemsPerPage: 8,
-        sortBy: ['name'],
-        sortDesc: [false]
+        sortBy: ['created_at'],
+        sortDesc: [true]
       },
       totalItems: 0,
       stockTransfers: [],
@@ -168,23 +168,23 @@ export default {
     }
   },
   created() {
-    this.fetchstockTransfers()
+    this.fetchStockTransfers()
   },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.fetchstockTransfers()
+        this.fetchStockTransfers()
       }
     },
     search: function() {
-      this.fetchstockTransfers()
+      this.fetchStockTransfers()
     }
   },
   methods: {
     gotoStockTransferForm() {
       this.$router.push({ path: '/stock_transfer_form' })
     },
-    async fetchstockTransfers() {
+    async fetchStockTransfers() {
       try {
         this.$store.dispatch('loading', true)
         let response = await axios.get('stock_transfer', {
