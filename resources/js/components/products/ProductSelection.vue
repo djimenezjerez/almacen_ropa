@@ -121,6 +121,7 @@ export default {
       sizeTypes: [],
       genderId: null,
       selectedProducts: [],
+      except: [],
       options: {
         page: 1,
         itemsPerPage: 8,
@@ -178,7 +179,8 @@ export default {
     },
   },
   methods: {
-    showDialog() {
+    showDialog(except) {
+      this.except = except
       this.dialog = true
       this.productNameId = null
       this.clearSelection()
@@ -226,15 +228,21 @@ export default {
       }
     },
     async fetchProducts() {
-      try {
-        this.clearSelection()
-        this.$store.dispatch('loading', true)
-        let response = await axios.get(`product/${this.productNameId}`)
-        this.sizeTypes = response.data.product.size_types
-      } catch(error) {
-        console.error(error)
-      } finally {
-        this.$store.dispatch('loading', false)
+      if (this.productNameId > 0) {
+        try {
+          this.clearSelection()
+          this.$store.dispatch('loading', true)
+          let response = await axios.get(`product/${this.productNameId}`, {
+            params: {
+              except: this.except
+            }
+          })
+          this.sizeTypes = response.data.product.size_types
+        } catch(error) {
+          console.error(error)
+        } finally {
+          this.$store.dispatch('loading', false)
+        }
       }
     },
   },

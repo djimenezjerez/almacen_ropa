@@ -37,15 +37,21 @@ class StockTransferController extends Controller
 
     public function store(StoreStockTransferRequest $request)
     {
+        if ($request->destiny_id == $request->origin_id && $request->destiny_type == $request->origin_type) {
+            return response()->json([
+                'message' => 'El destino debe ser diferente al origen',
+                'errors' => []
+            ], 422);
+        }
         if ($request->type == 'entry') {
             $origin_store_id = null;
             $origin_warehouse_id = null;
-            if ($request->origin_type == 'store') {
-                $destiny_store_id = $request->origin_id;
+            if ($request->destiny_type == 'store') {
+                $destiny_store_id = $request->destiny_id;
                 $destiny_warehouse_id = null;
             } else {
                 $destiny_store_id = null;
-                $destiny_warehouse_id = $request->origin_id;
+                $destiny_warehouse_id = $request->destiny_id;
             }
         } else if ($request->type == 'adjustment') {
             $destiny_store_id = null;

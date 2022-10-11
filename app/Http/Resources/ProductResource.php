@@ -26,6 +26,11 @@ class ProductResource extends JsonResource
             ];
             foreach($genders as $gender) {
                 $products_query = DB::table('products')->select('products.id', 'products.brand_id', 'brands.name as brand_name', 'sizes.name as size_name', 'colors.name as color_name', 'products.stock')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('sizes.size_type_id', $size_type->id)->where('products.gender_id', $gender->id)->where('products.product_name_id', $this->id)->orderBy('brands.name')->orderBy('sizes.name')->orderBy('colors.name');
+                if ($request->has('except')) {
+                    if (count($request->except) > 0) {
+                        $products_query->whereNotIn('products.id', $request->except);
+                    }
+                }
                 if ($products_query->count() > 0) {
                     $data['size_types'][$i]['genders'][] = [
                         'id' => $gender->id,

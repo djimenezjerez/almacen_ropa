@@ -56,8 +56,17 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
+          <template v-slot:[`item.updated_at`]="{ item }">
+            {{ transferType(item) }}
+          </template>
           <template v-slot:[`item.created_at`]="{ item }">
             {{ item.created_at | moment('L') }}
+          </template>
+          <template v-slot:[`item.origin_store_id`]="{ item }">
+            {{ item.origin_store_name || item.origin_warehouse_name || '-' }}
+          </template>
+          <template v-slot:[`item.destiny_store_id`]="{ item }">
+            {{ item.destiny_store_name || item.destiny_warehouse_name || '-' }}
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
@@ -131,15 +140,20 @@ export default {
           sortable: false,
           value: 'id',
         }, {
+          text: 'TIPO',
+          align: 'center',
+          sortable: true,
+          value: 'updated_at',
+        }, {
           text: 'DESDE',
           align: 'center',
           sortable: true,
-          value: 'origin_store_name',
+          value: 'origin_store_id',
         }, {
           text: 'HACIA',
           align: 'center',
           sortable: true,
-          value: 'destiny_store_name',
+          value: 'destiny_store_id',
         }, {
           text: 'FECHA',
           align: 'center',
@@ -181,6 +195,15 @@ export default {
     }
   },
   methods: {
+    transferType(item) {
+      if (item.origin_store_id == null && item.origin_warehouse_id == null) {
+        return 'Ingreso'
+      } else if (item.destiny_store_id == null && item.destiny_warehouse_id == null) {
+        return 'Ajuste'
+      } else {
+        return 'Transferencia'
+      }
+    },
     gotoStockTransferForm() {
       this.$router.push({ path: '/stock_transfer_form' })
     },

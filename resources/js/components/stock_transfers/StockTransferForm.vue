@@ -13,7 +13,7 @@
           <v-form @submit.prevent="submit">
             <v-card-text>
               <v-row dense>
-                <v-col cols="12">
+                <v-col cols="12" lg="4">
                   <fieldset class="px-3">
                     <legend class="px-2">Datos del movimiento</legend>
                     <validation-provider
@@ -30,11 +30,12 @@
                         data-vv-name="type"
                         :error-messages="errors"
                         prepend-icon="mdi-file-document"
+                        @change="changeType"
                       ></v-select>
                     </validation-provider>
                   </fieldset>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" :lg="stockTransferForm.type == 'transfer' ? 4 : 8" v-if="stockTransferForm.type != 'entry'">
                   <fieldset class="px-3">
                     <legend class="px-2">Origen</legend>
                     <validation-provider
@@ -69,6 +70,41 @@
                     </validation-provider>
                   </fieldset>
                 </v-col>
+                <v-col cols="12" :lg="stockTransferForm.type == 'transfer' ? 4 : 8" v-if="stockTransferForm.type != 'adjustment'">
+                  <fieldset class="px-3">
+                    <legend class="px-2">Destino</legend>
+                    <validation-provider
+                      v-slot="{ errors }"
+                      name="destiny_type"
+                      rules="required"
+                    >
+                      <v-select
+                        :items="storeTypes"
+                        item-text="displayName"
+                        item-value="name"
+                        v-model="stockTransferForm.destiny_type"
+                        data-vv-name="destiny_type"
+                        :error-messages="errors"
+                        prepend-icon="mdi-store"
+                      ></v-select>
+                    </validation-provider>
+                    <validation-provider
+                      v-slot="{ errors }"
+                      name="destiny_id"
+                      rules="required"
+                    >
+                      <v-select
+                        :items="stockTransferForm.destiny_type == 'store' ? stores : warehouses"
+                        item-text="name"
+                        item-value="id"
+                        v-model="stockTransferForm.destiny_id"
+                        data-vv-name="destiny_id"
+                        :error-messages="errors"
+                        :prepend-icon="stockTransferForm.destiny_type == 'store' ? 'mdi-storefront-outline' : 'mdi-package-variant'"
+                      ></v-select>
+                    </validation-provider>
+                  </fieldset>
+                </v-col>
                 <v-col cols="12">
                   <fieldset class="px-3 pb-3">
                     <legend class="px-2">Productos</legend>
@@ -78,11 +114,11 @@
                           text="Agregar productos"
                           :block="true"
                           color="success"
-                          @click="$refs.productSelection.showDialog()"
+                          @click="$refs.productSelection.showDialog(stockTransferForm.products.map(o => o.products.map(i => i.id)).flat(1))"
                         />
                       </v-col>
                     </v-row>
-                    <v-card elevation="3" class="my-2" v-for="group in stockTransferForm.products" :key="group.product_name_id">
+                    <v-card elevation="3" class="my-2" v-for="group in stockTransferForm.products" :key="`${group.product_name_id}-${group.products[0].id}`">
                       <v-card-title class="pt-0">
                         {{ group.product_name }}
                       </v-card-title>
@@ -233,6 +269,14 @@ export default {
     this.fetchWarehouses()
   },
   methods: {
+    changeType(value) {
+      if (value == 'entry') {
+        this.stockTransferForm.origin_type = null
+        this.stockTransferForm.origin_id = null
+        this.stockTransferForm.destiny_type = null
+        this.stockTransferForm.destiny_id = null
+      }
+    },
     async submit() {
       try {
         let valid = await this.$refs.stockTransferObserver.validate()
@@ -243,7 +287,7 @@ export default {
           this.$router.push({ path: '/stock_transfers' })
         }
       } catch(error) {
-        console.error(error)
+        this.$toast.error(error.response.data.message)
       } finally {
         this.$store.dispatch('loading', false)
       }
@@ -259,7 +303,11 @@ export default {
     removeItem(productNameId, categoryId, sizeTypeId, genderId, productId) {
       const groupIndex = this.stockTransferForm.products.findIndex(o => (o.product_name_id == productNameId && o.category_id == categoryId && o.size_type_id == sizeTypeId && o.gender_id == genderId))
       const productIndex = this.stockTransferForm.products[groupIndex].products.findIndex(o => o.id == productId)
-      this.stockTransferForm.products[groupIndex].products.splice(productIndex, 1)
+      if (this.stockTransferForm.products[groupIndex].products.length == 1) {
+        this.stockTransferForm.products.splice(groupIndex, 1)
+      } else {
+        this.stockTransferForm.products[groupIndex].products.splice(productIndex, 1)
+      }
     },
     async fetchStores() {
       try {
@@ -269,7 +317,6 @@ export default {
           }
         })
         this.stores = response.data.payload.data
-        this.stockTransferForm.origin_id = this.stores[0].id
       } catch(error) {
         console.error(error)
       }
@@ -282,7 +329,6 @@ export default {
           }
         })
         this.warehouses = response.data.payload.data
-        this.stockTransferForm.origin_id = this.warehouses[0].id
       } catch(error) {
         console.error(error)
       }
