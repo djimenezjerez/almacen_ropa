@@ -25,7 +25,7 @@ class StockTransferController extends Controller
         if ($request->has('search')) {
             if ($request->search != '') {
                 $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(origin_person_stores.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(destiny_person_stores.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(origin_warehouses.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(destiny_warehouses.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(user_person.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                    return $q->orWhere(DB::raw('upper(origin_person_stores.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(destiny_person_stores.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(origin_person_warehouses.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(destiny_person_warehouses.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(user_person.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
                 });
             }
         }

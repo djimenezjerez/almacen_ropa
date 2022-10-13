@@ -129,7 +129,7 @@ export default {
           text: 'STOCK',
           align: 'center',
           sortable: false,
-          value: 'stock',
+          value: 'total_stock',
         }, {
           text: 'ACCIONES',
           align: 'center',

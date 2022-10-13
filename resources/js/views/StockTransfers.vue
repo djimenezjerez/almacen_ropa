@@ -32,7 +32,7 @@
           order-md="last"
         >
           <add-button
-            text="Agregar transferencia"
+            text="Agregar movimiento"
             :block="$vuetify.breakpoint.smAndDown"
             @click="gotoStockTransferForm"
           />

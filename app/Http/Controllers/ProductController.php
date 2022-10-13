@@ -29,7 +29,7 @@ class ProductController extends Controller
             ];
         }
 
-        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'size_types.name as size_type_name', 'product_names.name as product_name')->selectRaw('sum(products.stock) as stock')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->groupBy('products.product_name_id')->where('products.deleted_at', '=', null);
+        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'size_types.name as size_type_name', 'product_names.name as product_name')->selectRaw('sum(products.stock) as total_stock')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->groupBy('products.product_name_id')->where('products.deleted_at', '=', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
@@ -53,6 +53,8 @@ class ProductController extends Controller
 
     public function show(ProductName $product_name)
     {
+        $product_name->store_type = null;
+        $product_name->store_id = null;
         return [
             'message' => 'Detalle de producto',
             'product' => new ProductResource($product_name),
@@ -166,6 +168,16 @@ class ProductController extends Controller
         $product->delete();
         return [
             'message' => 'Producto eliminado',
+        ];
+    }
+
+    public function stock(ProductName $product_name, $store_type, $store_id)
+    {
+        $product_name->store_type = $store_type;
+        $product_name->store_id = intval($store_id);
+        return [
+            'message' => 'Detalle de producto por ' . ($store_type == 'store' ? 'tienda' : 'almacén'),
+            'product' => new ProductResource($product_name),
         ];
     }
 }

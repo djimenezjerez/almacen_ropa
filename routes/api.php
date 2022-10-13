@@ -119,6 +119,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         // Colores
         Route::get('color', [ColorController::class, 'index']);
         Route::post('color', [ColorController::class, 'store']);
+        // Stock
+        Route::get('product/{product_name}/{store_type}/{store_id}', [ProductController::class, 'stock']);
     });
 
     // Transferencias de stock
