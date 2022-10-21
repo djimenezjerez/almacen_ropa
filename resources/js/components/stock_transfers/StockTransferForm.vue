@@ -114,7 +114,7 @@
                           text="Agregar productos"
                           :block="true"
                           color="success"
-                          @click="$refs.productSelection.showDialog(stockTransferForm.products.map(o => o.products.map(i => i.id)).flat(1))"
+                          @click="$refs.productSelection.showDialog(stockTransferForm.type, stockTransferForm.origin_type, stockTransferForm.origin_id, stockTransferForm.products.map(o => o.products.map(i => i.id)).flat(1))"
                         />
                       </v-col>
                     </v-row>

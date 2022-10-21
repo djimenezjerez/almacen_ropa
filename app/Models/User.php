@@ -45,7 +45,7 @@ class User extends Authenticatable
 
     public function stores()
     {
-        return $this->belongsToMany(Store::class, 'model_has_roles', 'model_id', 'model_id')->wherePivot('model_type', 'App\Models\User')->withPivot('role_id');
+        return $this->belongsToMany(Store::class, 'model_has_roles', 'model_id', 'store_id')->wherePivot('model_type', 'App\Models\User')->withPivot('role_id');
     }
 
     public function role()

@@ -117,6 +117,9 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->person->delete();
+        $user->update([
+            'username' => null
+        ]);
         $user->delete();
         return [
             'message' => 'Registro eliminado',

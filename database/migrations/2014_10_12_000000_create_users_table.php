@@ -10,7 +10,7 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('username')->unique()->comment('Nombre de usuario');
+            $table->string('username')->unique()->nullable()->comment('Nombre de usuario');
             $table->string('password')->comment('Contraseña');
             $table->unsignedTinyInteger('access_attempts')->default(0)->comment('Intentos de acceso');
             $table->boolean('active')->default(true)->comment('Estado activo');

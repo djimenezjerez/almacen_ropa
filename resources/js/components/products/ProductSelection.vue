@@ -79,7 +79,7 @@
                 dense
               >
                 <template v-slot:[`group.header`]="{items, isOpen, toggle}">
-                  <th colspan="3">
+                  <th :colspan="type == 'entry' ? 3 : 4">
                     <v-icon @click="toggle"
                       >{{ isOpen ? 'mdi-minus' : 'mdi-plus' }}
                     </v-icon>
@@ -122,6 +122,9 @@ export default {
       genderId: null,
       selectedProducts: [],
       except: [],
+      type: 'entry',
+      originType: null,
+      originId: null,
       options: {
         page: 1,
         itemsPerPage: 8,
@@ -142,6 +145,11 @@ export default {
           align: 'center',
           sortable: true,
           value: 'color_name',
+        }, {
+          text: 'STOCK',
+          align: 'center',
+          sortable: true,
+          value: 'stock',
         },
       ],
     }
@@ -179,7 +187,13 @@ export default {
     },
   },
   methods: {
-    showDialog(except) {
+    showDialog(type, originType, originId, except) {
+      if (type == 'entry') {
+        this.headers = this.headers.filter(o => o.value != 'stock')
+      }
+      this.type = type
+      this.originType = originType
+      this.originId = originId
       this.except = except
       this.dialog = true
       this.productNameId = null
@@ -228,16 +242,26 @@ export default {
       }
     },
     async fetchProducts() {
+      console.log(this.productNameId);
       if (this.productNameId > 0) {
         try {
           this.clearSelection()
           this.$store.dispatch('loading', true)
-          let response = await axios.get(`product/${this.productNameId}`, {
-            params: {
-              except: this.except
-            }
-          })
-          this.sizeTypes = response.data.product.size_types
+          if (this.type == 'entry') {
+            let response = await axios.get(`product/${this.productNameId}`, {
+              params: {
+                except: this.except
+              }
+            })
+            this.sizeTypes = response.data.product.size_types
+          } else {
+            let response = await axios.get(`product/${this.productNameId}/${this.originType}/${this.originId}`, {
+              params: {
+                except: this.except
+              }
+            })
+            this.sizeTypes = response.data.product.size_types
+          }
         } catch(error) {
           console.error(error)
         } finally {

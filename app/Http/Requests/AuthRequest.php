@@ -15,7 +15,7 @@ class AuthRequest extends FormRequest
         return [
             'username' => 'required|alpha_dash|min:3',
             'password' => 'required|min:3',
-            'store_id' => 'required|exists:stores,id',
+            'store_id' => 'nullable|exists:stores,id',
         ];
     }
 }

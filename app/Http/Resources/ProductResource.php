@@ -42,12 +42,16 @@ class ProductResource extends JsonResource
                         $join->on('out_stock.product_id', '=', 'products.id');
                     });
                 }
-                $products_query->where('sizes.size_type_id', $size_type->id)->where('products.gender_id', $gender->id)->where('products.product_name_id', $this->id)->orderBy('brands.name')->orderBy('sizes.name')->orderBy('colors.name');
+                $products_query->where('sizes.size_type_id', $size_type->id)->where('products.gender_id', $gender->id)->where('products.product_name_id', $this->id);
                 if ($request->has('except')) {
                     if (count($request->except) > 0) {
                         $products_query->whereNotIn('products.id', $request->except);
                     }
                 }
+                if ($this->store_type != null && $this->store_id != null) {
+                    $products_query->havingRaw('stock > 0');
+                }
+                $products_query->orderBy('brands.name')->orderBy('sizes.name')->orderBy('colors.name');
                 if ($products_query->count() > 0) {
                     $data['size_types'][$i]['genders'][] = [
                         'id' => $gender->id,

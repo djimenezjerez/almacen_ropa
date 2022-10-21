@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Requests\AuthRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -23,6 +24,14 @@ class AuthController extends Controller
                 ], 401);
             } else {
                 if (Hash::check($request->password, $user->password)) {
+                    if ($request->store_id == null) {
+                        return [
+                            'message' => 'Tiendas relacionadas al usuario',
+                            'payload' => [
+                                'stores' => DB::table('model_has_roles')->select('store_id', 'people.name as store_name', 'role_id', 'roles.name as role_name')->leftJoin('roles', 'roles.id', '=', 'role_id')->leftJoin('stores', 'stores.id', '=', 'store_id')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('model_type', 'App\Models\User')->where('model_id', $user->id)->orderBy('people.name')->get()
+                            ],
+                        ];
+                    }
                     $store = $user->stores()->whereActive(true)->wherePivot('store_id', $request->store_id)->first();
                     if ($store != null) {
                         $role = $user->roles()->wherePivot('store_id', $request->store_id)->first();

@@ -47,6 +47,7 @@
                         :error-messages="errors"
                         prepend-icon="mdi-account"
                         autofocus
+                        :disabled="stores.length > 0"
                       ></v-text-field>
                     </validation-provider>
                     <validation-provider
@@ -63,22 +64,27 @@
                         :append-icon="shadowPassword ? 'mdi-eye' : 'mdi-eye-off'"
                         @click:append="() => (shadowPassword = !shadowPassword)"
                         :type="shadowPassword ? 'password' : 'text'"
+                        :disabled="stores.length > 0"
                       ></v-text-field>
                     </validation-provider>
                     <validation-provider
+                      v-if="stores.length > 0"
                       v-slot="{ errors }"
                       name="store_id"
                       rules="required|integer"
                     >
                       <v-select
                         :items="stores"
-                        item-text="name"
-                        item-value="id"
+                        item-text="store_name"
+                        item-value="store_id"
                         label="Tienda"
                         v-model="loginForm.store_id"
                         data-vv-name="store_id"
                         :error-messages="errors"
                         prepend-icon="mdi-store"
+                        persistent-hint
+                        :hint="roleName"
+                        ref="storeSelect"
                       ></v-select>
                     </validation-provider>
                   </v-card-text>
@@ -90,7 +96,7 @@
                       color="info"
                       :disabled="invalid"
                     >
-                      Ingresar
+                      {{ loginForm.store_id != null ? 'Ingresar' : 'Enviar' }}
                     </v-btn>
                   </v-card-actions>
                 </form>
@@ -117,8 +123,14 @@ export default {
       stores: [],
     }
   },
-  mounted() {
-    this.fetchStores()
+  computed: {
+    roleName: function() {
+      if (this.loginForm.store_id != null) {
+        return `ROL: ${this.stores.find(o => o.store_id == this.loginForm.store_id).role_name}`
+      } else {
+        return ''
+      }
+    }
   },
   methods: {
     async fetchStores() {
@@ -128,7 +140,7 @@ export default {
             combo: true,
           }
         })
-        this.stores = response.data.payload.data
+        this.stores = response.data.payload.stores
       } catch(error) {
         console.error(error)
       }
@@ -139,13 +151,29 @@ export default {
         if (valid) {
           this.$store.dispatch('loading', true)
           await axios.get('sanctum/csrf-cookie')
-          await this.$store.dispatch('login', this.loginForm)
-          this.$router.push({
-            name: 'dashboard'
-          })
+          if (this.loginForm.store_id != null) {
+            await this.$store.dispatch('login', this.loginForm)
+            this.$router.push({
+              name: 'dashboard'
+            })
+          } else {
+            let response = await axios.post(`login`, this.loginForm)
+            this.loginForm.store_id = response.data.payload.stores[0].store_id
+            if (response.data.payload.stores.length == 1) {
+              this.submit()
+            } else {
+              this.shadowPassword = true
+              this.stores = response.data.payload.stores
+              this.$nextTick(() => {
+                const input = this.$refs.storeSelect.$el.querySelector('input')
+                input.focus()
+              })
+            }
+          }
         }
       } catch(error) {
-        this.loginForm.password = ''
+        this.loginForm.store_id = null
+        this.stores = []
         this.$refs.loginObserver.reset()
         if ('errors' in error.response.data) {
           this.$refs.loginObserver.setErrors(error.response.data.errors)
