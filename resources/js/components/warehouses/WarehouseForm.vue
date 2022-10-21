@@ -33,7 +33,7 @@
                     rules="required|min:3|alpha_spaces"
                   >
                     <v-text-field
-                      label="Nombre"
+                      label="Nombre *"
                       v-model="warehouseForm.name"
                       data-vv-name="name"
                       :error-messages="errors"
@@ -61,7 +61,7 @@
                   <validation-provider
                     v-slot="{ errors }"
                     name="user_id"
-                    rules="required|numeric"
+                    rules="numeric"
                   >
                     <v-autocomplete
                       label="Responsable"
@@ -72,6 +72,7 @@
                       data-vv-name="user_id"
                       :error-messages="errors"
                       prepend-icon="mdi-account-circle"
+                      clearable
                     ></v-autocomplete>
                   </validation-provider>
                 </v-col>
@@ -79,13 +80,13 @@
                   <validation-provider
                     v-slot="{ errors }"
                     name="city_id"
-                    rules="integer"
+                    rules="required|integer"
                   >
                     <v-select
                       :items="cities"
                       item-text="name"
                       item-value="id"
-                      label="Ciudad"
+                      label="Ciudad *"
                       v-model="warehouseForm.city_id"
                       data-vv-name="city_id"
                       :error-messages="errors"

@@ -33,7 +33,7 @@
                     rules="required|min:3|alpha_spaces"
                   >
                     <v-text-field
-                      label="Nombre"
+                      label="Nombre *"
                       v-model="storeForm.name"
                       data-vv-name="name"
                       :error-messages="errors"
@@ -49,7 +49,7 @@
                     rules="required|min:3|alpha_dash"
                   >
                     <v-text-field
-                      label="NIT"
+                      label="NIT *"
                       v-model="storeForm.document"
                       data-vv-name="document"
                       :error-messages="errors"

@@ -33,7 +33,7 @@
                     rules="required|min:3|alpha_spaces"
                   >
                     <v-text-field
-                      label="Nombre"
+                      label="Nombre *"
                       v-model="clientForm.name"
                       data-vv-name="name"
                       :error-messages="errors"
@@ -49,7 +49,7 @@
                     rules="required|min:3|alpha_dash"
                   >
                     <v-text-field
-                      label="Documento"
+                      label="Documento *"
                       v-model="clientForm.document"
                       data-vv-name="document"
                       :error-messages="errors"
@@ -68,7 +68,7 @@
                       :items="documentTypes"
                       item-text="code"
                       item-value="id"
-                      label="Tipo de documento"
+                      label="Tipo de documento *"
                       v-model="clientForm.document_type_id"
                       data-vv-name="document_type_id"
                       :error-messages="errors"

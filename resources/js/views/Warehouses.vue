@@ -56,6 +56,9 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
+          <template v-slot:[`item.user_name`]="{ item }">
+            {{ item.user_id != null ? item.user_name : '-' }}
+          </template>
           <template v-slot:[`item.active`]="{ item }">
             <v-chip
               :color="isActive(item.active) ? 'success' : 'error'"
@@ -171,7 +174,7 @@ export default {
           text: 'RESPONSABLE',
           align: 'center',
           sortable: true,
-          value: 'person_name',
+          value: 'user_name',
         }, {
           text: 'DIRECCIÓN',
           align: 'center',

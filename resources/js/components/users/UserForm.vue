@@ -33,7 +33,7 @@
                     rules="required|min:3|alpha_spaces"
                   >
                     <v-text-field
-                      label="Nombre"
+                      label="Nombre *"
                       v-model="userForm.name"
                       data-vv-name="name"
                       :error-messages="errors"
@@ -49,7 +49,7 @@
                     rules="required|min:3|alpha_dash"
                   >
                     <v-text-field
-                      label="Documento de Identidad"
+                      label="Documento de Identidad *"
                       v-model="userForm.document"
                       data-vv-name="document"
                       :error-messages="errors"
@@ -128,7 +128,7 @@
                     rules="required|min:3"
                   >
                     <v-text-field
-                      label="Usuario"
+                      label="Usuario *"
                       v-model="userForm.username"
                       data-vv-name="username"
                       :error-messages="errors"

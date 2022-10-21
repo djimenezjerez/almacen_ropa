@@ -41,6 +41,10 @@ class StoreController extends Controller
                 });
             }
         }
+
+logger($query->toSql());
+logger($query->getBindings());
+
         return [
             'message' => 'Lista de tiendas',
             'payload' => $query->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1),
