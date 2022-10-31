@@ -16,17 +16,13 @@ class StoreProductRequest extends FormRequest
         return [
             'name' => 'required|string|min:2',
             'category_name' => 'required|string|min:1',
-            'size_types' => 'required|array|min:1',
-            'size_types.*.id' => 'required|exists:size_types,id',
-            'size_types.*.name' => 'required|string|min:1',
-            'size_types.*.genders' => 'required|array|min:1',
-            'size_types.*.genders.*.id' => 'required|exists:genders,id',
-            'size_types.*.genders.*.name' => 'required|string|min:1',
-            'size_types.*.genders.*.attributes' => 'required|array|min:1',
-            'size_types.*.genders.*.attributes.alphabetic_sizes' => 'present|array',
-            'size_types.*.genders.*.attributes.numeric_sizes' => 'present|array',
-            'size_types.*.genders.*.attributes.brands' => 'present|array',
-            'size_types.*.genders.*.attributes.colors' => 'present|array',
+            'gender_id' => 'required|exists:genders,id',
+            'sizes' => 'required|array|min:1',
+            'sizes.*' => 'required|exists:sizes,id',
+            'brands' => 'required|array|min:1',
+            'brands.*' => 'required|exists:brands,id',
+            'colors' => 'required|array|min:1',
+            'colors.*' => 'required|exists:colors,id',
         ];
     }
 

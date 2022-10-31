@@ -20,13 +20,13 @@ class UserController extends Controller
             return [
                 'message' => 'Lista de usuarios',
                 'payload' => [
-                    'data' => DB::table('users')->select('users.id', 'people.name')->leftJoin('people', 'people.id', '=', 'users.person_id')->where('users.deleted_at', '=', null)->orderBy('people.name')->get(),
+                    'data' => DB::table('users')->select('users.id', 'people.name')->leftJoin('people', 'people.id', '=', 'users.person_id')->where('users.deleted_at', null)->orderBy('people.name')->get(),
                 ],
             ];
         }
 
         $auth_user = auth()->user();
-        $query = DB::table('users')->select('users.id', 'users.username', 'users.access_attempts', 'users.active', 'users.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'users.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('users.deleted_at', '=', null)->where('users.id', '!=', $auth_user->id);
+        $query = DB::table('users')->select('users.id', 'users.username', 'users.access_attempts', 'users.active', 'users.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'users.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('users.deleted_at', null)->where('users.id', '!=', $auth_user->id);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');

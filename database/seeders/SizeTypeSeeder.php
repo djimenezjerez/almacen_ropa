@@ -14,13 +14,13 @@ class SizeTypeSeeder extends Seeder
         $data = [
             [
                 'name' => 'Adultos',
-                'alphabetic' => ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-                'numeric' => ['33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45'],
+                'alphabetic' => ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'],
+                'numeric' => ['32', '34', '36', '38', '40', '42', '44', '46', '48', '50', '52'],
                 'order' => 1,
             ],[
                 'name' => 'Infantes',
-                'alphabetic' => ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-                'numeric' => ['16', '17', '18', '19', '20', '21', '22', '23', '24', '25'],
+                'alphabetic' => ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'],
+                'numeric' => ['8', '10', '12', '14', '16', '18', '20', '22', '24', '26'],
                 'order' => 2,
             ],
         ];
@@ -32,18 +32,22 @@ class SizeTypeSeeder extends Seeder
                 'order' => $item['order'],
             ]);
 
-            foreach($item['numeric'] as $size) {
+            foreach($item['numeric'] as $i => $size) {
                 Size::firstOrCreate([
                     'name' => $size,
                     'size_type_id' => $size_type->id,
                     'numeric' => true,
+                ], [
+                    'order' => $i + 1,
                 ]);
             }
-            foreach($item['alphabetic'] as $size) {
+            foreach($item['alphabetic'] as $i => $size) {
                 Size::firstOrCreate([
                     'name' => $size,
                     'size_type_id' => $size_type->id,
                     'numeric' => false,
+                ], [
+                    'order' => $i + 1,
                 ]);
             }
         }

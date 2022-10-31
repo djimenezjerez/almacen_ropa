@@ -27,6 +27,18 @@
             <v-card-text>
               <v-row dense>
                 <v-col cols="12">
+                  <v-select
+                    label="Tipo de talla"
+                    v-model="sizeType"
+                    item-text="name"
+                    item-value="id"
+                    :items="sizeTypes"
+                    prepend-icon="mdi-human-male-boy"
+                    :return-object="false"
+                    disabled
+                  ></v-select>
+                </v-col>
+                <v-col cols="12">
                   <validation-provider
                     v-slot="{ errors }"
                     name="name"
@@ -65,302 +77,222 @@
                     ></v-combobox>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" v-if="!$store.getters.loading">
-                  <v-tabs
-                    v-model="sizeTypeTab"
-                    grow
-                    @change="changeSizeTypeTab"
-                    color="light-blue darken-3"
+                <v-col cols="12">
+                  <validation-provider
+                    v-slot="{ errors }"
+                    name="gender_id"
+                    rules="required"
                   >
-                    <v-tab
-                      v-for="sizeType in sizeTypes"
-                      :key="sizeType.id"
-                    >
-                      {{ sizeType.name }}
-                    </v-tab>
-                  </v-tabs>
-                  <v-tabs-items v-model="sizeTypeTab">
-                    <v-tab-item
-                      v-for="sizeType in sizeTypes"
-                      :key="sizeType.id"
-                    >
-                      <v-tabs
-                        v-model="genderTab"
-                        grow
-                        color="light-blue darken-4"
+                    <v-select
+                      label="Género"
+                      v-model="productForm.gender_id"
+                      item-text="name"
+                      item-value="id"
+                      :items="genders"
+                      data-vv-name="gender_id"
+                      :error-messages="errors"
+                      prepend-icon="mdi-gender-male-female"
+                      :return-object="false"
+                    ></v-select>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12">
+                  <v-select
+                    label="Estándar de talla"
+                    v-model="sizeStandard"
+                    item-text="name"
+                    item-value="value"
+                    :items="sizeStandards"
+                    prepend-icon="mdi-human-male-height-variant"
+                    :return-object="false"
+                    @change="productForm.sizes = []"
+                  ></v-select>
+                </v-col>
+                <v-col cols="12">
+                  <v-row  align="center" align-content="space-between" dense>
+                    <v-col cols="10">
+                      <validation-provider
+                        v-slot="{ errors }"
+                        name="sizes"
+                        rules="required|min:1"
                       >
-                        <v-tab
-                          v-for="gender in genders"
-                          :key="gender.id"
-                        >
-                          {{ gender.name }}
-                        </v-tab>
-                      </v-tabs>
-                      <v-tabs-items v-model="genderTab">
-                        <v-tab-item
-                          v-for="gender in genders"
-                          :key="gender.id"
-                        >
-                          <v-col cols="12">
-                            <v-row  align="center" align-content="space-between" dense>
-                              <v-col cols="10">
-                                <validation-provider
-                                  v-slot="{ errors }"
-                                  name="brands"
-                                  rules="required|min:1"
-                                >
-                                  <v-autocomplete
-                                    :items="brands"
-                                    item-text="name"
-                                    item-value="name"
-                                    label="Marcas"
-                                    multiple
-                                    v-model="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.brands"
-                                    data-vv-name="brands"
-                                    :error-messages="errors"
-                                    prepend-icon="mdi-shopping-outline"
-                                    chips
-                                    deletable-chips
-                                    hide-selected
-                                    hide-details
-                                    dense
-                                  ></v-autocomplete>
-                                </validation-provider>
-                              </v-col>
-                              <v-col cols="1">
-                                <v-tooltip bottom>
-                                  <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                      x-small
-                                      fab
-                                      color="success"
-                                      v-bind="attrs"
-                                      v-on="on"
-                                      @click="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.brands = brands.map(o => o.name)"
-                                      :disabled="readOnly"
-                                    >
-                                      <v-icon>mdi-checkbox-outline</v-icon>
-                                    </v-btn>
-                                  </template>
-                                  <span>Seleccionar todo</span>
-                                </v-tooltip>
-                              </v-col>
-                              <v-col cols="1">
-                                <v-tooltip bottom>
-                                  <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                      x-small
-                                      fab
-                                      color="info"
-                                      v-bind="attrs"
-                                      v-on="on"
-                                      @click="$refs.brandForm.showDialog()"
-                                      :disabled="readOnly"
-                                    >
-                                      <v-icon>mdi-plus</v-icon>
-                                    </v-btn>
-                                  </template>
-                                  <span>Nueva marca</span>
-                                </v-tooltip>
-                              </v-col>
-                            </v-row>
-                          </v-col>
-                          <v-col cols="12">
-                            <v-row  align="center" align-content="space-between" dense>
-                              <v-col cols="10">
-                                <validation-provider
-                                  v-slot="{ errors }"
-                                  name="numeric_sizes"
-                                  rules="required|min:1"
-                                >
-                                  <v-select
-                                    :items="filteredSizes(true)"
-                                    item-text="name"
-                                    item-value="name"
-                                    label="Tallas numéricas"
-                                    multiple
-                                    v-model="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.numeric_sizes"
-                                    data-vv-name="numeric_sizes"
-                                    :error-messages="errors"
-                                    prepend-icon="mdi-tshirt-crew-outline"
-                                    chips
-                                    deletable-chips
-                                    hide-selected
-                                    hide-details
-                                    dense
-                                  ></v-select>
-                                </validation-provider>
-                              </v-col>
-                              <v-col cols="1">
-                                <v-tooltip bottom>
-                                  <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                      x-small
-                                      fab
-                                      color="success"
-                                      v-bind="attrs"
-                                      v-on="on"
-                                      @click="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.numeric_sizes = filteredSizes(true).map(o => o.name)"
-                                      :disabled="readOnly"
-                                    >
-                                      <v-icon>mdi-checkbox-outline</v-icon>
-                                    </v-btn>
-                                  </template>
-                                  <span>Seleccionar todo</span>
-                                </v-tooltip>
-                              </v-col>
-                              <v-col cols="1">
-                                <v-tooltip bottom>
-                                  <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                      x-small
-                                      fab
-                                      color="info"
-                                      v-bind="attrs"
-                                      v-on="on"
-                                      @click="$refs.sizeForm.showDialog(sizeTypes[sizeTypeTab].id, true)"
-                                      :disabled="readOnly"
-                                    >
-                                      <v-icon>mdi-plus</v-icon>
-                                    </v-btn>
-                                  </template>
-                                  <span>Nueva talla numérica</span>
-                                </v-tooltip>
-                              </v-col>
-                            </v-row>
-                          </v-col>
-                          <v-col cols="12">
-                            <v-row  align="center" align-content="space-between" dense>
-                              <v-col cols="10">
-                                <validation-provider
-                                  v-slot="{ errors }"
-                                  name="alphabetic_sizes"
-                                  rules="required|min:1"
-                                >
-                                  <v-select
-                                    :items="filteredSizes(false)"
-                                    item-text="name"
-                                    item-value="name"
-                                    label="Tallas alfabéticas"
-                                    multiple
-                                    v-model="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.alphabetic_sizes"
-                                    data-vv-name="alphabetic_sizes"
-                                    :error-messages="errors"
-                                    prepend-icon="mdi-tshirt-crew"
-                                    chips
-                                    deletable-chips
-                                    hide-selected
-                                    hide-details
-                                    dense
-                                  ></v-select>
-                                </validation-provider>
-                              </v-col>
-                              <v-col cols="1">
-                                <v-tooltip bottom>
-                                  <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                      x-small
-                                      fab
-                                      color="success"
-                                      v-bind="attrs"
-                                      v-on="on"
-                                      @click="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.alphabetic_sizes = filteredSizes(false).map(o => o.name)"
-                                      :disabled="readOnly"
-                                    >
-                                      <v-icon>mdi-checkbox-outline</v-icon>
-                                    </v-btn>
-                                  </template>
-                                  <span>Seleccionar todo</span>
-                                </v-tooltip>
-                              </v-col>
-                              <v-col cols="1">
-                                <v-tooltip bottom>
-                                  <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                      x-small
-                                      fab
-                                      color="info"
-                                      v-bind="attrs"
-                                      v-on="on"
-                                      @click="$refs.sizeForm.showDialog(sizeTypes[sizeTypeTab].id, false)"
-                                      :disabled="readOnly"
-                                    >
-                                      <v-icon>mdi-plus</v-icon>
-                                    </v-btn>
-                                  </template>
-                                  <span>Nueva talla alfabética</span>
-                                </v-tooltip>
-                              </v-col>
-                            </v-row>
-                          </v-col>
-                          <v-col cols="12">
-                            <v-row  align="center" align-content="space-between" dense>
-                              <v-col cols="10">
-                                <validation-provider
-                                  v-slot="{ errors }"
-                                  name="colors"
-                                  rules="required|min:1"
-                                >
-                                  <v-autocomplete
-                                    :items="colors"
-                                    item-text="name"
-                                    item-value="name"
-                                    label="Colores"
-                                    multiple
-                                    v-model="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.colors"
-                                    data-vv-name="colors"
-                                    :error-messages="errors"
-                                    prepend-icon="mdi-invert-colors"
-                                    chips
-                                    deletable-chips
-                                    hide-selected
-                                    hide-details
-                                    dense
-                                  ></v-autocomplete>
-                                </validation-provider>
-                              </v-col>
-                              <v-col cols="1">
-                                <v-tooltip bottom>
-                                  <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                      x-small
-                                      fab
-                                      color="success"
-                                      v-bind="attrs"
-                                      v-on="on"
-                                      @click="productForm.size_types[sizeTypeTab].genders[genderTab].attributes.colors = colors.map(o => o.name)"
-                                      :disabled="readOnly"
-                                    >
-                                      <v-icon>mdi-checkbox-outline</v-icon>
-                                    </v-btn>
-                                  </template>
-                                  <span>Seleccionar todo</span>
-                                </v-tooltip>
-                              </v-col>
-                              <v-col cols="1">
-                                <v-tooltip bottom>
-                                  <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                      x-small
-                                      fab
-                                      color="info"
-                                      v-bind="attrs"
-                                      v-on="on"
-                                      @click="$refs.colorForm.showDialog()"
-                                      :disabled="readOnly"
-                                    >
-                                      <v-icon>mdi-plus</v-icon>
-                                    </v-btn>
-                                  </template>
-                                  <span>Nuevo color</span>
-                                </v-tooltip>
-                              </v-col>
-                            </v-row>
-                          </v-col>
-                        </v-tab-item>
-                      </v-tabs-items>
-                    </v-tab-item>
-                  </v-tabs-items>
+                        <v-select
+                          :items="filteredSizes()"
+                          item-text="name"
+                          item-value="id"
+                          label="Tallas"
+                          multiple
+                          v-model="productForm.sizes"
+                          data-vv-name="sizes"
+                          :error-messages="errors"
+                          prepend-icon="mdi-tshirt-crew-outline"
+                          chips
+                          deletable-chips
+                          hide-selected
+                        ></v-select>
+                      </validation-provider>
+                    </v-col>
+                    <v-col cols="1">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            x-small
+                            fab
+                            color="success"
+                            v-bind="attrs"
+                            v-on="on"
+                            @click="productForm.sizes = filteredSizes().map(o => o.id)"
+                            :disabled="readOnly"
+                          >
+                            <v-icon>mdi-check-all</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Seleccionar todo</span>
+                      </v-tooltip>
+                    </v-col>
+                    <v-col cols="1">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            x-small
+                            fab
+                            color="info"
+                            v-bind="attrs"
+                            v-on="on"
+                            @click="$refs.sizeForm.showDialog(sizeType, sizeStandard == 'numeric')"
+                            :disabled="readOnly"
+                          >
+                            <v-icon>mdi-plus</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Nueva talla numérica</span>
+                      </v-tooltip>
+                    </v-col>
+                  </v-row>
+                </v-col>
+                <v-col cols="12">
+                  <v-row  align="center" align-content="space-between" dense>
+                    <v-col cols="10">
+                      <validation-provider
+                        v-slot="{ errors }"
+                        name="brands"
+                        rules="required|min:1"
+                      >
+                        <v-autocomplete
+                          :items="brands"
+                          item-text="name"
+                          item-value="id"
+                          label="Marcas"
+                          multiple
+                          v-model="productForm.brands"
+                          data-vv-name="brands"
+                          :error-messages="errors"
+                          prepend-icon="mdi-shopping-outline"
+                          chips
+                          deletable-chips
+                          hide-selected
+                        ></v-autocomplete>
+                      </validation-provider>
+                    </v-col>
+                    <v-col cols="1">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            x-small
+                            fab
+                            color="success"
+                            v-bind="attrs"
+                            v-on="on"
+                            @click="productForm.brands = brands.map(o => o.id)"
+                            :disabled="readOnly"
+                          >
+                            <v-icon>mdi-check-all</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Seleccionar todo</span>
+                      </v-tooltip>
+                    </v-col>
+                    <v-col cols="1">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            x-small
+                            fab
+                            color="info"
+                            v-bind="attrs"
+                            v-on="on"
+                            @click="$refs.brandForm.showDialog()"
+                            :disabled="readOnly"
+                          >
+                            <v-icon>mdi-plus</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Nueva marca</span>
+                      </v-tooltip>
+                    </v-col>
+                  </v-row>
+                </v-col>
+                <v-col cols="12">
+                  <v-row  align="center" align-content="space-between" dense>
+                    <v-col cols="10">
+                      <validation-provider
+                        v-slot="{ errors }"
+                        name="colors"
+                        rules="required|min:1"
+                      >
+                        <v-autocomplete
+                          :items="colors"
+                          item-text="name"
+                          item-value="id"
+                          label="Colores"
+                          multiple
+                          v-model="productForm.colors"
+                          data-vv-name="colors"
+                          :error-messages="errors"
+                          prepend-icon="mdi-invert-colors"
+                          chips
+                          deletable-chips
+                          hide-selected
+                        ></v-autocomplete>
+                      </validation-provider>
+                    </v-col>
+                    <v-col cols="1">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            x-small
+                            fab
+                            color="success"
+                            v-bind="attrs"
+                            v-on="on"
+                            @click="productForm.colors = colors.map(o => o.id)"
+                            :disabled="readOnly"
+                          >
+                            <v-icon>mdi-check-all</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Seleccionar todo</span>
+                      </v-tooltip>
+                    </v-col>
+                    <v-col cols="1">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            x-small
+                            fab
+                            color="info"
+                            v-bind="attrs"
+                            v-on="on"
+                            @click="$refs.colorForm.showDialog()"
+                            :disabled="readOnly"
+                          >
+                            <v-icon>mdi-plus</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Nuevo color</span>
+                      </v-tooltip>
+                    </v-col>
+                  </v-row>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -400,6 +332,12 @@
 <script>
 export default {
   name: 'ProductForm',
+  props: {
+    sizeTypes: {
+      type: Array,
+      required: true
+    },
+  },
   components: {
     'size-form': () => import('@/components/products/SizeForm.vue'),
     'color-form': () => import('@/components/products/ColorForm.vue'),
@@ -407,23 +345,33 @@ export default {
   },
   data: function() {
     return {
-      sizeTypeTab: null,
-      genderTab: null,
       dialog: false,
       readOnly: false,
       names: [],
       categories: [],
       brands: [],
-      sizeTypes: [],
-      sizeNumeric: null,
+      sizeType: null,
       genders: [],
       sizes: [],
       colors: [],
+      sizeStandards: [
+        {
+          name: 'Tallas numéricas',
+          value: 'numeric'
+        }, {
+          name: 'Tallas alfabéticas',
+          value: 'alphabetic'
+        },
+      ],
+      sizeStandard: 'numeric',
       productForm: {
         id: null,
         name: null,
         category_name: null,
-        size_types: [],
+        gender_id: null,
+        sizes: [],
+        brands: [],
+        colors: [],
       },
     }
   },
@@ -431,42 +379,34 @@ export default {
     this.fetchNames()
     this.fetchCategories()
     this.fetchBrands()
-    this.fetchSizeTypes()
     this.fetchGenders()
     this.fetchSizes()
     this.fetchColors()
   },
   methods: {
-    changeSizeTypeTab() {
-      this.$nextTick(() => {
-        this.genderTab = 0
-      })
-    },
-    filteredSizes(numeric) {
+    filteredSizes() {
       if (this.sizeTypes.length > 0) {
-        return this.sizes.filter(o => (o.numeric == numeric && o.size_type_id == this.sizeTypes[this.sizeTypeTab].id))
+        const standard = this.sizeStandard == 'numeric'
+        return this.sizes.filter(o => (o.numeric == standard && o.size_type_id == this.sizeType))
       } else {
         return []
       }
     },
     addBrand(param) {
       this.brands.push(param)
-      this.productForm.size_types[this.sizeTypeTab].genders[this.genderTab].attributes.brands.push(param.name)
+      this.productForm.brands.push(param.id)
     },
     addColor(param) {
       this.colors.push(param)
-      this.productForm.size_types[this.sizeTypeTab].genders[this.genderTab].attributes.colors.push(param.name)
+      this.productForm.colors.push(param.id)
     },
-    addSize(param, numeric) {
+    addSize(param) {
       this.sizes.push(param)
-      if (numeric) {
-        this.productForm.size_types[this.sizeTypeTab].genders[this.genderTab].attributes.numeric_sizes.push(param.name)
-      } else {
-        this.productForm.size_types[this.sizeTypeTab].genders[this.genderTab].attributes.alphabetic_sizes.push(param.name)
-      }
+      this.productForm.sizes.push(param.id)
     },
-    showDialog(product = null, readOnly = false) {
+    showDialog(sizeType, product = null, readOnly = false) {
       this.readOnly = readOnly
+      this.sizeType = sizeType
       if (product) {
         this.fetchProduct(product.product_name_id)
       } else {
@@ -474,23 +414,15 @@ export default {
           id: null,
           name: null,
           category_name: null,
-          size_types: this.sizeTypes.map(object => {
-            return {...object, genders: this.genders.map(item => {
-              return  {...item, attributes: {
-                brands: [],
-                numeric_sizes: [],
-                alphabetic_sizes: [],
-                colors: [],
-              }}
-            })}
-          })
+          gender_id: null,
+          sizes: [],
+          brands: [],
+          colors: [],
         }
       }
       this.dialog = true
       this.$nextTick(() => {
         this.$refs.productObserver.reset()
-        this.sizeTypeTab = 0
-        this.genderTab = 0
       })
     },
     async fetchCategories() {
@@ -525,14 +457,6 @@ export default {
       try {
         let response = await axios.get('brand')
         this.brands = response.data.payload.data
-      } catch(error) {
-        console.error(error)
-      }
-    },
-    async fetchSizeTypes() {
-      try {
-        let response = await axios.get('size_type')
-        this.sizeTypes = response.data.payload.data
       } catch(error) {
         console.error(error)
       }

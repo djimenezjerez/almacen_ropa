@@ -11,7 +11,6 @@
     v-model="searchValue"
     @input="inputUpdated"
     v-on:keyup.enter="searchValue && $emit('input', searchValue)"
-    :class="{ 'mr-4': $vuetify.breakpoint.mdAndUp }"
   ></v-text-field>
 </template>
 
@@ -25,6 +24,10 @@ export default {
       type: String,
       default: 'Buscar',
     },
+    inputLength: {
+      type: Number,
+      default: 2,
+    },
   },
   data: function() {
     return {
@@ -33,7 +36,7 @@ export default {
   },
   methods: {
     inputUpdated: _.debounce(function (value) {
-        if (value == null || value.length >= 2 || value.length == 0) {
+        if (value == null || value.length >= this.inputLength || value.length == 0) {
           this.$emit('input', value)
         }
       }, 500

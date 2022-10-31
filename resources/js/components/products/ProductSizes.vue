@@ -6,7 +6,9 @@
       >
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="breadcrumbs[0].to">{{ breadcrumbs[0].text }}</router-link>
         <span class="white--text px-3">/</span>
-        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
+        <span class="white--text px-3">/</span>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[2].to">{{ breadcrumbs[2].text }}</router-link>
       </v-toolbar>
       <v-row
         class="background pb-0 pt-2 px-4 mx-0"
@@ -15,28 +17,46 @@
         dense
       >
         <v-col cols="4" md="2">
-          <div class="text-right">Tienda: </div>
+          <div class="text-right">Producto: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ store.name }}</div>
+          <div class="font-weight-bold">{{ productName.name }}</div>
         </v-col>
         <v-col cols="4" md="2">
-          <div class="text-right">NIT: </div>
+          <div class="text-right">Stock: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ store.document }}</div>
+          <div class="font-weight-bold">{{ productName.total }}</div>
         </v-col>
         <v-col cols="4" md="2">
-          <div class="text-right">Dirección: </div>
+          <div class="text-right">Categoría: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ store.address }}</div>
+          <div class="font-weight-bold">{{ productName.category_name }}</div>
         </v-col>
         <v-col cols="4" md="2">
-          <div class="text-right">Ciudad: </div>
+          <div class="text-right">Tipo de talla: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ store.city_name }}</div>
+          <div class="font-weight-bold">{{ sizeType.name }}</div>
+        </v-col>
+        <v-col cols="4" md="2">
+          <div class="text-right">Marca: </div>
+        </v-col>
+        <v-col cols="8" md="4">
+          <div class="font-weight-bold">{{ brand.name }}</div>
+        </v-col>
+        <v-col cols="4" md="2">
+          <div class="text-right">Color: </div>
+        </v-col>
+        <v-col cols="8" md="4">
+          <div class="font-weight-bold">{{ color.name }}</div>
+        </v-col>
+        <v-col cols="4" md="2">
+          <div class="text-right">Género: </div>
+        </v-col>
+        <v-col cols="8" md="4">
+          <div class="font-weight-bold">{{ gender.name }}</div>
         </v-col>
       </v-row>
       <v-row
@@ -47,28 +67,11 @@
       >
         <v-col
           cols="12"
-          md="8"
-          order="last"
-          order-md="first"
         >
           <search-input
             v-model="search"
             label="Texto o parámetro de búsqueda"
-          />
-        </v-col>
-        <v-col
-          cols="12"
-          md="4"
-          :class="{
-            'text-right': $vuetify.breakpoint.mdAndUp,
-          }"
-          order="first"
-          order-md="last"
-        >
-          <add-button
-            text="Agregar empleado"
-            :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.employeeForm.showDialog()"
+            :inputLength="1"
           />
         </v-col>
       </v-row>
@@ -78,7 +81,7 @@
         <v-data-table
           id="datatable"
           :headers="headers"
-          :items="employees"
+          :items="sizes"
           :options.sync="options"
           :server-items-length="totalItems"
           :footer-props="{
@@ -89,49 +92,38 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
+          <template v-slot:[`item.active`]="{ item }">
+            <v-chip
+              :color="isActive(item.active) ? 'success' : 'error'"
+              dark
+              small
+            >
+              {{ isActive(item.active) ? 'ACTIVO' : 'INACTIVO' }}
+            </v-chip>
+          </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="3">
+              <v-col cols="6">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
                       icon
                       v-bind="attrs"
                       v-on="on"
-                      color="warning"
-                      @click="$refs.employeeForm.showDialog(item, true)"
+                      :color="item.active ? 'warning' : 'success'"
+                      @click="$refs.productSwitch.showDialog(item)"
                     >
                       <v-icon
                         dense
                       >
-                        mdi-eye
+                        {{ item.active ? 'mdi-eye-off' : 'mdi-eye' }}
                       </v-icon>
                     </v-btn>
                   </template>
-                  <span>Ver</span>
+                  <span>{{ item.active ? 'Desactivar' : 'Activar' }}</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="info"
-                      @click="$refs.employeeForm.showDialog(item)"
-                    >
-                      <v-icon
-                        dense
-                      >
-                        mdi-pencil
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Editar</span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="3">
+              <v-col cols="6">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -139,7 +131,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="error"
-                      @click="$refs.employeeRemove.showDialog(item)"
+                      @click="$refs.dialogRemove.showDialog(item)"
                     >
                       <v-icon
                         dense
@@ -156,34 +148,48 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <employee-form ref="employeeForm" :users="users" :employees="employees.map(i => i.user_id)" :storeId="parseInt($route.query.store_id)" :roles="roles" v-on:updateList="fetchEmployees"/>
-    <employee-remove ref="employeeRemove" v-on:updateList="fetchEmployees"/>
+    <dialog-remove ref="dialogRemove" type="producto" url="product" v-on:updateList="fetchSizes"/>
+    <product-switch ref="productSwitch" v-on:updateList="fetchSizes"/>
   </v-container>
 </template>
 
 <script>
 export default {
-  name: 'Employees',
+  name: 'ProductSizes',
   components: {
-    'employee-form': () => import('@/components/employees/EmployeeForm.vue'),
-    'employee-remove': () => import('@/components/employees/EmployeeRemove.vue'),
+    'product-switch': () => import('@/components/products/ProductSwitch.vue'),
   },
   data() {
     return {
       breadcrumbs: [
         {
-          text: 'Tiendas',
+          text: 'Productos',
           disabled: false,
           to: {
-            path: '/stores',
+            path: '/products',
           },
         }, {
-          text: 'Empleados',
+          text: 'Detalle',
+          disabled: false,
+          to: {
+            path: '/product_details',
+            query: {
+              product_name_id: this.$route.query.product_name_id,
+              size_type_id: this.$route.query.size_type_id,
+            },
+          },
+        }, {
+          text: 'Tallas',
           disabled: true,
           to: {
-            path: '/employees',
+            path: '/product_sizes',
             query: {
-              store_id: this.$route.query.store_id,
+              product_id: this.$route.query.product_id,
+              size_type_id: this.$route.query.size_type_id,
+              product_name_id: this.$route.query.product_name_id,
+              brand_id: this.$route.query.brand_id,
+              gender_id: this.$route.query.gender_id,
+              color_id: this.$route.query.color_id,
             },
           },
         },
@@ -192,14 +198,15 @@ export default {
       options: {
         page: 1,
         itemsPerPage: 8,
-        sortBy: ['people.name'],
         sortDesc: [false]
       },
       totalItems: 0,
-      store: {},
-      employees: [],
-      roles: [],
-      users: [],
+      productName: {},
+      sizeType: {},
+      brand: {},
+      gender: {},
+      color: {},
+      sizes: [],
       headers: [
         {
           text: 'NRO',
@@ -208,91 +215,114 @@ export default {
           value: 'id',
           class: this.$headerClass,
         }, {
-          text: 'NOMBRE',
+          text: 'TALLA',
           align: 'center',
           sortable: true,
-          value: 'person_name',
+          value: 'size_name',
           class: this.$headerClass,
         }, {
-          text: 'ROL',
+          text: 'STOCK',
+          align: 'center',
+          sortable: false,
+          value: 'stock',
+          class: this.$headerClass,
+        }, {
+          text: 'ESTADO',
           align: 'center',
           sortable: true,
-          value: 'role_display_name',
+          value: 'active',
           class: this.$headerClass,
         }, {
           text: 'ACCIONES',
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '7%',
+          width: '9%',
           class: this.$headerClass,
         },
       ],
     }
   },
   created() {
-    this.fetchEmployees()
-    this.fetchStore()
-    this.fetchRoles()
-    this.fetchUsers()
+    this.fetchProductName()
+    this.fetchSizeType()
+    this.fetchBrand()
+    this.fetchGender()
+    this.fetchColor()
   },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.fetchEmployees()
+        this.fetchSizes()
       }
     },
     search: function() {
       this.options.page = 1
-      this.fetchEmployees()
+      this.fetchSizes()
     }
   },
   methods: {
-    async fetchUsers() {
+    isActive(active) {
+      return active == true
+    },
+    async fetchProductName() {
       try {
-        let response = await axios.get('user', {
+        let response = await axios.get(`product_name/${this.$route.query.product_name_id}`, {
           params: {
-            combo: true,
+            size_type_id: this.$route.query.size_type_id,
           }
         })
-        this.users = response.data.payload.data
+        this.productName = response.data.payload
       } catch(error) {
         console.error(error)
       }
     },
-    async fetchRoles() {
+    async fetchSizeType() {
       try {
-        let response = await axios.get('role', {
-          params: {
-            combo: true,
-          }
-        })
-        this.roles = response.data.payload.data
+        let response = await axios.get(`size_type/${this.$route.query.size_type_id}`)
+        this.sizeType = response.data.payload
       } catch(error) {
         console.error(error)
       }
     },
-    async fetchStore() {
+    async fetchBrand() {
       try {
-        let response = await axios.get(`store/${this.$route.query.store_id}`)
-        this.store = response.data.payload.store
+        let response = await axios.get(`brand/${this.$route.query.brand_id}`)
+        this.brand = response.data.payload
       } catch(error) {
         console.error(error)
       }
     },
-    async fetchEmployees() {
+    async fetchGender() {
+      try {
+        let response = await axios.get(`gender/${this.$route.query.gender_id}`)
+        this.gender = response.data.payload
+      } catch(error) {
+        console.error(error)
+      }
+    },
+    async fetchColor() {
+      try {
+        let response = await axios.get(`color/${this.$route.query.color_id}`)
+        this.color = response.data.payload
+      } catch(error) {
+        console.error(error)
+      }
+    },
+    async fetchSizes() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get(`store/${this.$route.query.store_id}/employee`, {
+        let response = await axios.get(`product/${this.$route.query.product_id}/sizes`, {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,
             sort_by: this.options.sortBy,
             sort_desc: this.options.sortDesc,
             search: this.search,
+            size_type_id: this.$route.query.size_type_id,
           },
         })
-        this.employees = response.data.payload.data
+        this.sizes = response.data.payload.data
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)

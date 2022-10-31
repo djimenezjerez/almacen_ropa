@@ -18,4 +18,12 @@ class SizeTypeController extends Controller
             ],
         ];
     }
+
+    public function show(SizeType $size_type)
+    {
+        return [
+            'message' => 'Tipo de talla',
+            'payload' => $size_type,
+        ];
+    }
 }

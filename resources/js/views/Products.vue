@@ -13,9 +13,8 @@
       >
         <v-col
           cols="12"
-          md="8"
-          order="last"
-          order-md="first"
+          sm="12"
+          xl="8"
         >
           <search-input
             v-model="search"
@@ -24,17 +23,39 @@
         </v-col>
         <v-col
           cols="12"
-          md="4"
+          sm="5"
+          md="3"
+          xl="2"
           :class="{
-            'text-right': $vuetify.breakpoint.mdAndUp,
+            'text-right': $vuetify.breakpoint.smAndUp,
           }"
-          order="first"
-          order-md="last"
+        >
+          <v-select
+            label="Tipo de talla"
+            v-model="sizeType"
+            item-text="name"
+            item-value="id"
+            :items="sizeTypes"
+            prepend-icon="mdi-human-male-boy"
+            :return-object="false"
+            dense
+            hide-details
+            @change="fetchProducts"
+          ></v-select>
+        </v-col>
+        <v-col
+          cols="12"
+          sm="7"
+          md="9"
+          xl="2"
+          :class="{
+            'text-right': $vuetify.breakpoint.smAndUp,
+          }"
         >
           <add-button
             text="Agregar producto"
-            :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.productForm.showDialog()"
+            :block="$vuetify.breakpoint.xs"
+            @click="$refs.productForm.showDialog(sizeType)"
           />
         </v-col>
       </v-row>
@@ -51,14 +72,13 @@
             itemsPerPageOptions: [8, 15, 30]
           }"
           :calculate-widths="true"
-          dense
         >
           <template v-slot:[`item.product_name_id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="4">
+              <v-col cols="6">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -66,7 +86,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="$refs.productForm.showDialog(item, true)"
+                      @click="gotoProductDetails(item.product_name_id, sizeType)"
                     >
                       <v-icon
                         dense
@@ -75,7 +95,27 @@
                       </v-icon>
                     </v-btn>
                   </template>
-                  <span>Ver</span>
+                  <span>Detalle</span>
+                </v-tooltip>
+              </v-col>
+              <v-col cols="6">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      icon
+                      v-bind="attrs"
+                      v-on="on"
+                      color="info"
+                      @click="$refs.productReport.showDialog(item, sizeType)"
+                    >
+                      <v-icon
+                        dense
+                      >
+                        mdi-chart-line-variant
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Reporte</span>
                 </v-tooltip>
               </v-col>
             </v-row>
@@ -83,7 +123,8 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <product-form ref="productForm" v-on:updateList="fetchProducts"/>
+    <product-form ref="productForm" :sizeTypes="sizeTypes" v-on:updateList="fetchProducts"/>
+    <product-report ref="productReport" :sizeType="sizeType"/>
   </v-container>
 </template>
 
@@ -92,6 +133,7 @@ export default {
   name: 'products',
   components: {
     'product-form': () => import('@/components/products/ProductForm.vue'),
+    'product-report': () => import('@/components/products/ProductReport.vue'),
   },
   data() {
     return {
@@ -103,6 +145,8 @@ export default {
         sortDesc: []
       },
       totalItems: 0,
+      sizeTypes: [],
+      sizeType: null,
       products: [],
       headers: [
         {
@@ -110,45 +154,38 @@ export default {
           align: 'center',
           sortable: false,
           value: 'product_name_id',
+          class: this.$headerClass,
         }, {
           text: 'CATEGORÍA',
           align: 'center',
           sortable: false,
           value: 'category_name',
+          class: this.$headerClass,
         }, {
           text: 'NOMBRE',
           align: 'center',
           sortable: false,
           value: 'product_name',
-        }, {
-          text: 'TIPO DE TALLA',
-          align: 'center',
-          sortable: false,
-          value: 'size_type_name',
+          class: this.$headerClass,
         }, {
           text: 'STOCK',
           align: 'center',
           sortable: false,
           value: 'total_stock',
+          class: this.$headerClass,
         }, {
           text: 'ACCIONES',
           align: 'center',
           value: 'actions',
           sortable: false,
           width: '9%',
+          class: this.$headerClass,
         },
       ],
     }
   },
-  mounted() {
-    if (!this.$vuetify.breakpoint.xs) {
-      const table = document.getElementById('datatable').getElementsByTagName('table')[0]
-      table.setAttribute('class', 'datatables')
-      table.setAttribute('width', '100%')
-    }
-  },
   created() {
-    this.fetchProducts()
+    this.fetchSizeTypes()
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -157,15 +194,32 @@ export default {
       }
     },
     search: function() {
+      this.options.page = 1
       this.fetchProducts()
     }
   },
   methods: {
+    gotoProductDetails(productNameId, sizeTypeId) {
+      this.$router.push({ path: '/product_details', query: { product_name_id: productNameId, size_type_id: sizeTypeId } })
+    },
+    async fetchSizeTypes() {
+      try {
+        let response = await axios.get('size_type')
+        this.sizeTypes = response.data.payload.data
+        if (this.sizeTypes.length > 0) {
+          this.sizeType = this.sizeTypes[0].id
+          this.fetchProducts()
+        }
+      } catch(error) {
+        console.error(error)
+      }
+    },
     async fetchProducts() {
       try {
         this.$store.dispatch('loading', true)
         let response = await axios.get('product', {
           params: {
+            size_type_id: this.sizeType,
             page: this.options.page,
             per_page: this.options.itemsPerPage,
             sort_by: this.options.sortBy,

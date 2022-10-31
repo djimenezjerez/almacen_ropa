@@ -51,7 +51,6 @@
             itemsPerPageOptions: [8, 15, 30]
           }"
           :calculate-widths="true"
-          dense
         >
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
@@ -171,56 +170,58 @@ export default {
           align: 'center',
           sortable: false,
           value: 'id',
+          class: this.$headerClass,
         }, {
           text: 'NOMBRE',
           align: 'center',
           sortable: true,
           value: 'name',
+          class: this.$headerClass,
         }, {
           text: 'DOCUMENTO',
           align: 'center',
           sortable: true,
           value: 'document',
+          class: this.$headerClass,
         }, {
           text: 'TIPO DE DOCUMENTO',
           align: 'center',
           sortable: true,
           value: 'document_type_code',
+          class: this.$headerClass,
         }, {
           text: 'CIUDAD',
           align: 'center',
           sortable: true,
           value: 'city_name',
+          class: this.$headerClass,
         }, {
           text: 'TELÉFONO',
           align: 'center',
           sortable: true,
           value: 'phone',
+          class: this.$headerClass,
         }, {
           text: 'EMAIL',
           align: 'center',
           sortable: true,
           value: 'email',
+          class: this.$headerClass,
         }, {
           text: 'ESTADO',
           align: 'center',
           sortable: true,
           value: 'active',
+          class: this.$headerClass,
         }, {
           text: 'ACCIONES',
           align: 'center',
           value: 'actions',
           sortable: false,
           width: '9%',
+          class: this.$headerClass,
         },
       ],
-    }
-  },
-  mounted() {
-    if (!this.$vuetify.breakpoint.xs) {
-      const table = document.getElementById('datatable').getElementsByTagName('table')[0]
-      table.setAttribute('class', 'datatables')
-      table.setAttribute('width', '100%')
     }
   },
   created() {
@@ -235,6 +236,7 @@ export default {
       }
     },
     search: function() {
+      this.options.page = 1
       this.fetchclients()
     }
   },

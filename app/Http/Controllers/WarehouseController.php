@@ -17,12 +17,12 @@ class WarehouseController extends Controller
             return [
                 'message' => 'Lista de almacenes',
                 'payload' => [
-                    'data' => DB::table('warehouses')->select('warehouses.id', 'person_warehouses.name')->leftJoin('people as person_warehouses', 'person_warehouses.id', '=', 'warehouses.person_id')->where('warehouses.active', '=', true)->where('warehouses.deleted_at', '=', null)->orderBy('person_warehouses.name')->get(),
+                    'data' => DB::table('warehouses')->select('warehouses.id', 'person_warehouses.name')->leftJoin('people as person_warehouses', 'person_warehouses.id', '=', 'warehouses.person_id')->where('warehouses.active', '=', true)->where('warehouses.deleted_at', null)->orderBy('person_warehouses.name')->get(),
                 ],
             ];
         }
 
-        $query = DB::table('warehouses')->select('warehouses.id', 'warehouses.active', 'warehouses.person_id', 'warehouses.user_id', 'person_users.name as user_name', 'person_warehouses.name', 'person_warehouses.address', 'person_warehouses.phone', 'person_warehouses.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('users', 'users.id', '=', 'warehouses.user_id')->leftJoin('people as person_users', 'person_users.id', '=', 'users.person_id')->leftJoin('people as person_warehouses', 'person_warehouses.id', '=', 'warehouses.person_id')->leftJoin('cities', 'person_warehouses.city_id', '=', 'cities.id')->where('warehouses.deleted_at', '=', null);
+        $query = DB::table('warehouses')->select('warehouses.id', 'warehouses.active', 'warehouses.person_id', 'warehouses.user_id', 'person_users.name as user_name', 'person_warehouses.name', 'person_warehouses.address', 'person_warehouses.phone', 'person_warehouses.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('users', 'users.id', '=', 'warehouses.user_id')->leftJoin('people as person_users', 'person_users.id', '=', 'users.person_id')->leftJoin('people as person_warehouses', 'person_warehouses.id', '=', 'warehouses.person_id')->leftJoin('cities', 'person_warehouses.city_id', '=', 'cities.id')->where('warehouses.deleted_at', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');

@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import store from '@/plugins/store.js'
 
 Vue.prototype.$helpers = {
   listIndex: function(index, options) {

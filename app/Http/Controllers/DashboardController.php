@@ -25,7 +25,7 @@ class DashboardController extends Controller
                 'color' => 'amber darken-2',
                 'icon' => 'mdi-account',
                 'link' => 'users',
-                'total' => DB::table('users')->where('deleted_at', '=', null)->count(),
+                'total' => DB::table('users')->where('deleted_at', null)->count(),
             ];
         }
         if ($user->can('TIENDAS')) {
@@ -34,7 +34,7 @@ class DashboardController extends Controller
                 'color' => 'grey darken-1',
                 'icon' => 'mdi-store',
                 'link' => 'stores',
-                'total' => DB::table('stores')->where('deleted_at', '=', null)->count(),
+                'total' => DB::table('stores')->where('deleted_at', null)->count(),
             ];
         }
         if ($user->can('ALMACENES')) {
@@ -43,7 +43,7 @@ class DashboardController extends Controller
                 'color' => 'blue accent-2',
                 'icon' => 'mdi-package-variant',
                 'link' => 'warehouses',
-                'total' => DB::table('warehouses')->where('deleted_at', '=', null)->count(),
+                'total' => DB::table('warehouses')->where('deleted_at', null)->count(),
             ];
         }
         if ($user->can('PROVEEDORES')) {
@@ -52,7 +52,7 @@ class DashboardController extends Controller
                 'color' => 'teal accent-4',
                 'icon' => 'mdi-van-utility',
                 'link' => 'suppliers',
-                'total' => DB::table('suppliers')->where('deleted_at', '=', null)->count(),
+                'total' => DB::table('suppliers')->where('deleted_at', null)->count(),
             ];
         }
         if ($user->can('CLIENTES')) {
@@ -61,7 +61,7 @@ class DashboardController extends Controller
                 'color' => 'amber darken-4',
                 'icon' => 'mdi-account-cash',
                 'link' => 'clients',
-                'total' => DB::table('clients')->where('deleted_at', '=', null)->count(),
+                'total' => DB::table('clients')->where('deleted_at', null)->count(),
             ];
         }
         if ($user->can('PRODUCTOS')) {

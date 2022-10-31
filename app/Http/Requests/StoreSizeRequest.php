@@ -17,6 +17,7 @@ class StoreSizeRequest extends FormRequest
             'name' => 'required|string|min:1',
             'size_type_id' => 'required|exists:size_types,id',
             'numeric' => 'required|boolean',
+            'order' => 'nullable|sometimes|integer|min:0',
         ];
     }
 }

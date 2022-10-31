@@ -4,37 +4,53 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Almacenes"/>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="breadcrumbs[0].to">{{ breadcrumbs[0].text }}</router-link>
+        <span class="white--text px-3">/</span>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
       </v-toolbar>
       <v-row
-        class="pt-4 px-4"
+        class="background pb-0 pt-2 px-4 mx-0"
         align="center"
         justify="start"
+        dense
+      >
+        <v-col cols="4" md="2">
+          <div class="text-right">Producto: </div>
+        </v-col>
+        <v-col cols="8" md="4">
+          <div class="font-weight-bold">{{ productName.name }}</div>
+        </v-col>
+        <v-col cols="4" md="2">
+          <div class="text-right">Stock total: </div>
+        </v-col>
+        <v-col cols="8" md="4">
+          <div class="font-weight-bold">{{ productName.total }}</div>
+        </v-col>
+        <v-col cols="4" md="2">
+          <div class="text-right">Categoría: </div>
+        </v-col>
+        <v-col cols="8" md="4">
+          <div class="font-weight-bold">{{ productName.category_name }}</div>
+        </v-col>
+        <v-col cols="4" md="2">
+          <div class="text-right">Tipo de talla: </div>
+        </v-col>
+        <v-col cols="8" md="4">
+          <div class="font-weight-bold">{{ sizeType.name }}</div>
+        </v-col>
+      </v-row>
+      <v-row
+        class="px-4"
+        align="center"
+        justify="start"
+        dense
       >
         <v-col
           cols="12"
-          md="8"
-          order="last"
-          order-md="first"
         >
           <search-input
             v-model="search"
             label="Texto o parámetro de búsqueda"
-          />
-        </v-col>
-        <v-col
-          cols="12"
-          md="4"
-          :class="{
-            'text-right': $vuetify.breakpoint.mdAndUp,
-          }"
-          order="first"
-          order-md="last"
-        >
-          <add-button
-            text="Agregar almacén"
-            :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.warehouseForm.showDialog()"
           />
         </v-col>
       </v-row>
@@ -44,7 +60,7 @@
         <v-data-table
           id="datatable"
           :headers="headers"
-          :items="warehouses"
+          :items="products"
           :options.sync="options"
           :server-items-length="totalItems"
           :footer-props="{
@@ -55,21 +71,9 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
-          <template v-slot:[`item.user_name`]="{ item }">
-            {{ item.user_id != null ? item.user_name : '-' }}
-          </template>
-          <template v-slot:[`item.active`]="{ item }">
-            <v-chip
-              :color="isActive(item.active) ? 'success' : 'error'"
-              dark
-              small
-            >
-              {{ isActive(item.active) ? 'ACTIVO' : 'INACTIVO' }}
-            </v-chip>
-          </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="4">
+              <v-col cols="6">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -77,7 +81,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="$refs.warehouseForm.showDialog(item, true)"
+                      @click="gotoProductSizes(item.id, sizeType.id, item.product_name_id, item.brand_id, item.gender_id, item.color_id)"
                     >
                       <v-icon
                         dense
@@ -86,30 +90,10 @@
                       </v-icon>
                     </v-btn>
                   </template>
-                  <span>Ver</span>
+                  <span>Detalle</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="4">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="info"
-                      @click="$refs.warehouseForm.showDialog(item)"
-                    >
-                      <v-icon
-                        dense
-                      >
-                        mdi-pencil
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Editar</span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="4">
+              <v-col cols="6">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -134,30 +118,44 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <warehouse-form ref="warehouseForm" :users="users" :cities="cities" v-on:updateList="fetchWarehouses"/>
-    <dialog-remove ref="dialogRemove" type="almacén" url="warehouse" v-on:updateList="fetchWarehouses"/>
+    <dialog-remove ref="dialogRemove" :female="true" type="variante" url="product" v-on:updateList="fetchProducts"/>
   </v-container>
 </template>
 
 <script>
 export default {
-  name: 'Warehouses',
-  components: {
-    'warehouse-form': () => import('@/components/warehouses/WarehouseForm.vue'),
-  },
+  name: 'ProductDetails',
   data() {
     return {
+      breadcrumbs: [
+        {
+          text: 'Productos',
+          disabled: false,
+          to: {
+            path: '/products',
+          },
+        }, {
+          text: 'Detalle',
+          disabled: true,
+          to: {
+            path: '/product_details',
+            query: {
+              product_name_id: this.$route.query.product_name_id,
+              size_type_id: this.$route.query.size_type_id,
+            },
+          },
+        },
+      ],
       search: null,
-      users: [],
-      cities: [],
       options: {
         page: 1,
         itemsPerPage: 8,
-        sortBy: ['name'],
         sortDesc: [false]
       },
       totalItems: 0,
-      warehouses: [],
+      productName: {},
+      sizeType: {},
+      products: [],
       headers: [
         {
           text: 'NRO',
@@ -166,34 +164,22 @@ export default {
           value: 'id',
           class: this.$headerClass,
         }, {
-          text: 'NOMBRE',
+          text: 'COLOR',
           align: 'center',
-          sortable: true,
-          value: 'name',
+          sortable: false,
+          value: 'color_name',
           class: this.$headerClass,
         }, {
-          text: 'RESPONSABLE',
+          text: 'GÉNERO',
           align: 'center',
-          sortable: true,
-          value: 'user_name',
+          sortable: false,
+          value: 'gender_name',
           class: this.$headerClass,
         }, {
-          text: 'DIRECCIÓN',
+          text: 'MARCA',
           align: 'center',
-          sortable: true,
-          value: 'address',
-          class: this.$headerClass,
-        }, {
-          text: 'CIUDAD',
-          align: 'center',
-          sortable: true,
-          value: 'city_name',
-          class: this.$headerClass,
-        }, {
-          text: 'ESTADO',
-          align: 'center',
-          sortable: true,
-          value: 'active',
+          sortable: false,
+          value: 'brand_name',
           class: this.$headerClass,
         }, {
           text: 'ACCIONES',
@@ -207,62 +193,68 @@ export default {
     }
   },
   created() {
-    this.fetchWarehouses()
-    this.fetchUsers()
-    this.fetchCities()
+    this.fetchProductName()
+    this.fetchSizeType()
   },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.fetchWarehouses()
+        this.fetchProducts()
       }
     },
     search: function() {
       this.options.page = 1
-      this.fetchWarehouses()
+      this.fetchProducts()
     }
   },
   methods: {
-    isActive(active) {
-      return active == true
+    gotoProductSizes(productId, sizeTypeId, productNameId, brandId, genderId, colorId) {
+      this.$router.push({
+        path: '/product_sizes',
+        query: {
+          product_id: productId,
+          size_type_id: sizeTypeId,
+          product_name_id: productNameId,
+          brand_id: brandId,
+          gender_id: genderId,
+          color_id: colorId,
+        }
+      })
     },
-    async fetchUsers() {
+    async fetchProductName() {
       try {
-        let response = await axios.get('user', {
+        let response = await axios.get(`product_name/${this.$route.query.product_name_id}`, {
           params: {
-            combo: true,
+            size_type_id: this.$route.query.size_type_id,
           }
         })
-        this.users = response.data.payload.data
+        this.productName = response.data.payload
       } catch(error) {
         console.error(error)
       }
     },
-    async fetchCities() {
+    async fetchSizeType() {
       try {
-        let response = await axios.get('city', {
-          params: {
-            combo: true,
-          }
-        })
-        this.cities = response.data.payload.data
+        let response = await axios.get(`size_type/${this.$route.query.size_type_id}`)
+        this.sizeType = response.data.payload
       } catch(error) {
         console.error(error)
       }
     },
-    async fetchWarehouses() {
+    async fetchProducts() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get('warehouse', {
+        let response = await axios.get(`product/${this.$route.query.product_name_id}`, {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,
             sort_by: this.options.sortBy,
             sort_desc: this.options.sortDesc,
             search: this.search,
+            size_type_id: this.$route.query.size_type_id,
           },
         })
-        this.warehouses = response.data.payload.data
+        this.products = response.data.payload.data
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)

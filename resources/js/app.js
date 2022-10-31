@@ -21,6 +21,8 @@ Vue.component('search-input', SearchInput)
 Vue.component('dialog-remove', DialogRemove)
 Vue.component('loading-overlay', LoadingOverlay)
 
+Vue.prototype.$headerClass = 'blue-grey darken-2 white--text body'
+
 export const bus = new Vue()
 
 new Vue({

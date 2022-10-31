@@ -10,6 +10,7 @@ use App\Models\Color;
 use App\Models\Size;
 use App\Models\Gender;
 use App\Models\SizeType;
+use App\Http\Requests\SizeTypeRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    public function index(SizeTypeRequest $request)
     {
         if ($request->has('combo')) {
             return [
@@ -29,19 +30,19 @@ class ProductController extends Controller
             ];
         }
 
-        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'size_types.name as size_type_name', 'product_names.name as product_name')->selectRaw('sum(products.stock) as total_stock')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->groupBy('products.product_name_id')->where('products.deleted_at', '=', null);
+        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name')->selectRaw('sum(products.stock) as total_stock')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.deleted_at', null)->where('size_types.id', (int)$request->size_type_id)->groupBy('products.product_name_id');
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
             }
         } else {
-            $query->orderBy('categories.name', 'ASC')->orderBy('product_names.name', 'ASC')->orderBy('size_types.name', 'ASC');
+            $query->orderBy('categories.name', 'ASC')->orderBy('product_names.name', 'ASC');
         }
 
         if ($request->has('search')) {
             if ($request->search != '') {
                 $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(size_types.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
                 });
             }
         }
@@ -51,13 +52,27 @@ class ProductController extends Controller
         ];
     }
 
-    public function show(ProductName $product_name)
+    public function show(ProductName $product_name, SizeTypeRequest $request)
     {
-        $product_name->store_type = null;
-        $product_name->store_id = null;
+        $query = DB::table('products')->select('products.id', 'products.product_name_id', 'products.brand_id', 'brands.name as brand_name', 'products.gender_id', 'genders.name as gender_name', 'products.color_id', 'colors.name as color_name')->selectRaw('sum(products.stock) as total_stock')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null)->groupBy('products.brand_id', 'products.gender_id', 'products.color_id');
+        if ($request->has('sort_by') && $request->has('sort_desc')) {
+            foreach ($request->sort_by as $i => $sort) {
+                $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
+            }
+        } else {
+            $query->orderBy('colors.name', 'ASC')->orderBy('genders.name', 'ASC')->orderBy('brands.name', 'ASC');
+        }
+
+        if ($request->has('search')) {
+            if ($request->search != '') {
+                $query->where(function($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(brands.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(genders.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(colors.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                });
+            }
+        }
         return [
-            'message' => 'Detalle de producto',
-            'product' => new ProductResource($product_name),
+            'message' => 'Lista detallada de productos',
+            'payload' => $query->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1),
         ];
     }
 
@@ -78,35 +93,16 @@ class ProductController extends Controller
                     'category_id' => $category->id,
                 ]);
             }
-            foreach($request->size_types as $req_size_type) {
-                $size_type = SizeType::find($req_size_type['id']);
-                foreach($req_size_type['genders'] as $req_gender) {
-                    $gender = Gender::find($req_gender['id']);
-                    foreach($req_gender['attributes']['brands'] as $req_brand) {
-                        $brand = Brand::whereName($req_brand)->first();
-                        foreach($req_gender['attributes']['colors'] as $req_color) {
-                            $color = Color::whereName($req_color)->first();
-                            foreach($req_gender['attributes']['alphabetic_sizes'] as $req_size) {
-                                $size = Size::whereName($req_size)->whereNumeric(false)->whereSizeTypeId($size_type->id)->first();
-                                Product::firstOrCreate([
-                                    'product_name_id' => $product_name->id,
-                                    'brand_id' => $brand->id,
-                                    'gender_id' => $gender->id,
-                                    'size_id' => $size->id,
-                                    'color_id' => $color->id,
-                                ]);
-                            }
-                            foreach($req_gender['attributes']['numeric_sizes']  as $req_size) {
-                                $size = Size::whereName($req_size)->whereNumeric(true)->whereSizeTypeId($size_type->id)->first();
-                                Product::firstOrCreate([
-                                    'product_name_id' => $product_name->id,
-                                    'brand_id' => $brand->id,
-                                    'gender_id' => $gender->id,
-                                    'size_id' => $size->id,
-                                    'color_id' => $color->id,
-                                ]);
-                            }
-                        }
+            foreach($request->brands as $brand) {
+                foreach($request->colors as $color) {
+                    foreach($request->sizes as $size) {
+                        Product::firstOrCreate([
+                            'product_name_id' => $product_name->id,
+                            'gender_id' => $request->gender_id,
+                            'brand_id' => $brand,
+                            'size_id' => $size,
+                            'color_id' => $color,
+                        ]);
                     }
                 }
             }
@@ -116,68 +112,85 @@ class ProductController extends Controller
             ];
         } catch(Exception) {
             DB::rollBack();
-            return [
-                'message' => 'Error al registrar producto',
-            ];
+            return response()->json([
+                'message' => 'Error al registrar producto'
+            ], 500);
         }
     }
 
-    public function update(UpdateProductRequest $request, Product $product)
+    public function update(Product $product, UpdateProductRequest $request)
     {
-        try {
-            DB::beginTransaction();
-            $category = Category::whereRaw("UPPER(name) LIKE '" . mb_strtoupper($request->category_name) . "'")->where('active', true)->first();
-            if (!$category) {
-                $category = Category::create([ 'name' => $request->category_name ]);
-            }
-            $brand = Brand::whereRaw("UPPER(name) LIKE '" . mb_strtoupper($request->brand_name) . "'")->first();
-            if (!$brand) {
-                $brand = Brand::create([ 'name' => $request->brand_name ]);
-            }
-            $size = Size::whereRaw("UPPER(name) LIKE '" . mb_strtoupper($request->size_name) . "'")->first();
-            if (!$size) {
-                $size = Size::create([ 'name' => $request->size_name ]);
-            }
-            $color = Color::whereRaw("UPPER(name) LIKE '" . mb_strtoupper($request->color_name) . "'")->first();
-            if (!$color) {
-                $color = Color::create([ 'name' => $request->color_name ]);
-            }
-            $product->update([
-                'name' => $request->name,
-                'active' => $request->active,
-                'category_id' => $category->id,
-                'brand_id' => $brand->id,
-                'size_id' => $size->id,
-                'size_type_id' => $request->size_type_id,
-                'color_id' => $color->id,
-            ]);
-            DB::commit();
-            return [
-                'message' => 'Datos de producto actualizados',
-            ];
-        } catch(Exception) {
-            DB::rollBack();
-            return [
-                'message' => 'Error al actualizar producto',
-            ];
-        }
+        $product->update($request->all());
+        return [
+            'message' => 'Datos de producto actualizados',
+        ];
     }
 
-    public function destroy(Product $product)
+    public function destroy(Product $product, Request $request)
     {
-        $product->delete();
+        if ($request->has('size')) {
+            $product->delete();
+        } else {
+            Product::leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.product_name_id', $product->product_name_id)->where('products.brand_id', $product->brand_id)->where('products.gender_id', $product->gender_id)->where('products.color_id', $product->color_id)->where('size_types.id', $product->size->size_type_id)->delete();
+        }
         return [
             'message' => 'Producto eliminado',
         ];
     }
 
-    public function stock(ProductName $product_name, $store_type, $store_id)
+    public function stock(ProductName $product_name, SizeTypeRequest $request)
     {
-        $product_name->store_type = $store_type;
-        $product_name->store_id = intval($store_id);
+        $details = [];
+        $total = 0;
+        $colors = DB::table('products')->select('colors.id', 'colors.name')->distinct()->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null)->orderBy('colors.name')->get();
+        foreach($colors as $color) {
+            foreach([true, false] as $numeric) {
+                $sizes = DB::table('products')->select('sizes.id', 'sizes.name')->selectRaw('sum(products.stock) as total_stock')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('colors.id', $color->id)->where('sizes.numeric', $numeric)->where('products.deleted_at', null)->groupBy('products.size_id')->orderBy('sizes.order')->orderBy('sizes.id')->get();
+                if (count($sizes) > 0) {
+                    $details[] = [
+                        'color' => $color->name,
+                        'numeric' => $numeric,
+                        'subtotal' => $sizes->sum('total_stock'),
+                        'sizes' => $sizes,
+                    ];
+                }
+            }
+        }
+        foreach($details as $detail) {
+            $total += $detail['subtotal'];
+        }
         return [
-            'message' => 'Detalle de producto por ' . ($store_type == 'store' ? 'tienda' : 'almacén'),
-            'product' => new ProductResource($product_name),
+            'message' => 'Detalle de producto',
+            'payload' => [
+                'product_name' => $product_name->only(['id', 'name', 'active']),
+                'category' => $product_name->category->only(['id', 'name', 'active']),
+                'total' => $total,
+                'details' => $details,
+            ],
+        ];
+    }
+
+    public function sizes(Product $product, SizeTypeRequest $request)
+    {
+        $query = DB::table('products')->select('products.id', 'products.size_id', 'sizes.name as size_name', 'products.active', 'products.stock')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.product_name_id', $product->product_name_id)->where('products.brand_id', $product->brand_id)->where('products.gender_id', $product->gender_id)->where('products.color_id', $product->color_id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null);
+        if ($request->has('sort_by') && $request->has('sort_desc')) {
+            foreach ($request->sort_by as $i => $sort) {
+                $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
+            }
+        } else {
+            $query->orderBy('sizes.order', 'ASC')->orderBy('sizes.id', 'ASC')->orderBy('sizes.name', 'ASC')->orderBy('products.stock', 'ASC');
+        }
+
+        if ($request->has('search')) {
+            if ($request->search != '') {
+                $query->where(function($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(sizes.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                });
+            }
+        }
+        return [
+            'message' => 'Lista de tallas de producto',
+            'payload' => $query->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1),
         ];
     }
 }

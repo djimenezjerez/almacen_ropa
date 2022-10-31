@@ -18,6 +18,14 @@ class BrandController extends Controller
         ];
     }
 
+    public function show(Brand $brand)
+    {
+        return [
+            'message' => 'Detalle de marca',
+            'payload' => $brand,
+        ];
+    }
+
     public function store(StoreBrandRequest $request)
     {
         $brand = Brand::whereName($request->name)->exists();

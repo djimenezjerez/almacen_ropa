@@ -135,21 +135,25 @@ export default {
           groupable: true,
           sortable: false,
           value: 'brand_name',
+          class: this.$headerClass,
         }, {
           text: 'TALLA',
           align: 'center',
           sortable: true,
           value: 'size_name',
+          class: this.$headerClass,
         }, {
           text: 'COLOR',
           align: 'center',
           sortable: true,
           value: 'color_name',
+          class: this.$headerClass,
         }, {
           text: 'STOCK',
           align: 'center',
           sortable: true,
           value: 'stock',
+          class: this.$headerClass,
         },
       ],
     }
@@ -242,7 +246,6 @@ export default {
       }
     },
     async fetchProducts() {
-      console.log(this.productNameId);
       if (this.productNameId > 0) {
         try {
           this.clearSelection()

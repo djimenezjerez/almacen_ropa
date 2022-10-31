@@ -10,6 +10,7 @@ class Size extends Model
         'name',
         'size_type_id',
         'numeric',
+        'order',
     ];
 
     protected $casts = [

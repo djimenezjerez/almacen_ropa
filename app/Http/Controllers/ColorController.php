@@ -18,6 +18,14 @@ class ColorController extends Controller
         ];
     }
 
+    public function show(Color $color)
+    {
+        return [
+            'message' => 'Detalle de color',
+            'payload' => $color,
+        ];
+    }
+
     public function store(StoreColorRequest $request)
     {
         $color = Color::whereName($request->name)->exists();

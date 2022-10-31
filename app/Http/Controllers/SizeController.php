@@ -13,7 +13,7 @@ class SizeController extends Controller
         return [
             'message' => 'Lista de tallas',
             'payload' => [
-                'data' => DB::table('sizes')->select('id', 'name', 'size_type_id', 'numeric')->orderBy('numeric')->orderBy('id')->get(),
+                'data' => DB::table('sizes')->select('id', 'name', 'size_type_id', 'numeric')->orderBy('numeric')->orderBy('order')->orderBy('id')->get(),
             ],
         ];
     }
@@ -58,10 +58,16 @@ class SizeController extends Controller
                 ]
             ], 422);
         } else {
+            if ($request->order) {
+                $order = $request->order;
+            } else {
+                $order = Size::whereSizeTypeId($request->size_type_id)->whereNumeric($request->numeric)->max('order') + 1;
+            }
             $size = Size::create([
                 'name' => $request->name,
                 'size_type_id' => $request->size_type_id,
                 'numeric' => $request->numeric,
+                'order' => $order,
             ]);
             return [
                 'message' => 'Talla registrada',

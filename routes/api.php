@@ -104,20 +104,26 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::post('product', [ProductController::class, 'store']);
         Route::patch('product/{product}', [ProductController::class, 'update']);
         Route::delete('product/{product}', [ProductController::class, 'destroy']);
+        Route::get('product/{product}/sizes', [ProductController::class, 'sizes']);
         // Nombres de productos
         Route::get('product_name', [ProductNameController::class, 'index']);
+        Route::get('product_name/{product_name}', [ProductNameController::class, 'show']);
         // Géneros
         Route::get('gender', [GenderController::class, 'index']);
+        Route::get('gender/{gender}', [GenderController::class, 'show']);
         // Marcas
         Route::get('brand', [BrandController::class, 'index']);
+        Route::get('brand/{brand}', [BrandController::class, 'show']);
         Route::post('brand', [BrandController::class, 'store']);
         // Tallas
         Route::get('size', [SizeController::class, 'index']);
         Route::post('size', [SizeController::class, 'store']);
         // Tipos de tallas
         Route::get('size_type', [SizeTypeController::class, 'index']);
+        Route::get('size_type/{size_type}', [SizeTypeController::class, 'show']);
         // Colores
         Route::get('color', [ColorController::class, 'index']);
+        Route::get('color/{color}', [ColorController::class, 'show']);
         Route::post('color', [ColorController::class, 'store']);
         // Stock
         Route::get('product/{product_name}/{store_type}/{store_id}', [ProductController::class, 'stock']);

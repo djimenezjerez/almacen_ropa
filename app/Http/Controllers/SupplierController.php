@@ -18,12 +18,12 @@ class SupplierController extends Controller
             return [
                 'message' => 'Lista de proveedores',
                 'payload' => [
-                    'data' => DB::table('suppliers')->select('suppliers.id', 'people.name')->leftJoin('people', 'people.id', '=', 'suppliers.person_id')->where('suppliers.active', '=', true)->where('suppliers.deleted_at', '=', null)->orderBy('people.name')->get(),
+                    'data' => DB::table('suppliers')->select('suppliers.id', 'people.name')->leftJoin('people', 'people.id', '=', 'suppliers.person_id')->where('suppliers.active', '=', true)->where('suppliers.deleted_at', null)->orderBy('people.name')->get(),
                 ],
             ];
         }
 
-        $query = DB::table('suppliers')->select('suppliers.id', 'suppliers.active', 'suppliers.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code', 'document_types.name as document_type_name', 'document_types.code as document_type_code')->leftJoin('people', 'people.id', '=', 'suppliers.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->leftJoin('document_types', 'people.document_type_id', '=', 'document_types.id')->where('suppliers.deleted_at', '=', null);
+        $query = DB::table('suppliers')->select('suppliers.id', 'suppliers.active', 'suppliers.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code', 'document_types.name as document_type_name', 'document_types.code as document_type_code')->leftJoin('people', 'people.id', '=', 'suppliers.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->leftJoin('document_types', 'people.document_type_id', '=', 'document_types.id')->where('suppliers.deleted_at', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');

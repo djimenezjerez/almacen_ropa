@@ -20,12 +20,12 @@ class StoreController extends Controller
             return [
                 'message' => 'Lista de tiendas',
                 'payload' => [
-                    'data' => DB::table('stores')->select('stores.id', 'people.name')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('stores.active', '=', true)->where('stores.deleted_at', '=', null)->orderBy('people.name')->get(),
+                    'data' => DB::table('stores')->select('stores.id', 'people.name')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('stores.active', '=', true)->where('stores.deleted_at', null)->orderBy('people.name')->get(),
                 ],
             ];
         }
 
-        $query = DB::table('stores')->select('stores.id', 'stores.active', 'stores.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'stores.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('stores.deleted_at', '=', null);
+        $query = DB::table('stores')->select('stores.id', 'stores.active', 'stores.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'stores.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('stores.deleted_at', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
@@ -41,9 +41,6 @@ class StoreController extends Controller
                 });
             }
         }
-
-logger($query->toSql());
-logger($query->getBindings());
 
         return [
             'message' => 'Lista de tiendas',

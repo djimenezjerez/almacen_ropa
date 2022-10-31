@@ -16,12 +16,12 @@ class CategoryController extends Controller
             return [
                 'message' => 'Lista de categorías',
                 'payload' => [
-                    'data' => DB::table('categories')->select('id', 'name')->where('active', '=', true)->where('deleted_at', '=', null)->orderBy('name')->get(),
+                    'data' => DB::table('categories')->select('id', 'name')->where('active', '=', true)->where('deleted_at', null)->orderBy('name')->get(),
                 ],
             ];
         }
 
-        $query = DB::table('categories')->where('deleted_at', '=', null);
+        $query = DB::table('categories')->where('deleted_at', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');

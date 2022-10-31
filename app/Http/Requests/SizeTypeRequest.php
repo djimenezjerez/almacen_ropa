@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateProductRequest extends FormRequest
+class SizeTypeRequest extends FormRequest
 {
     public function authorize()
     {
@@ -14,7 +14,7 @@ class UpdateProductRequest extends FormRequest
     public function rules()
     {
         return [
-            'active' => 'required|boolean',
+            'size_type_id' => 'required|exists:size_types,id',
         ];
     }
 }
