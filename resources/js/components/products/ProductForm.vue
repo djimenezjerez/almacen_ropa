@@ -31,10 +31,9 @@
                     label="Tipo de talla"
                     v-model="sizeType"
                     item-text="name"
-                    item-value="id"
                     :items="sizeTypes"
                     prepend-icon="mdi-human-male-boy"
-                    :return-object="false"
+                    :return-object="true"
                     disabled
                   ></v-select>
                 </v-col>
@@ -159,7 +158,7 @@
                             color="info"
                             v-bind="attrs"
                             v-on="on"
-                            @click="$refs.sizeForm.showDialog(sizeType, sizeStandard == 'numeric')"
+                            @click="$refs.sizeForm.showDialog(sizeType.id, sizeStandard == 'numeric')"
                             :disabled="readOnly"
                           >
                             <v-icon>mdi-plus</v-icon>
@@ -387,7 +386,7 @@ export default {
     filteredSizes() {
       if (this.sizeTypes.length > 0) {
         const standard = this.sizeStandard == 'numeric'
-        return this.sizes.filter(o => (o.numeric == standard && o.size_type_id == this.sizeType))
+        return this.sizes.filter(o => (o.numeric == standard && o.size_type_id == this.sizeType.id))
       } else {
         return []
       }

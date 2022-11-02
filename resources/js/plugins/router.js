@@ -46,6 +46,10 @@ const router = new VueRouter({
           name: 'employees',
           component: () => import('@/views/Employees.vue'),
         }, {
+          path: '/inventory',
+          name: 'inventory',
+          component: () => import('@/views/Inventory.vue'),
+        }, {
           path: '/suppliers',
           name: 'suppliers',
           component: () => import('@/views/Suppliers.vue'),
@@ -59,11 +63,11 @@ const router = new VueRouter({
           component: () => import('@/views/Products.vue'),
         }, {
           path: '/product_details',
-          name: 'products',
+          name: 'product_details',
           component: () => import('@/components/products/ProductDetails.vue'),
         }, {
           path: '/product_sizes',
-          name: 'products',
+          name: 'product_sizes',
           component: () => import('@/components/products/ProductSizes.vue'),
         }, {
           path: '/categories',

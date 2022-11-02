@@ -71,6 +71,11 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
+          <template v-slot:[`item.gender_name`]="{ item }">
+            <div :class="item.gender_name == 'Mujer' ? 'font-italic' : (item.gender_name == 'Unisex' ? '' : 'font-weight-bold')">
+              {{ item.gender_name }}
+            </div>
+          </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
               <v-col cols="6">

@@ -28,7 +28,7 @@ class WarehouseController extends Controller
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
             }
         } else {
-            $query->orderBy('person_warehouses.name', 'ASC');
+            $query->orderBy('person_warehouses.name');
         }
 
         if ($request->has('search')) {

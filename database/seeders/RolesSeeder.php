@@ -28,8 +28,8 @@ class RolesSeeder extends Seeder
                     'PROVEEDORES',
                     'CLIENTES',
                     'PRODUCTOS',
-                    'CATEGORIAS',
                     'TRANSFERENCIAS',
+                    'CONFIGURACION',
                 ],
             ], [
                 'name' => 'GERENTE',
@@ -42,8 +42,8 @@ class RolesSeeder extends Seeder
                     'PROVEEDORES',
                     'CLIENTES',
                     'PRODUCTOS',
-                    'CATEGORIAS',
                     'TRANSFERENCIAS',
+                    'CONFIGURACION',
                 ],
             ], [
                 'name' => 'CAJERO',

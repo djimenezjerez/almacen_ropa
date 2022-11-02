@@ -101,6 +101,11 @@
               {{ isActive(item.active) ? 'ACTIVO' : 'INACTIVO' }}
             </v-chip>
           </template>
+          <template v-slot:[`item.size_name`]="{ item }">
+            <div :class="item.size_numeric ? 'font-weight-bold' : 'font-italic'">
+              {{ item.size_name }}
+            </div>
+          </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
               <v-col cols="6">
@@ -110,13 +115,13 @@
                       icon
                       v-bind="attrs"
                       v-on="on"
-                      :color="item.active ? 'warning' : 'success'"
+                      :color="item.active ? 'error' : 'success'"
                       @click="$refs.productSwitch.showDialog(item)"
                     >
                       <v-icon
                         dense
                       >
-                        {{ item.active ? 'mdi-eye-off' : 'mdi-eye' }}
+                        mdi-list-status
                       </v-icon>
                     </v-btn>
                   </template>
@@ -131,7 +136,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="error"
-                      @click="$refs.dialogRemove.showDialog(item)"
+                      @click="$refs.sizeRemove.showDialog(item)"
                     >
                       <v-icon
                         dense
@@ -148,7 +153,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <dialog-remove ref="dialogRemove" type="producto" url="product" v-on:updateList="fetchSizes"/>
+    <size-remove ref="sizeRemove" v-on:updateList="fetchSizes"/>
     <product-switch ref="productSwitch" v-on:updateList="fetchSizes"/>
   </v-container>
 </template>
@@ -157,6 +162,7 @@
 export default {
   name: 'ProductSizes',
   components: {
+    'size-remove': () => import('@/components/products/SizeRemove.vue'),
     'product-switch': () => import('@/components/products/ProductSwitch.vue'),
   },
   data() {
@@ -198,7 +204,7 @@ export default {
       options: {
         page: 1,
         itemsPerPage: 8,
-        sortDesc: [false]
+        sortDesc: []
       },
       totalItems: 0,
       productName: {},

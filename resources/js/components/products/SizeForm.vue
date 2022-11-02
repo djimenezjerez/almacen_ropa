@@ -87,10 +87,10 @@ export default {
     }
   },
   methods: {
-    showDialog(size_type_id, numeric) {
+    showDialog(sizeTypeId, numeric) {
       this.form = {
         name: null,
-        size_type_id: size_type_id,
+        size_type_id: sizeTypeId,
         numeric: numeric
       }
       this.dialog = true

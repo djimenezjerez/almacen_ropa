@@ -29,7 +29,7 @@ class SupplierController extends Controller
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
             }
         } else {
-            $query->orderBy('people.name', 'ASC');
+            $query->orderBy('people.name');
         }
 
         if ($request->has('search')) {

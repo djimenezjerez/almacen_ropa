@@ -27,7 +27,7 @@ class CategoryController extends Controller
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
             }
         } else {
-            $query->orderBy('name', 'ASC');
+            $query->orderBy('name');
         }
 
         if ($request->has('search')) {

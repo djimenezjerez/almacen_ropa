@@ -136,32 +136,32 @@
           </v-list-item-icon>
           <v-list-item-content>Clientes</v-list-item-content>
         </v-list-item>
-        <v-list-group color="white" v-if="$store.getters.user.permissions.includes('PRODUCTOS')">
+        <v-list-item link :to="{ name: 'products' }" v-if="$store.getters.user.permissions.includes('PRODUCTOS')">
+          <v-list-item-icon>
+            <v-icon>mdi-tshirt-crew</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>Productos</v-list-item-content>
+        </v-list-item>
+        <v-list-item link :to="{ name: 'stock_transfers' }" v-if="$store.getters.user.permissions.includes('TRANSFERENCIAS')">
+          <v-list-item-icon>
+            <v-icon>mdi-swap-horizontal</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>Movimientos de stock</v-list-item-content>
+        </v-list-item>
+        <v-list-group color="white" v-if="$store.getters.user.permissions.includes('CONFIGURACION')">
           <template v-slot:activator>
             <v-list-item class="px-0">
               <v-list-item-icon>
-                <v-icon>mdi-tshirt-crew</v-icon>
+                <v-icon>mdi-cog</v-icon>
               </v-list-item-icon>
-              <v-list-item-content>Productos</v-list-item-content>
+              <v-list-item-content>Configuración</v-list-item-content>
             </v-list-item>
           </template>
-          <v-list-item link :to="{ name: 'products' }" :class="drawer ? 'ml-1' : 'ml-4'">
-            <v-list-item-icon>
-              <v-icon>mdi-hanger</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>Inventario</v-list-item-content>
-          </v-list-item>
-          <v-list-item link :to="{ name: 'categories' }" :class="drawer ? 'ml-1' : 'ml-4'" v-if="$store.getters.user.permissions.includes('CATEGORIAS')">
+          <v-list-item link :to="{ name: 'categories' }" :class="drawer ? 'ml-1' : 'ml-4'">
             <v-list-item-icon>
               <v-icon>mdi-format-list-bulleted-type</v-icon>
             </v-list-item-icon>
             <v-list-item-content>Categorías</v-list-item-content>
-          </v-list-item>
-          <v-list-item link :to="{ name: 'stock_transfers' }" :class="drawer ? 'ml-1' : 'ml-4'" v-if="$store.getters.user.permissions.includes('TRANSFERENCIAS')">
-            <v-list-item-icon>
-              <v-icon>mdi-swap-horizontal</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>Movimiento de stock</v-list-item-content>
           </v-list-item>
         </v-list-group>
       </v-list>

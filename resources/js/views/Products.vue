@@ -34,10 +34,9 @@
             label="Tipo de talla"
             v-model="sizeType"
             item-text="name"
-            item-value="id"
             :items="sizeTypes"
             prepend-icon="mdi-human-male-boy"
-            :return-object="false"
+            :return-object="true"
             dense
             hide-details
             @change="fetchProducts"
@@ -106,7 +105,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="info"
-                      @click="$refs.productReport.showDialog(item, sizeType)"
+                      @click="$refs.productReport.showDialog(sizeType, item)"
                     >
                       <v-icon
                         dense
@@ -124,7 +123,7 @@
       </v-col>
     </v-row>
     <product-form ref="productForm" :sizeTypes="sizeTypes" v-on:updateList="fetchProducts"/>
-    <product-report ref="productReport" :sizeType="sizeType"/>
+    <product-report ref="productReport" :sizeTypes="sizeTypes"/>
   </v-container>
 </template>
 
@@ -199,15 +198,15 @@ export default {
     }
   },
   methods: {
-    gotoProductDetails(productNameId, sizeTypeId) {
-      this.$router.push({ path: '/product_details', query: { product_name_id: productNameId, size_type_id: sizeTypeId } })
+    gotoProductDetails(productNameId) {
+      this.$router.push({ path: '/product_details', query: { product_name_id: productNameId, size_type_id: this.sizeType.id } })
     },
     async fetchSizeTypes() {
       try {
         let response = await axios.get('size_type')
         this.sizeTypes = response.data.payload.data
         if (this.sizeTypes.length > 0) {
-          this.sizeType = this.sizeTypes[0].id
+          this.sizeType = this.sizeTypes[0]
           this.fetchProducts()
         }
       } catch(error) {
@@ -219,7 +218,7 @@ export default {
         this.$store.dispatch('loading', true)
         let response = await axios.get('product', {
           params: {
-            size_type_id: this.sizeType,
+            size_type_id: this.sizeType.id,
             page: this.options.page,
             per_page: this.options.itemsPerPage,
             sort_by: this.options.sortBy,
