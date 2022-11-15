@@ -4,7 +4,12 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Productos"/>
+        <div v-if="isBuilding">
+          <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="breadcrumbs[0].to">{{ breadcrumbs[0].text }}</router-link>
+          <span class="white--text px-3">/</span>
+          <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
+        </div>
+        <tool-bar-title title="Productos" v-else/>
       </v-toolbar>
       <v-row
         class="pt-4 px-4"
@@ -129,7 +134,7 @@
 
 <script>
 export default {
-  name: 'products',
+  name: 'Products',
   components: {
     'product-form': () => import('@/components/products/ProductForm.vue'),
     'product-report': () => import('@/components/products/ProductReport.vue'),
@@ -186,6 +191,35 @@ export default {
   created() {
     this.fetchSizeTypes()
   },
+  computed: {
+    isBuilding() {
+      return (this.$route.query.building_id != 0)
+    },
+    isStore() {
+      return (this.$route.query.building_type == 'store')
+    },
+    breadcrumbs() {
+      return [
+        {
+          text: this.isStore ? 'Tiendas' : 'Almacenes',
+          disabled: false,
+          to: {
+            path: this.isStore ? '/stores' : '/warehouses',
+          },
+        }, {
+          text: 'Inventario',
+          disabled: true,
+          to: {
+            path: '/inventory',
+            query: {
+              building_id: this.$route.query.building_id,
+              building_type: this.$route.query.building_type,
+            },
+          },
+        },
+      ]
+    },
+  },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
@@ -199,7 +233,15 @@ export default {
   },
   methods: {
     gotoProductDetails(productNameId) {
-      this.$router.push({ path: '/product_details', query: { product_name_id: productNameId, size_type_id: this.sizeType.id } })
+      this.$router.push({
+        path: '/product_details',
+        query: {
+          building_id: this.$route.query.building_id,
+          building_type: this.$route.query.building_type,
+          product_name_id: productNameId,
+          size_type_id: this.sizeType.id
+        }
+      })
     },
     async fetchSizeTypes() {
       try {

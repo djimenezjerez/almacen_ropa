@@ -138,6 +138,10 @@ export default {
           disabled: false,
           to: {
             path: '/products',
+            query: {
+              building_id: this.$route.query.building_id,
+              building_type: this.$route.query.building_type,
+            },
           },
         }, {
           text: 'Detalle',
@@ -145,6 +149,8 @@ export default {
           to: {
             path: '/product_details',
             query: {
+              building_id: this.$route.query.building_id,
+              building_type: this.$route.query.building_type,
               product_name_id: this.$route.query.product_name_id,
               size_type_id: this.$route.query.size_type_id,
             },
@@ -217,6 +223,8 @@ export default {
       this.$router.push({
         path: '/product_sizes',
         query: {
+          building_id: this.$route.query.building_id,
+          building_type: this.$route.query.building_type,
           product_id: productId,
           size_type_id: sizeTypeId,
           product_name_id: productNameId,

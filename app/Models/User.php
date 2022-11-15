@@ -58,6 +58,11 @@ class User extends Authenticatable
         return $this->belongsTo(Store::class, 'remember_store_id');
     }
 
+    public function movements()
+    {
+        return $this->hasMany(Movements::class);
+    }
+
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);

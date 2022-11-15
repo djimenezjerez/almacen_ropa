@@ -20,6 +20,7 @@ use App\Http\Controllers\SizeController;
 use App\Http\Controllers\SizeTypeController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\MovementController;
 use App\Http\Controllers\StockTransferController;
 
 // Autenticación
@@ -30,6 +31,9 @@ Route::get('store', [StoreController::class, 'index']);
 Route::get('warehouse', [WarehouseController::class, 'index']);
 
 Route::group(['middleware' => ['auth:sanctum']], function() {
+    Route::post('movement', [MovementController::class, 'store']);
+
+
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index']);
 

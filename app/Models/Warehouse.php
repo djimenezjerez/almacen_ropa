@@ -45,4 +45,19 @@ class Warehouse extends Model
     {
         return $this->hasMany(StockTransfer::class, 'destiny_storable');
     }
+
+    public function movements_from()
+    {
+        return $this->morphMany(Movement::class, 'fromable');
+    }
+
+    public function movements_to()
+    {
+        return $this->morphMany(Movement::class, 'toable');
+    }
+
+    public function movements()
+    {
+        return $this->morphMany(MovementDetail::class, 'storable');
+    }
 }

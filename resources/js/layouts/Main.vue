@@ -136,7 +136,7 @@
           </v-list-item-icon>
           <v-list-item-content>Clientes</v-list-item-content>
         </v-list-item>
-        <v-list-item link :to="{ name: 'products' }" v-if="$store.getters.user.permissions.includes('PRODUCTOS')">
+        <v-list-item link :to="{ name: 'products', query: { building_id: 0, building_type: '' } }" v-if="$store.getters.user.permissions.includes('PRODUCTOS')">
           <v-list-item-icon>
             <v-icon>mdi-tshirt-crew</v-icon>
           </v-list-item-icon>

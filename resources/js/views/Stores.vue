@@ -277,7 +277,7 @@ export default {
       this.$router.push({ path: '/employees', query: { store_id: storeId } })
     },
     gotoInventory(storeId) {
-      this.$router.push({ path: '/inventory', query: { building_id: storeId, building_type: 'store' } })
+      this.$router.push({ path: '/products', query: { building_id: storeId, building_type: 'store' } })
     },
     isActive(active) {
       return active == true

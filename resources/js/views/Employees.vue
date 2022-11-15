@@ -8,37 +8,7 @@
         <span class="white--text px-3">/</span>
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
       </v-toolbar>
-      <v-row
-        class="background pb-0 pt-2 px-4 mx-0"
-        align="center"
-        justify="start"
-        dense
-      >
-        <v-col cols="4" md="2">
-          <div class="text-right">Tienda: </div>
-        </v-col>
-        <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ store.name }}</div>
-        </v-col>
-        <v-col cols="4" md="2">
-          <div class="text-right">NIT: </div>
-        </v-col>
-        <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ store.document }}</div>
-        </v-col>
-        <v-col cols="4" md="2">
-          <div class="text-right">Dirección: </div>
-        </v-col>
-        <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ store.address }}</div>
-        </v-col>
-        <v-col cols="4" md="2">
-          <div class="text-right">Ciudad: </div>
-        </v-col>
-        <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ store.city_name }}</div>
-        </v-col>
-      </v-row>
+      <building-details :building="store"/>
       <v-row
         class="px-4"
         align="center"
@@ -167,6 +137,7 @@ export default {
   components: {
     'employee-form': () => import('@/components/employees/EmployeeForm.vue'),
     'employee-remove': () => import('@/components/employees/EmployeeRemove.vue'),
+    'building-details': () => import('@/components/shared/BuildingDetails.vue'),
   },
   data() {
     return {
