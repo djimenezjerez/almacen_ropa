@@ -12,10 +12,12 @@
       <div class="font-weight-bold">{{ building.name }}</div>
     </v-col>
     <v-col cols="4" md="2">
-      <div class="text-right">NIT: </div>
+      <div class="text-right" v-if="building.warehouse">Teléfono: </div>
+      <div class="text-right" v-else>NIT: </div>
     </v-col>
     <v-col cols="8" md="4">
-      <div class="font-weight-bold">{{ building.document }}</div>
+      <div class="font-weight-bold" v-if="building.warehouse">{{ building.phone }}</div>
+      <div class="font-weight-bold" v-else>{{ building.document }}</div>
     </v-col>
     <v-col cols="4" md="2">
       <div class="text-right">Dirección: </div>
@@ -44,6 +46,8 @@ export default {
         document: '',
         address: '',
         city_name: '',
+        phone: '',
+        warehouse: null,
       },
     },
   },

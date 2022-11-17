@@ -21,7 +21,6 @@ use App\Http\Controllers\SizeTypeController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\MovementController;
-use App\Http\Controllers\StockTransferController;
 
 // Autenticación
 Route::post('login', [AuthController::class, 'store']);
@@ -31,9 +30,6 @@ Route::get('store', [StoreController::class, 'index']);
 Route::get('warehouse', [WarehouseController::class, 'index']);
 
 Route::group(['middleware' => ['auth:sanctum']], function() {
-    Route::post('movement', [MovementController::class, 'store']);
-
-
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index']);
 
@@ -134,10 +130,6 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('product/{product_name}/stock', [ProductController::class, 'stock']);
     });
 
-    // Transferencias de stock
-    Route::group(['middleware' => ['can:TRANSFERENCIAS']], function() {
-        Route::get('stock_transfer', [StockTransferController::class, 'index']);
-        Route::post('stock_transfer', [StockTransferController::class, 'store']);
-        Route::delete('stock_transfer/{stock_transfer}', [StockTransferController::class, 'destroy']);
-    });
+    // Movimientos de stock
+    Route::post('movement', [MovementController::class, 'store']);
 });

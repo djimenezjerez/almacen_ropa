@@ -11,12 +11,19 @@ class Movement extends Model
 
     protected $fillable = [
         'comment',
-        'movement_type',
+        'movement_type_id',
         'user_id',
         'client_id',
+        'from_store_id',
+        'to_store_id',
     ];
 
     public $timestamps = true;
+
+    public function movement_type()
+    {
+        return $this->belongsTo(MovementType::class);
+    }
 
     public function user()
     {
@@ -33,13 +40,13 @@ class Movement extends Model
         return $this->hasMany(MovementDetail::class);
     }
 
-    public function fromable()
+    public function from_store()
     {
-        return $this->morphTo();
+        return $this->belongsTo(Store::class, 'from_store_id');
     }
 
-    public function toable()
+    public function to_store()
     {
-        return $this->morphTo();
+        return $this->belongsTo(Store::class, 'to_store_id');
     }
 }

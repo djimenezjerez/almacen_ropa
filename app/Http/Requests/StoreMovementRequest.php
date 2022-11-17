@@ -15,12 +15,10 @@ class StoreMovementRequest extends FormRequest
     {
         return [
             'comment' => 'nullable|sometimes|string|min:1',
-            'movement_type' => 'required|in:entry,adjustment,transfer,sell',
+            'movement_type_id' => 'required|exists:movement_types,id',
             'client_id' => 'nullable|sometimes|exists:clients,id',
-            'from_id' => 'nullable|sometimes|integer|min:1',
-            'from_type' => 'nullable|sometimes|string|in:store,warehouse',
-            'to_id' => 'nullable|sometimes|integer|min:1',
-            'to_type' => 'nullable|sometimes|string|in:store,warehouse',
+            'from_store_id' => 'nullable|required_without:to_store_id|sometimes|exists:stores,id',
+            'to_store_id' => 'nullable|required_without:from_store_id|sometimes|exists:stores,id',
             'details' => 'required|array|min:1',
             'details.*.id' => 'required|exists:products,id',
             'details.*.stock' => 'required|integer|min:1',

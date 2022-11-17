@@ -54,9 +54,4 @@ class Product extends Model
     {
         return $this->hasMany(MovementDetail::class);
     }
-
-    public function stock_transfer_details()
-    {
-        return $this->hasMany(StockTransferDetail::class);
-    }
 }

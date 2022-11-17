@@ -8,16 +8,18 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('cities', function (Blueprint $table) {
+        Schema::create('movement_types', function (Blueprint $table) {
             $table->tinyIncrements('id');
             $table->string('name')->comment('Nombre');
             $table->string('code')->unique()->comment('Código');
+            $table->boolean('active')->default(true)->comment('Estado activo');
+            $table->boolean('entry')->nullable()->comment('1/0: Ingreso de stock/Salida de stock, Null: ambos');
             $table->unsignedTinyInteger('order')->default(0)->comment('Orden');
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('cities');
+        Schema::dropIfExists('movement_types');
     }
 };

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Store;
 use App\Models\Person;
 use App\Models\DocumentType;
+use App\Http\Requests\WarehouseRequest;
 use App\Http\Requests\StoreStoreRequest;
 use App\Http\Requests\UpdateStoreRequest;
 use App\Http\Resources\StoreResource;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class StoreController extends Controller
 {
-    public function index(Request $request)
+    public function index(WarehouseRequest $request)
     {
         if ($request->has('combo')) {
             return [
@@ -25,7 +26,7 @@ class StoreController extends Controller
             ];
         }
 
-        $query = DB::table('stores')->select('stores.id', 'stores.active', 'stores.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'stores.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('stores.deleted_at', null);
+        $query = DB::table('stores')->select('stores.id', 'stores.active', 'stores.warehouse', 'stores.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'stores.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('warehouse', $request->warehouse)->where('stores.deleted_at', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');

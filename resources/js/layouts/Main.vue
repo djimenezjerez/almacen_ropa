@@ -142,12 +142,6 @@
           </v-list-item-icon>
           <v-list-item-content>Productos</v-list-item-content>
         </v-list-item>
-        <v-list-item link :to="{ name: 'stock_transfers' }" v-if="$store.getters.user.permissions.includes('TRANSFERENCIAS')">
-          <v-list-item-icon>
-            <v-icon>mdi-swap-horizontal</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>Movimientos de stock</v-list-item-content>
-        </v-list-item>
         <v-list-group color="white" v-if="$store.getters.user.permissions.includes('CONFIGURACION')">
           <template v-slot:activator>
             <v-list-item class="px-0">

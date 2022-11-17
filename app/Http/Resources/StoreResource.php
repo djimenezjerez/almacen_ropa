@@ -12,6 +12,7 @@ class StoreResource extends JsonResource
             // Store
             'id' => $this->id,
             'active' => $this->active,
+            'warehouse' => $this->warehouse,
             'person_id' => $this->person_id,
             'created_at' => $this->created_at,
             // Person
@@ -24,8 +25,8 @@ class StoreResource extends JsonResource
             'city_code' => $this->person->city->code,
             'city_name' => $this->person->city->name,
             'document_type_id' => $this->person->document_type_id,
-            'document_name' => $this->person->document_type->name,
-            'document_code' => $this->person->document_type->code,
+            'document_name' => $this->warehouse ? null : $this->person->document_type->name,
+            'document_code' => $this->warehouse ? null : $this->person->document_type->code,
         ];
     }
 }

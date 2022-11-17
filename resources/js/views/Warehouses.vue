@@ -34,7 +34,7 @@
           <add-button
             text="Agregar almacén"
             :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.warehouseForm.showDialog()"
+            @click="$refs.storeForm.showDialog()"
           />
         </v-col>
       </v-row>
@@ -69,7 +69,7 @@
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="4">
+              <v-col cols="3">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -77,7 +77,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="$refs.warehouseForm.showDialog(item, true)"
+                      @click="$refs.storeForm.showDialog(item, true)"
                     >
                       <v-icon
                         dense
@@ -89,7 +89,7 @@
                   <span>Ver</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="4">
+              <v-col cols="3">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -97,7 +97,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="info"
-                      @click="$refs.warehouseForm.showDialog(item)"
+                      @click="$refs.storeForm.showDialog(item)"
                     >
                       <v-icon
                         dense
@@ -109,7 +109,27 @@
                   <span>Editar</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="4">
+              <v-col cols="3">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      icon
+                      v-bind="attrs"
+                      v-on="on"
+                      color="success"
+                      @click="gotoEmployees(item.id)"
+                    >
+                      <v-icon
+                        dense
+                      >
+                        mdi-account
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Empleados</span>
+                </v-tooltip>
+              </v-col>
+              <v-col cols="3">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -134,7 +154,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <warehouse-form ref="warehouseForm" :users="users" :cities="cities" v-on:updateList="fetchWarehouses"/>
+    <store-form ref="storeForm" :warehouse="true" :cities="cities" v-on:updateList="fetchWarehouses"/>
     <dialog-remove ref="dialogRemove" type="almacén" url="warehouse" v-on:updateList="fetchWarehouses"/>
   </v-container>
 </template>
@@ -143,7 +163,7 @@
 export default {
   name: 'Warehouses',
   components: {
-    'warehouse-form': () => import('@/components/warehouses/WarehouseForm.vue'),
+    'store-form': () => import('@/components/stores/StoreForm.vue'),
   },
   data() {
     return {
@@ -172,12 +192,6 @@ export default {
           value: 'name',
           class: this.$headerClass,
         }, {
-          text: 'RESPONSABLE',
-          align: 'center',
-          sortable: true,
-          value: 'user_name',
-          class: this.$headerClass,
-        }, {
           text: 'DIRECCIÓN',
           align: 'center',
           sortable: true,
@@ -190,6 +204,12 @@ export default {
           value: 'city_name',
           class: this.$headerClass,
         }, {
+          text: 'TELÉFONO',
+          align: 'center',
+          sortable: true,
+          value: 'phone',
+          class: this.$headerClass,
+        }, {
           text: 'ESTADO',
           align: 'center',
           sortable: true,
@@ -200,7 +220,7 @@ export default {
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '9%',
+          width: '160px',
           class: this.$headerClass,
         },
       ],
@@ -225,6 +245,9 @@ export default {
   methods: {
     isActive(active) {
       return active == true
+    },
+    gotoEmployees(warehouseId) {
+      this.$router.push({ path: `/warehouses/${warehouseId}/employees` })
     },
     async fetchUsers() {
       try {
@@ -253,8 +276,9 @@ export default {
     async fetchWarehouses() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get('warehouse', {
+        let response = await axios.get('store', {
           params: {
+            warehouse: 1,
             page: this.options.page,
             per_page: this.options.itemsPerPage,
             sort_by: this.options.sortBy,

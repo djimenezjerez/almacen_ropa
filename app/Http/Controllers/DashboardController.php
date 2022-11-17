@@ -33,8 +33,8 @@ class DashboardController extends Controller
                 'title' => 'Tiendas',
                 'color' => 'grey darken-1',
                 'icon' => 'mdi-store',
-                'link' => 'stores',
-                'total' => DB::table('stores')->where('deleted_at', null)->count(),
+                'link' => 'stores?warehouse=0',
+                'total' => DB::table('stores')->where('warehouse', false)->where('deleted_at', null)->count(),
             ];
         }
         if ($user->can('ALMACENES')) {
@@ -42,8 +42,8 @@ class DashboardController extends Controller
                 'title' => 'Almacenes',
                 'color' => 'blue accent-2',
                 'icon' => 'mdi-package-variant',
-                'link' => 'warehouses',
-                'total' => DB::table('warehouses')->where('deleted_at', null)->count(),
+                'link' => 'stores?warehouse=1',
+                'total' => DB::table('stores')->where('warehouse', true)->where('deleted_at', null)->count(),
             ];
         }
         if ($user->can('PROVEEDORES')) {

@@ -42,7 +42,7 @@ const router = new VueRouter({
           name: 'warehouses',
           component: () => import('@/views/Warehouses.vue'),
         }, {
-          path: '/employees',
+          path: '/:storeType/:storeId/employees',
           name: 'employees',
           component: () => import('@/views/Employees.vue'),
         }, {
@@ -69,15 +69,7 @@ const router = new VueRouter({
           path: '/categories',
           name: 'categories',
           component: () => import('@/views/Categories.vue'),
-        }, {
-          path: '/stock_transfers',
-          name: 'stock_transfers',
-          component: () => import('@/views/StockTransfers.vue'),
-        }, {
-          path: '/stock_transfer_form',
-          name: 'stock_transfer_form',
-          component: () => import('@/components/stock_transfers/StockTransferForm.vue'),
-        }
+        },
       ]
     },
   ]

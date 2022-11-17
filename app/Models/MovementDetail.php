@@ -10,6 +10,7 @@ class MovementDetail extends Model
         'movement_id',
         'product_id',
         'stock',
+        'store_id',
     ];
 
     public $timestamps = true;
@@ -24,8 +25,8 @@ class MovementDetail extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function storable()
+    public function store()
     {
-        return $this->morphTo();
+        return $this->belongsTo(Store::class);
     }
 }

@@ -11,13 +11,16 @@ return new class extends Migration
         Schema::create('movements', function (Blueprint $table) {
             $table->id();
             $table->string('comment')->nullable()->comment('Glosa');
-            $table->enum('movement_type', ['entry', 'adjustment', 'transfer', 'sell', 'cancel_sell'])->comment('Tipo de movimiento');
+            $table->unsignedTinyInteger('movement_type_id')->comment('Tipo de movimiento');
+            $table->foreign('movement_type_id')->references('id')->on('movement_types')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('user_id')->comment('Usuario que registró el movimiento');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('client_id')->nullable()->comment('Referencia al cliente');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
-            $table->nullableMorphs('fromable');
-            $table->nullableMorphs('toable');
+            $table->unsignedBigInteger('from_store_id')->nullable()->comment('Salida de tienda o almacén');
+            $table->foreign('from_store_id')->references('id')->on('stores')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('to_store_id')->nullable()->comment('Ingreso a tienda o almacén');
+            $table->foreign('to_store_id')->references('id')->on('stores')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -180,7 +180,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <store-form ref="storeForm" :cities="cities" v-on:updateList="fetchStores"/>
+    <store-form ref="storeForm" :warehouse="false" :cities="cities" v-on:updateList="fetchStores"/>
     <dialog-remove ref="dialogRemove" type="tienda" url="store" v-on:updateList="fetchStores"/>
   </v-container>
 </template>
@@ -274,10 +274,10 @@ export default {
   },
   methods: {
     gotoEmployees(storeId) {
-      this.$router.push({ path: '/employees', query: { store_id: storeId } })
+      this.$router.push({ path: `/stores/${storeId}/employees` })
     },
     gotoInventory(storeId) {
-      this.$router.push({ path: '/products', query: { building_id: storeId, building_type: 'store' } })
+      this.$router.push({ path: `/stores/${storeId}/products` })
     },
     isActive(active) {
       return active == true
@@ -299,6 +299,7 @@ export default {
         this.$store.dispatch('loading', true)
         let response = await axios.get('store', {
           params: {
+            warehouse: 0,
             page: this.options.page,
             per_page: this.options.itemsPerPage,
             sort_by: this.options.sortBy,

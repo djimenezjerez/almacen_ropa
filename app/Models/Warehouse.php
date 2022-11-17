@@ -35,29 +35,4 @@ class Warehouse extends Model
     {
         return $this->belongsTo(Person::class, User::class);
     }
-
-    public function origin_transfers()
-    {
-        return $this->hasMany(StockTransfer::class, 'origin_storable');
-    }
-
-    public function destiny_transfers()
-    {
-        return $this->hasMany(StockTransfer::class, 'destiny_storable');
-    }
-
-    public function movements_from()
-    {
-        return $this->morphMany(Movement::class, 'fromable');
-    }
-
-    public function movements_to()
-    {
-        return $this->morphMany(Movement::class, 'toable');
-    }
-
-    public function movements()
-    {
-        return $this->morphMany(MovementDetail::class, 'storable');
-    }
 }

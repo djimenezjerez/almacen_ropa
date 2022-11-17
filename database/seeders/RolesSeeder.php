@@ -15,6 +15,7 @@ class RolesSeeder extends Seeder
             [
                 'name' => 'ADMINISTRADOR',
                 'display_name' => 'Administrador',
+                'warehouse' => null,
                 'order' => 1,
                 'permissions' => [
                     'USUARIOS',
@@ -29,6 +30,7 @@ class RolesSeeder extends Seeder
             ], [
                 'name' => 'GERENTE',
                 'display_name' => 'Gerente',
+                'warehouse' => 0,
                 'order' => 2,
                 'permissions' => [
                     'USUARIOS',
@@ -41,9 +43,16 @@ class RolesSeeder extends Seeder
                     'CONFIGURACION',
                 ],
             ], [
+                'name' => 'SUPERVISOR',
+                'display_name' => 'Supervisor',
+                'warehouse' => 1,
+                'order' => 3,
+                'permissions' => [],
+            ], [
                 'name' => 'CAJERO',
                 'display_name' => 'Cajero',
-                'order' => 3,
+                'warehouse' => 0,
+                'order' => 4,
                 'permissions' => [],
             ]
         ];
@@ -52,6 +61,7 @@ class RolesSeeder extends Seeder
             $new_role = Role::updateOrCreate([
                 'name' => $role['name'],
             ], [
+                'warehouse' => $role['warehouse'],
                 'display_name' => $role['display_name'],
                 'order' => $role['order'],
             ]);

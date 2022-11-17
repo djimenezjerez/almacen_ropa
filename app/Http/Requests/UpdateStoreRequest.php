@@ -16,7 +16,7 @@ class UpdateStoreRequest extends FormRequest
         return [
             'name' => 'required|alpha_spaces|min:3',
             'active' => 'required|boolean',
-            'document' => 'required|min:3',
+            'document' => 'nullable|min:3',
             'address' => 'nullable|min:3',
             'email' => 'nullable|email:rfc',
             'phone' => 'nullable|numeric',

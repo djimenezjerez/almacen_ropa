@@ -13,7 +13,6 @@ use App\Models\SizeType;
 use App\Http\Requests\SizeTypeRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use App\Http\Resources\ProductResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +29,21 @@ class ProductController extends Controller
             ];
         }
 
-        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name')->selectRaw('cast(sum(products.stock) as UNSIGNED) as total_stock')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.deleted_at', null)->where('size_types.id', (int)$request->size_type_id)->groupBy('products.product_name_id');
+        if ($request->has('store_id')) {
+            $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as UNSIGNED) as stock')->where('store_id', $request->store_id)->groupBy('product_id');
+        }
+
+        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name');
+
+        if ($request->has('store_id')) {
+            $query->selectRaw('cast(sum(md.stock) as UNSIGNED) as total_stock')->joinSub($movements, 'md', function($join) {
+                $join->on('products.id', '=', 'md.product_id');
+            });
+        } else {
+            $query->selectRaw('cast(sum(products.stock) as UNSIGNED) as total_stock');
+        }
+
+        $query->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.deleted_at', null)->where('size_types.id', (int)$request->size_type_id)->groupBy('products.product_name_id');
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');

@@ -10,7 +10,7 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="readOnly ? 'Datos de tienda' : (edit ? 'Editar tienda' : 'Agregar tienda')"/>
+        <tool-bar-title :title="(readOnly ? 'Datos de ' : (edit ? 'Editar ' : 'Agregar ')) + (warehouse ? 'almacén' : 'tienda')"/>
         <v-spacer></v-spacer>
         <v-btn
           icon
@@ -42,7 +42,22 @@
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col cols="12">
+                  <validation-provider
+                    v-slot="{ errors }"
+                    name="address"
+                    rules="min:3"
+                  >
+                    <v-text-field
+                      label="Direcciòn"
+                      v-model="storeForm.address"
+                      data-vv-name="address"
+                      :error-messages="errors"
+                      prepend-icon="mdi-map-marker"
+                    ></v-text-field>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12" md="6" v-if="!warehouse">
                   <validation-provider
                     v-slot="{ errors }"
                     name="document"
@@ -76,21 +91,6 @@
                     ></v-select>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="address"
-                    rules="min:3"
-                  >
-                    <v-text-field
-                      label="Direcciòn"
-                      v-model="storeForm.address"
-                      data-vv-name="address"
-                      :error-messages="errors"
-                      prepend-icon="mdi-map-marker"
-                    ></v-text-field>
-                  </validation-provider>
-                </v-col>
                 <v-col cols="12" md="6">
                   <validation-provider
                     v-slot="{ errors }"
@@ -106,7 +106,7 @@
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col cols="12" md="6" v-if="!warehouse">
                   <validation-provider
                     v-slot="{ errors }"
                     name="email"
@@ -176,6 +176,10 @@ export default {
       type: Array,
       required: true
     },
+    warehouse: {
+      type: Boolean,
+      required: true
+    },
   },
   data: function() {
     return {
@@ -191,6 +195,7 @@ export default {
         email: null,
         phone: null,
         city_id: null,
+        warehouse: null,
       },
     }
   },
@@ -213,6 +218,7 @@ export default {
           email: null,
           phone: null,
           city_id: null,
+          warehouse: Number(this.warehouse),
         }
       }
       this.dialog = true

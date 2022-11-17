@@ -15,7 +15,8 @@ class StoreStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|alpha_spaces|min:3',
-            'document' => 'required|min:3',
+            'warehouse' => 'required|boolean',
+            'document' => 'nullable|min:3',
             'address' => 'nullable|min:3',
             'email' => 'nullable|email:rfc',
             'phone' => 'nullable|numeric',

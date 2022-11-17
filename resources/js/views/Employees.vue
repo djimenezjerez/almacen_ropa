@@ -126,7 +126,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <employee-form ref="employeeForm" :users="users" :employees="employees.map(i => i.user_id)" :storeId="parseInt($route.query.store_id)" :roles="roles" v-on:updateList="fetchEmployees"/>
+    <employee-form ref="employeeForm" :users="users" :employees="employees.map(i => i.user_id)" :store="store" v-on:updateList="fetchEmployees"/>
     <employee-remove ref="employeeRemove" v-on:updateList="fetchEmployees"/>
   </v-container>
 </template>
@@ -143,19 +143,16 @@ export default {
     return {
       breadcrumbs: [
         {
-          text: 'Tiendas',
+          text: this.$route.params.storeType == 'stores' ? 'Tiendas' : 'Almacenes',
           disabled: false,
           to: {
-            path: '/stores',
+            path: `/${this.$route.params.storeType}`,
           },
         }, {
           text: 'Empleados',
           disabled: true,
           to: {
-            path: '/employees',
-            query: {
-              store_id: this.$route.query.store_id,
-            },
+            path: `/${this.$route.params.storeType}/${this.$route.params.storeId}/employees`,
           },
         },
       ],
@@ -169,7 +166,6 @@ export default {
       totalItems: 0,
       store: {},
       employees: [],
-      roles: [],
       users: [],
       headers: [
         {
@@ -195,7 +191,7 @@ export default {
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '7%',
+          width: '120px',
           class: this.$headerClass,
         },
       ],
@@ -204,7 +200,6 @@ export default {
   created() {
     this.fetchEmployees()
     this.fetchStore()
-    this.fetchRoles()
     this.fetchUsers()
   },
   watch: {
@@ -231,21 +226,9 @@ export default {
         console.error(error)
       }
     },
-    async fetchRoles() {
-      try {
-        let response = await axios.get('role', {
-          params: {
-            combo: true,
-          }
-        })
-        this.roles = response.data.payload.data
-      } catch(error) {
-        console.error(error)
-      }
-    },
     async fetchStore() {
       try {
-        let response = await axios.get(`store/${this.$route.query.store_id}`)
+        let response = await axios.get(`store/${this.$route.params.storeId}`)
         this.store = response.data.payload.store
       } catch(error) {
         console.error(error)
@@ -254,7 +237,7 @@ export default {
     async fetchEmployees() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get(`store/${this.$route.query.store_id}/employee`, {
+        let response = await axios.get(`store/${this.$route.params.storeId}/employee`, {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,

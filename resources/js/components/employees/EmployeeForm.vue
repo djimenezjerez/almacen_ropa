@@ -101,10 +101,6 @@
 export default {
   name: 'EmployeeForm',
   props: {
-    roles: {
-      type: Array,
-      required: true
-    },
     users: {
       type: Array,
       required: true
@@ -113,8 +109,8 @@ export default {
       type: Array,
       required: true
     },
-    storeId: {
-      type: Number,
+    store: {
+      type: Object,
       required: true
     },
   },
@@ -132,6 +128,7 @@ export default {
       dialog: false,
       readOnly: false,
       edit: false,
+      roles: [],
       employeeForm: {
         user_id: null,
         role_id: null,
@@ -140,6 +137,7 @@ export default {
   },
   methods: {
     showDialog(employee = null, readOnly = false) {
+      this.fetchRoles()
       this.readOnly = readOnly
       if (employee) {
         this.edit = true
@@ -159,12 +157,25 @@ export default {
         this.$refs.employeeObserver.reset()
       })
     },
+    async fetchRoles() {
+      try {
+        let response = await axios.get('role', {
+          params: {
+            combo: true,
+            warehouse: Number(this.store.warehouse),
+          }
+        })
+        this.roles = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      }
+    },
     async submit() {
       try {
         let valid = await this.$refs.employeeObserver.validate()
         if (valid) {
           this.$store.dispatch('loading', true)
-          const response = await axios.post(`store/${this.storeId}/employee`, this.employeeForm)
+          const response = await axios.post(`store/${this.store.id}/employee`, this.employeeForm)
           this.$toast.success(response.data.message)
           this.$emit('updateList')
           this.dialog = false

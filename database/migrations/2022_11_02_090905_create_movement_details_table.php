@@ -15,7 +15,8 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id')->comment('Referencia al producto');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade');
             $table->BigInteger('stock')->comment('Cantidad');
-            $table->morphs('storable');
+            $table->unsignedBigInteger('store_id')->nullable()->comment('Tienda o almacén');
+            $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

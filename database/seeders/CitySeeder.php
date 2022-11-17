@@ -15,35 +15,35 @@ class CitySeeder extends Seeder
                 'name' => 'Santa Cruz',
                 'code' => 'SC',
                 'order' => 1,
-            ],[
+            ], [
                 'name' => 'La Paz',
                 'code' => 'LP',
                 'order' => 2,
-            ],[
+            ], [
                 'name' => 'Cochabamba',
                 'code' => 'CB',
                 'order' => 3,
-            ],[
+            ], [
                 'name' => 'Beni',
                 'code' => 'BE',
                 'order' => 4,
-            ],[
+            ], [
                 'name' => 'Pando',
                 'code' => 'PD',
                 'order' => 5,
-            ],[
+            ], [
                 'name' => 'Oruro',
                 'code' => 'OR',
                 'order' => 6,
-            ],[
+            ], [
                 'name' => 'Potosí',
                 'code' => 'PT',
                 'order' => 7,
-            ],[
+            ], [
                 'name' => 'Chuquisaca',
                 'code' => 'CH',
                 'order' => 8,
-            ],[
+            ], [
                 'name' => 'Tarija',
                 'code' => 'TJ',
                 'order' => 9,

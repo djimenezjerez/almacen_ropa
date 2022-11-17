@@ -12,10 +12,12 @@ class Store extends Model
     protected $fillable = [
         'active',
         'person_id',
+        'warehouse',
     ];
 
     protected $casts = [
         'active' => 'boolean',
+        'warehouse' => 'boolean',
     ];
 
     public $timestamps = true;
@@ -30,28 +32,18 @@ class Store extends Model
         return $this->belongsToMany(User::class, 'model_has_roles', 'store_id', 'model_id')->wherePivot('model_type', 'App\Models\User');
     }
 
-    public function origin_transfers()
-    {
-        return $this->hasMany(StockTransfer::class, 'origin_warehouse_id', 'id');
-    }
-
-    public function destiny_transfers()
-    {
-        return $this->hasMany(StockTransfer::class, 'destiny_warehouse_id', 'id');
-    }
-
     public function movements_from()
     {
-        return $this->morphMany(Movement::class, 'fromable');
+        return $this->hasMany(Store::class, 'from_store_id');
     }
 
     public function movements_to()
     {
-        return $this->morphMany(Movement::class, 'toable');
+        return $this->hasMany(Store::class, 'to_store_id');
     }
 
-    public function movements()
+    public function movement_details()
     {
-        return $this->morphMany(MovementDetail::class, 'storable');
+        return $this->hasMany(MovementDetail::class);
     }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
             $table->boolean('active')->default(true)->comment('Estado activo');
             $table->unsignedBigInteger('person_id')->unique()->comment('Referencia a los datos de persona');
             $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
+            $table->boolean('warehouse')->default(false)->comment('Almacén');
             $table->timestamps();
             $table->softDeletes();
         });
