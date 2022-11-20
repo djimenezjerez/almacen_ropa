@@ -131,5 +131,6 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     });
 
     // Movimientos de stock
+    Route::get('movement', [MovementController::class, 'index']);
     Route::post('movement', [MovementController::class, 'store']);
 });
