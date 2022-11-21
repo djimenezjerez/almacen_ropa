@@ -40,7 +40,7 @@ class ProductNameController extends Controller
                 'name' => $product_name->name,
                 'category_id' => $product_name->category->id,
                 'category_name' => $product_name->category->name,
-                'total' => $query->first() != null ? $query->first()->total_stock : 0,
+                'total_stock' => $query->first() != null ? $query->first()->total_stock : 0,
             ],
         ];
     }

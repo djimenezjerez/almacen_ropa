@@ -9,6 +9,8 @@
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
         <span class="white--text px-3">/</span>
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[2].to">{{ breadcrumbs[2].text }}</router-link>
+        <span class="white--text px-3" v-if="isBuilding">/</span>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[3].to" v-if="isBuilding">{{ breadcrumbs[3].text }}</router-link>
       </v-toolbar>
       <v-row
         class="background pb-0 pt-2 px-4 mx-0"
@@ -20,43 +22,43 @@
           <div class="text-right">Producto: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ productName.name }}</div>
+          <div class="font-weight-bold">{{ product.product_name }}</div>
         </v-col>
         <v-col cols="4" md="2">
           <div class="text-right">Stock: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ productName.total }}</div>
+          <div class="font-weight-bold">{{ product.total_stock }}</div>
         </v-col>
         <v-col cols="4" md="2">
           <div class="text-right">Categoría: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ productName.category_name }}</div>
+          <div class="font-weight-bold">{{ product.category_name }}</div>
         </v-col>
         <v-col cols="4" md="2">
           <div class="text-right">Tipo de talla: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ sizeType.name }}</div>
+          <div class="font-weight-bold">{{ product.size_type_name }}</div>
         </v-col>
         <v-col cols="4" md="2">
           <div class="text-right">Marca: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ brand.name }}</div>
+          <div class="font-weight-bold">{{ product.brand_name }}</div>
         </v-col>
         <v-col cols="4" md="2">
           <div class="text-right">Color: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ color.name }}</div>
+          <div class="font-weight-bold">{{ product.color_name }}</div>
         </v-col>
         <v-col cols="4" md="2">
           <div class="text-right">Género: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ gender.name }}</div>
+          <div class="font-weight-bold">{{ product.gender_name }}</div>
         </v-col>
       </v-row>
       <v-row
@@ -167,47 +169,6 @@ export default {
   },
   data() {
     return {
-      breadcrumbs: [
-        {
-          text: 'Productos',
-          disabled: false,
-          to: {
-            path: '/products',
-            query: {
-              building_id: this.$route.query.building_id,
-              building_type: this.$route.query.building_type,
-            },
-          },
-        }, {
-          text: 'Detalle',
-          disabled: false,
-          to: {
-            path: '/product_details',
-            query: {
-              building_id: this.$route.query.building_id,
-              building_type: this.$route.query.building_type,
-              product_name_id: this.$route.query.product_name_id,
-              size_type_id: this.$route.query.size_type_id,
-            },
-          },
-        }, {
-          text: 'Tallas',
-          disabled: true,
-          to: {
-            path: '/product_sizes',
-            query: {
-              building_id: this.$route.query.building_id,
-              building_type: this.$route.query.building_type,
-              product_id: this.$route.query.product_id,
-              size_type_id: this.$route.query.size_type_id,
-              product_name_id: this.$route.query.product_name_id,
-              brand_id: this.$route.query.brand_id,
-              gender_id: this.$route.query.gender_id,
-              color_id: this.$route.query.color_id,
-            },
-          },
-        },
-      ],
       search: null,
       options: {
         page: 1,
@@ -215,11 +176,7 @@ export default {
         sortDesc: []
       },
       totalItems: 0,
-      productName: {},
-      sizeType: {},
-      brand: {},
-      gender: {},
-      color: {},
+      product: {},
       sizes: [],
       headers: [
         {
@@ -257,12 +214,81 @@ export default {
       ],
     }
   },
-  created() {
-    this.fetchProductName()
-    this.fetchSizeType()
-    this.fetchBrand()
-    this.fetchGender()
-    this.fetchColor()
+  computed: {
+    isBuilding() {
+      return (this.$route.params.storeId != undefined)
+    },
+    isStore() {
+      return (this.$route.params.storeType == 'stores')
+    },
+    breadcrumbs() {
+      if (this.isStore) {
+        return [
+          {
+            text: this.isStore ? 'Tiendas' : 'Almacenes',
+            disabled: false,
+            to: {
+              path: this.isStore ? '/stores' : '/warehouses',
+            },
+          }, {
+            text: 'Inventario',
+            disabled: false,
+            to: {
+              path: `/${this.$route.params.storeType}/${this.$route.params.storeId}/products`,
+            },
+          }, {
+            text: 'Detalle',
+            disabled: true,
+            to: {
+              path: `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}`,
+              query: {
+                size_type_id: this.$route.query.size_type_id,
+              }
+            },
+          }, {
+            text: 'Tallas',
+            disabled: true,
+            to: {
+              path: `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}/sizes/${this.$route.params.productId}`,
+              query: {
+                size_type_id: this.$route.query.size_type_id,
+              }
+            },
+          },
+        ]
+      } else {
+        return [
+          {
+            text: 'Productos',
+            disabled: false,
+            to: {
+              path: `/products`,
+            },
+          }, {
+            text: 'Detalle',
+            disabled: true,
+            to: {
+              path: `/products/${this.$route.params.productNameId}`,
+              query: {
+                size_type_id: this.$route.query.size_type_id,
+              }
+            },
+          }, {
+            text: 'Tallas',
+            disabled: true,
+            to: {
+              path: `/products/${this.$route.params.productNameId}/sizes/${this.$route.params.productId}`,
+              query: {
+                size_type_id: this.$route.query.size_type_id,
+              }
+            },
+          },
+        ]
+      }
+    },
+  },
+  mounted() {
+    this.fetchProduct()
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -279,46 +305,14 @@ export default {
     isActive(active) {
       return active == true
     },
-    async fetchProductName() {
+    async fetchProduct() {
       try {
-        let response = await axios.get(`product_name/${this.$route.query.product_name_id}`, {
+        let response = await axios.get(`product/${this.$route.params.productId}/details`, {
           params: {
             size_type_id: this.$route.query.size_type_id,
           }
         })
-        this.productName = response.data.payload
-      } catch(error) {
-        console.error(error)
-      }
-    },
-    async fetchSizeType() {
-      try {
-        let response = await axios.get(`size_type/${this.$route.query.size_type_id}`)
-        this.sizeType = response.data.payload
-      } catch(error) {
-        console.error(error)
-      }
-    },
-    async fetchBrand() {
-      try {
-        let response = await axios.get(`brand/${this.$route.query.brand_id}`)
-        this.brand = response.data.payload
-      } catch(error) {
-        console.error(error)
-      }
-    },
-    async fetchGender() {
-      try {
-        let response = await axios.get(`gender/${this.$route.query.gender_id}`)
-        this.gender = response.data.payload
-      } catch(error) {
-        console.error(error)
-      }
-    },
-    async fetchColor() {
-      try {
-        let response = await axios.get(`color/${this.$route.query.color_id}`)
-        this.color = response.data.payload
+        this.product = response.data.payload
       } catch(error) {
         console.error(error)
       }
@@ -326,7 +320,7 @@ export default {
     async fetchSizes() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get(`product/${this.$route.query.product_id}/sizes`, {
+        let response = await axios.get(`product/${this.$route.params.productId}/sizes`, {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,

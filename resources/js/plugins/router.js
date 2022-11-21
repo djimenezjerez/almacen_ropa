@@ -54,21 +54,37 @@ const router = new VueRouter({
           name: 'clients',
           component: () => import('@/views/Clients.vue'),
         }, {
+          path: '/:storeType/:storeId/products',
+          name: 'inventory',
+          component: () => import('@/views/Products.vue'),
+        }, {
+          path: '/:storeType/:storeId/products/:productNameId',
+          name: 'inventoryDetails',
+          component: () => import('@/components/products/ProductDetails.vue'),
+        }, {
+          path: '/:storeType/:storeId/products/:productNameId/sizes/:productId',
+          name: 'inventorySizes',
+          component: () => import('@/components/products/ProductSizes.vue'),
+        }, {
           path: '/products',
           name: 'products',
           component: () => import('@/views/Products.vue'),
         }, {
-          path: '/product_details',
-          name: 'product_details',
+          path: '/products/:productNameId',
+          name: 'productDetails',
           component: () => import('@/components/products/ProductDetails.vue'),
         }, {
-          path: '/product_sizes',
-          name: 'product_sizes',
+          path: '/products/:productNameId/sizes/:productId',
+          name: 'productSizes',
           component: () => import('@/components/products/ProductSizes.vue'),
         }, {
           path: '/categories',
           name: 'categories',
           component: () => import('@/views/Categories.vue'),
+        }, {
+          path: '/movements',
+          name: 'movements',
+          component: () => import('@/views/Movements.vue'),
         },
       ]
     },

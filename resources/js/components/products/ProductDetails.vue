@@ -7,6 +7,8 @@
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="breadcrumbs[0].to">{{ breadcrumbs[0].text }}</router-link>
         <span class="white--text px-3">/</span>
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
+        <span class="white--text px-3" v-if="isBuilding">/</span>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[2].to" v-if="isBuilding">{{ breadcrumbs[2].text }}</router-link>
       </v-toolbar>
       <v-row
         class="background pb-0 pt-2 px-4 mx-0"
@@ -24,7 +26,7 @@
           <div class="text-right">Stock total: </div>
         </v-col>
         <v-col cols="8" md="4">
-          <div class="font-weight-bold">{{ productName.total }}</div>
+          <div class="font-weight-bold">{{ productName.total_stock }}</div>
         </v-col>
         <v-col cols="4" md="2">
           <div class="text-right">Categoría: </div>
@@ -86,7 +88,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="gotoProductSizes(item.id, sizeType.id, item.product_name_id, item.brand_id, item.gender_id, item.color_id)"
+                      @click="gotoProductSizes(item.id, item.brand_id, item.gender_id, item.color_id)"
                     >
                       <v-icon
                         dense
@@ -132,31 +134,6 @@ export default {
   name: 'ProductDetails',
   data() {
     return {
-      breadcrumbs: [
-        {
-          text: 'Productos',
-          disabled: false,
-          to: {
-            path: '/products',
-            query: {
-              building_id: this.$route.query.building_id,
-              building_type: this.$route.query.building_type,
-            },
-          },
-        }, {
-          text: 'Detalle',
-          disabled: true,
-          to: {
-            path: '/product_details',
-            query: {
-              building_id: this.$route.query.building_id,
-              building_type: this.$route.query.building_type,
-              product_name_id: this.$route.query.product_name_id,
-              size_type_id: this.$route.query.size_type_id,
-            },
-          },
-        },
-      ],
       search: null,
       options: {
         page: 1,
@@ -193,6 +170,12 @@ export default {
           value: 'brand_name',
           class: this.$headerClass,
         }, {
+          text: 'STOCK',
+          align: 'center',
+          sortable: false,
+          value: 'total_stock',
+          class: this.$headerClass,
+        }, {
           text: 'ACCIONES',
           align: 'center',
           value: 'actions',
@@ -203,7 +186,62 @@ export default {
       ],
     }
   },
-  created() {
+  computed: {
+    isBuilding() {
+      return (this.$route.params.storeId != undefined)
+    },
+    isStore() {
+      return (this.$route.params.storeType == 'stores')
+    },
+    breadcrumbs() {
+      if (this.isStore) {
+        return [
+          {
+            text: this.isStore ? 'Tiendas' : 'Almacenes',
+            disabled: false,
+            to: {
+              path: this.isStore ? '/stores' : '/warehouses',
+            },
+          }, {
+            text: 'Inventario',
+            disabled: false,
+            to: {
+              path: `/${this.$route.params.storeType}/${this.$route.params.storeId}/products`,
+            },
+          }, {
+            text: 'Detalle',
+            disabled: true,
+            to: {
+              path: `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}`,
+              query: {
+                size_type_id: this.$route.query.size_type_id,
+              }
+            },
+          },
+        ]
+      } else {
+        return [
+          {
+            text: 'Productos',
+            disabled: false,
+            to: {
+              path: `/products`,
+            },
+          }, {
+            text: 'Detalle',
+            disabled: true,
+            to: {
+              path: `/products/${this.$route.params.productNameId}`,
+              query: {
+                size_type_id: this.$route.query.size_type_id,
+              }
+            },
+          },
+        ]
+      }
+    },
+  },
+  mounted() {
     this.fetchProductName()
     this.fetchSizeType()
   },
@@ -219,24 +257,17 @@ export default {
     }
   },
   methods: {
-    gotoProductSizes(productId, sizeTypeId, productNameId, brandId, genderId, colorId) {
+    gotoProductSizes(productId, brandId, genderId, colorId) {
       this.$router.push({
-        path: '/product_sizes',
+        path: this.isBuilding ? `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}/sizes/${productId}` : `/products/${this.$route.params.productNameId}/sizes/${productId}`,
         query: {
-          building_id: this.$route.query.building_id,
-          building_type: this.$route.query.building_type,
-          product_id: productId,
-          size_type_id: sizeTypeId,
-          product_name_id: productNameId,
-          brand_id: brandId,
-          gender_id: genderId,
-          color_id: colorId,
+          size_type_id: this.sizeType.id,
         }
       })
     },
     async fetchProductName() {
       try {
-        let response = await axios.get(`product_name/${this.$route.query.product_name_id}`, {
+        let response = await axios.get(`product_name/${this.$route.params.productNameId}`, {
           params: {
             size_type_id: this.$route.query.size_type_id,
           }
@@ -257,7 +288,7 @@ export default {
     async fetchProducts() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get(`product/${this.$route.query.product_name_id}`, {
+        let response = await axios.get(`product/${this.$route.params.productNameId}`, {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,

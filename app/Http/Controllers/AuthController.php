@@ -71,6 +71,7 @@ class AuthController extends Controller
                                     'name' => $store->person->name,
                                     'document' => $store->person->document,
                                     'document_type_code' => $store->person->document_type->code,
+                                    'warehouse' => $store->warehouse,
                                 ],
                                 'permissions' => $role->permissions->pluck('name'),
                             ],

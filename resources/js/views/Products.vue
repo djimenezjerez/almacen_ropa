@@ -11,6 +11,7 @@
         </div>
         <tool-bar-title title="Productos" v-else/>
       </v-toolbar>
+      <building-details v-if="isBuilding" :building="store"/>
       <v-row
         class="pt-4 px-4"
         align="center"
@@ -90,7 +91,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="gotoProductDetails(item.product_name_id, sizeType)"
+                      @click="gotoProductDetails(item.product_name_id)"
                     >
                       <v-icon
                         dense
@@ -138,6 +139,7 @@ export default {
   components: {
     'product-form': () => import('@/components/products/ProductForm.vue'),
     'product-report': () => import('@/components/products/ProductReport.vue'),
+    'building-details': () => import('@/components/shared/BuildingDetails.vue'),
   },
   data() {
     return {
@@ -152,6 +154,7 @@ export default {
       sizeTypes: [],
       sizeType: null,
       products: [],
+      store: {},
       headers: [
         {
           text: 'NRO',
@@ -193,10 +196,10 @@ export default {
   },
   computed: {
     isBuilding() {
-      return (this.$route.query.building_id != 0)
+      return (this.$route.params.storeId != undefined)
     },
     isStore() {
-      return (this.$route.query.building_type == 'store')
+      return (this.$route.params.storeType == 'stores')
     },
     breadcrumbs() {
       return [
@@ -210,11 +213,7 @@ export default {
           text: 'Inventario',
           disabled: true,
           to: {
-            path: '/inventory',
-            query: {
-              building_id: this.$route.query.building_id,
-              building_type: this.$route.query.building_type,
-            },
+            path: `/${this.$route.params.storeType}/${this.$route.params.storeId}/products`,
           },
         },
       ]
@@ -231,14 +230,16 @@ export default {
       this.fetchProducts()
     }
   },
+  mounted() {
+    if (this.isBuilding) {
+      this.fetchStore()
+    }
+  },
   methods: {
     gotoProductDetails(productNameId) {
       this.$router.push({
-        path: '/product_details',
+        path: this.isBuilding ? `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${productNameId}` : `/products/${productNameId}`,
         query: {
-          building_id: this.$route.query.building_id,
-          building_type: this.$route.query.building_type,
-          product_name_id: productNameId,
           size_type_id: this.sizeType.id
         }
       })
@@ -255,6 +256,14 @@ export default {
         console.error(error)
       }
     },
+    async fetchStore() {
+      try {
+        let response = await axios.get(`store/${this.$route.params.storeId}`)
+        this.store = response.data.payload.store
+      } catch(error) {
+        console.error(error)
+      }
+    },
     async fetchProducts() {
       try {
         this.$store.dispatch('loading', true)
@@ -266,6 +275,7 @@ export default {
             sort_by: this.options.sortBy,
             sort_desc: this.options.sortDesc,
             search: this.search,
+            store_id: this.$route.params.storeId,
           },
         })
         this.products = response.data.payload.data
