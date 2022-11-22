@@ -69,7 +69,7 @@
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="3">
+              <v-col cols="2">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -89,7 +89,7 @@
                   <span>Ver</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
+              <v-col cols="2">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -109,7 +109,27 @@
                   <span>Editar</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
+              <v-col cols="2">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      icon
+                      v-bind="attrs"
+                      v-on="on"
+                      color="brown"
+                      @click="gotoInventory(item.id)"
+                    >
+                      <v-icon
+                        dense
+                      >
+                        mdi-tshirt-crew
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Inventario</span>
+                </v-tooltip>
+              </v-col>
+              <v-col cols="2">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -129,7 +149,7 @@
                   <span>Empleados</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
+              <v-col cols="2">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -220,7 +240,7 @@ export default {
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '160px',
+          width: '200px',
           class: this.$headerClass,
         },
       ],
@@ -243,11 +263,14 @@ export default {
     }
   },
   methods: {
-    isActive(active) {
-      return active == true
-    },
     gotoEmployees(warehouseId) {
       this.$router.push({ path: `/warehouses/${warehouseId}/employees` })
+    },
+    gotoInventory(storeId) {
+      this.$router.push({ path: `/warehouses/${storeId}/products` })
+    },
+    isActive(active) {
+      return active == true
     },
     async fetchUsers() {
       try {

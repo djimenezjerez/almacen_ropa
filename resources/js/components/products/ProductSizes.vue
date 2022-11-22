@@ -221,17 +221,17 @@ export default {
     isBuilding() {
       return (this.$route.params.storeId != undefined)
     },
-    isStore() {
-      return (this.$route.params.storeType == 'stores')
+    isWarehouse() {
+      return this.store.warehouse
     },
     breadcrumbs() {
-      if (this.isStore) {
+      if (this.isWarehouse) {
         return [
           {
-            text: this.isStore ? 'Tiendas' : 'Almacenes',
+            text: this.isWarehouse ? 'Almacenes' : 'Tiendas',
             disabled: false,
             to: {
-              path: this.isStore ? '/stores' : '/warehouses',
+              path: this.isWarehouse ? '/warehouses' : '/stores',
             },
           }, {
             text: 'Inventario',

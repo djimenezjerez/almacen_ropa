@@ -198,16 +198,16 @@ export default {
     isBuilding() {
       return (this.$route.params.storeId != undefined)
     },
-    isStore() {
-      return (this.$route.params.storeType == 'stores')
+    isWarehouse() {
+      return this.store.warehouse
     },
     breadcrumbs() {
       return [
         {
-          text: this.isStore ? 'Tiendas' : 'Almacenes',
+          text: this.isWarehouse ? 'Almacenes' : 'Tiendas',
           disabled: false,
           to: {
-            path: this.isStore ? '/stores' : '/warehouses',
+            path: this.isWarehouse ? '/warehouses' : '/stores',
           },
         }, {
           text: 'Inventario',
@@ -258,10 +258,13 @@ export default {
     },
     async fetchStore() {
       try {
+        this.$store.dispatch('loading', true)
         let response = await axios.get(`store/${this.$route.params.storeId}`)
         this.store = response.data.payload.store
       } catch(error) {
         console.error(error)
+      } finally {
+        this.$store.dispatch('loading', false)
       }
     },
     async fetchProducts() {

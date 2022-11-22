@@ -6,7 +6,7 @@
     dense
   >
     <v-col cols="4" md="2">
-      <div class="text-right">Tienda: </div>
+      <div class="text-right">{{ building.warehouse ? 'Almacén' : 'Tienda' }}: </div>
     </v-col>
     <v-col cols="8" md="4">
       <div class="font-weight-bold">{{ building.name }}</div>

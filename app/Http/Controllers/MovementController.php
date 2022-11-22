@@ -30,7 +30,7 @@ class MovementController extends Controller
         if ($request->has('search')) {
             if ($request->search != '') {
                 $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(movements.comment)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(movement_types.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_user.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_from_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_to_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhereDate('created_at', '=', $request->search);
+                    return $q->orWhere(DB::raw('upper(movements.comment)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(movement_types.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_user.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_from_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_to_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhereDate('movements.created_at', '=', $request->search);
                 });
             }
         }

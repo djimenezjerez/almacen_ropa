@@ -55,7 +55,13 @@
             {{ $helpers.listIndex(index, options) }}
           </template>
           <template v-slot:[`item.deleted_at`]="{ item }">
-            {{ item.deleted_at == null ? 'ACTIVO' : 'ANULADO' }}
+            <v-chip
+              :color="isActive(item.deleted_at) ? 'success' : 'error'"
+              dark
+              small
+            >
+              {{ isActive(item.deleted_at) ? 'ACTIVO' : 'ANULADO' }}
+            </v-chip>
           </template>
           <template v-slot:[`item.from_store_id`]="{ item }">
             {{ storeName(item) }}
@@ -211,6 +217,9 @@ export default {
     }
   },
   methods: {
+    isActive(deleted) {
+      return deleted == null
+    },
     storeName(data) {
       if (data.from_store_id == null) {
         return data.to_store_name
