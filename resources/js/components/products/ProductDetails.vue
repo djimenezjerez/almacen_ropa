@@ -10,11 +10,13 @@
         <span class="white--text px-3" v-if="isBuilding">/</span>
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[2].to" v-if="isBuilding">{{ breadcrumbs[2].text }}</router-link>
       </v-toolbar>
+      <building-details v-if="isBuilding" :building="store"/>
       <v-row
-        class="background pb-0 pt-2 px-4 mx-0"
+        class="background pb-0 px-4 mx-0"
         align="center"
         justify="start"
         dense
+        :class="isBuilding ? '' : 'pt-2'"
       >
         <v-col cols="4" md="2">
           <div class="text-right">Producto: </div>
@@ -88,7 +90,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
-                      @click="gotoProductSizes(item.id, item.brand_id, item.gender_id, item.color_id)"
+                      @click="gotoProductSizes(item.id)"
                     >
                       <v-icon
                         dense
@@ -132,6 +134,9 @@
 <script>
 export default {
   name: 'ProductDetails',
+  components: {
+    'building-details': () => import('@/components/shared/BuildingDetails.vue'),
+  },
   data() {
     return {
       search: null,
@@ -144,6 +149,7 @@ export default {
       productName: {},
       sizeType: {},
       products: [],
+      store: {},
       headers: [
         {
           text: 'NRO',
@@ -244,6 +250,9 @@ export default {
   mounted() {
     this.fetchProductName()
     this.fetchSizeType()
+    if (this.isBuilding) {
+      this.fetchStore()
+    }
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -257,7 +266,7 @@ export default {
     }
   },
   methods: {
-    gotoProductSizes(productId, brandId, genderId, colorId) {
+    gotoProductSizes(productId) {
       this.$router.push({
         path: this.isBuilding ? `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}/sizes/${productId}` : `/products/${this.$route.params.productNameId}/sizes/${productId}`,
         query: {
@@ -265,11 +274,20 @@ export default {
         }
       })
     },
+    async fetchStore() {
+      try {
+        let response = await axios.get(`store/${this.$route.params.storeId}`)
+        this.store = response.data.payload.store
+      } catch(error) {
+        console.error(error)
+      }
+    },
     async fetchProductName() {
       try {
         let response = await axios.get(`product_name/${this.$route.params.productNameId}`, {
           params: {
             size_type_id: this.$route.query.size_type_id,
+            store_id: this.$route.params.storeId,
           }
         })
         this.productName = response.data.payload
@@ -296,6 +314,7 @@ export default {
             sort_desc: this.options.sortDesc,
             search: this.search,
             size_type_id: this.$route.query.size_type_id,
+            store_id: this.$route.params.storeId,
           },
         })
         this.products = response.data.payload.data

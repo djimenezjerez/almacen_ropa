@@ -12,6 +12,7 @@
         <span class="white--text px-3" v-if="isBuilding">/</span>
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[3].to" v-if="isBuilding">{{ breadcrumbs[3].text }}</router-link>
       </v-toolbar>
+      <building-details v-if="isBuilding" :building="store"/>
       <v-row
         class="background pb-0 pt-2 px-4 mx-0"
         align="center"
@@ -166,6 +167,7 @@ export default {
   components: {
     'size-remove': () => import('@/components/products/SizeRemove.vue'),
     'product-switch': () => import('@/components/products/ProductSwitch.vue'),
+    'building-details': () => import('@/components/shared/BuildingDetails.vue'),
   },
   data() {
     return {
@@ -176,6 +178,7 @@ export default {
         sortDesc: []
       },
       totalItems: 0,
+      store: {},
       product: {},
       sizes: [],
       headers: [
@@ -289,6 +292,9 @@ export default {
   },
   mounted() {
     this.fetchProduct()
+    if (this.isBuilding) {
+      this.fetchStore()
+    }
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -305,11 +311,20 @@ export default {
     isActive(active) {
       return active == true
     },
+    async fetchStore() {
+      try {
+        let response = await axios.get(`store/${this.$route.params.storeId}`)
+        this.store = response.data.payload.store
+      } catch(error) {
+        console.error(error)
+      }
+    },
     async fetchProduct() {
       try {
         let response = await axios.get(`product/${this.$route.params.productId}/details`, {
           params: {
             size_type_id: this.$route.query.size_type_id,
+            store_id: this.$route.params.storeId,
           }
         })
         this.product = response.data.payload
@@ -328,6 +343,7 @@ export default {
             sort_desc: this.options.sortDesc,
             search: this.search,
             size_type_id: this.$route.query.size_type_id,
+            store_id: this.$route.params.storeId,
           },
         })
         this.sizes = response.data.payload.data

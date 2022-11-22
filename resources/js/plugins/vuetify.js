@@ -28,6 +28,7 @@ const vuetify = new Vuetify({
         error: '#DD2C00',
         accent: '#004D40',
         background: '#E0F2F1',
+        backgroundContrast: '#FFF4EC',
       },
     },
   },

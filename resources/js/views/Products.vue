@@ -269,12 +269,12 @@ export default {
         this.$store.dispatch('loading', true)
         let response = await axios.get('product', {
           params: {
-            size_type_id: this.sizeType.id,
             page: this.options.page,
             per_page: this.options.itemsPerPage,
             sort_by: this.options.sortBy,
             sort_desc: this.options.sortDesc,
             search: this.search,
+            size_type_id: this.sizeType.id,
             store_id: this.$route.params.storeId,
           },
         })

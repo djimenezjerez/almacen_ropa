@@ -1,6 +1,6 @@
 <template>
   <v-row
-    class="background pb-0 pt-2 px-4 mx-0"
+    class="backgroundContrast pb-0 pt-2 px-4 mx-0"
     align="center"
     justify="start"
     dense

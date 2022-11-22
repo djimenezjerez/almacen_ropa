@@ -32,9 +32,9 @@ class AuthController extends Controller
                             ],
                         ];
                     }
-                    $store = $user->stores()->whereActive(true)->wherePivot('store_id', $request->store_id)->first();
+                    $store = $user->stores()->whereActive(true)->wherePivot('store_id', (int)$request->store_id)->first();
                     if ($store != null) {
-                        $role = $user->roles()->wherePivot('store_id', $request->store_id)->first();
+                        $role = $user->roles()->wherePivot('store_id', (int)$request->store_id)->first();
                         $tokens = $user->tokens()->count();
                         $create_token = false;
                         if ($tokens == 1) {

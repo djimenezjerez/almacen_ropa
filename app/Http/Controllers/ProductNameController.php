@@ -20,7 +20,25 @@ class ProductNameController extends Controller
 
     public function show(ProductName $product_name, Request $request)
     {
-        $query = DB::table('products')->selectRaw('cast(sum(products.stock) as UNSIGNED) as total_stock')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->where('products.product_name_id', $product_name->id)->where('products.deleted_at', null)->groupBy('products.product_name_id');
+        $store = false;
+        if ($request->has('store_id')) {
+            $store = DB::table('stores')->where('id', (int)$request->store_id)->exists();
+            if ($store) {
+                $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as UNSIGNED) as stock')->where('store_id', (int)$request->store_id)->groupBy('product_id');
+            }
+        }
+
+        $query = DB::table('products');
+
+        if ($store) {
+            $query->selectRaw('cast(sum(md.stock) as UNSIGNED) as total_stock')->joinSub($movements, 'md', function($join) {
+                $join->on('products.id', '=', 'md.product_id');
+            });
+        } else {
+            $query->selectRaw('cast(sum(products.stock) as UNSIGNED) as total_stock');
+        }
+
+        $query->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->where('products.product_name_id', $product_name->id)->where('products.deleted_at', null)->groupBy('products.product_name_id');
         if ($request->has('size_type_id')) {
             $query->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('size_types.id', $request->size_type_id);
         }
