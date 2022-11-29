@@ -2,6 +2,7 @@
   <v-btn
     :color="color"
     :block="block"
+    :disabled="disabled"
     @click="$emit('click', $event)"
   >
     <v-icon
@@ -32,6 +33,10 @@ export default {
       default: 'info'
     },
     block: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
       type: Boolean,
       default: false,
     },

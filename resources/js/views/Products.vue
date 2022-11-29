@@ -42,7 +42,7 @@
             item-text="name"
             :items="sizeTypes"
             prepend-icon="mdi-human-male-boy"
-            :return-object="true"
+            return-object
             dense
             hide-details
             @change="fetchProducts"

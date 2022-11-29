@@ -6,7 +6,7 @@
       >
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/movements` }">Movimientos de stock</router-link>
         <span class="white--text px-3">/</span>
-        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/movements/ENTRY` }">{{ movementType.name }}</router-link>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/movements/ADJUSTMENT` }">{{ movementType.name }}</router-link>
       </v-toolbar>
       <building-details :building="$store.getters.store"/>
       <v-row
@@ -45,7 +45,7 @@
       </v-row>
       <v-card-text v-show="products.length > 0">
         <v-col cols="12">
-          <div class="text-h5 font-weight-bold text-center">Productos a Ingresar</div>
+          <div class="text-h5 font-weight-bold text-center">Productos a Retirar</div>
         </v-col>
         <v-row dense v-for="(item, index) in products" :key="index" class="mb-2" style="border: thin solid black; border-radius: 15px;">
           <v-col cols="12">
@@ -102,10 +102,13 @@
                     <th class="text-center" width="10%">
                       NRO
                     </th>
-                    <th class="text-center" width="40%">
+                    <th class="text-center" width="30%">
                       TALLA
                     </th>
-                    <th class="text-center" width="40%">
+                    <th class="text-center" width="25%">
+                      STOCK ACTUAL
+                    </th>
+                    <th class="text-center" width="25%">
                       CANTIDAD
                     </th>
                     <th class="text-center" width="10%">
@@ -120,11 +123,13 @@
                   >
                     <td class="text-center">{{ i+1 }}</td>
                     <td class="text-center">{{ product.size_name }}</td>
+                    <td class="text-center">{{ product.total_stock }}</td>
                     <td>
                       <v-text-field
                         v-model="product.stock"
                         type="number"
                         min="1"
+                        :max="product.total_stock"
                         hide-details
                         outlined
                         dense
@@ -166,7 +171,7 @@
         </v-row>
       </v-card-actions>
     </v-card>
-    <product-selection ref="productSelection" :movementType="movementType" :available="false" :store="{}" v-on:updateList="updateList"/>
+    <product-selection ref="productSelection" :movementType="movementType" :available="true" :store="$store.getters.store" v-on:updateList="updateList"/>
   </v-container>
 </template>
 
@@ -192,8 +197,8 @@ export default {
       try {
         const response = await axios.post('movement', {
           movement_type_id: this.movementType.id,
-          from_store_id: null,
-          to_store_id: this.$store.getters.store.id,
+          from_store_id: this.$store.getters.store.id,
+          to_store_id: null,
           comment: this.comment,
           details: this.products.map(o => o.products).flat(),
         })
@@ -208,7 +213,7 @@ export default {
     async fetchMovementType() {
       try {
         let response = await axios.get(`movement_type`)
-        this.movementType = response.data.payload.data.find(o => o.code == 'ENTRY')
+        this.movementType = response.data.payload.data.find(o => o.code == 'ADJUSTMENT')
       } catch(error) {
         console.error(error)
       }

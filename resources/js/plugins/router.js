@@ -89,6 +89,14 @@ const router = new VueRouter({
           path: '/movements/ENTRY',
           name: 'movementEntry',
           component: () => import('@/components/movements/MovementEntry.vue'),
+        }, {
+          path: '/movements/ADJUSTMENT',
+          name: 'movementEntry',
+          component: () => import('@/components/movements/MovementAdjustment.vue'),
+        }, {
+          path: '/movements/TRANSFER',
+          name: 'movementTransfer',
+          component: () => import('@/components/movements/MovementTransfer.vue'),
         },
       ]
     },

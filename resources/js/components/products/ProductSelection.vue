@@ -151,6 +151,10 @@
 export default {
   name: 'ProductSelection',
   props: {
+    store: {
+      type: Object,
+      required: true,
+    },
     movementType: {
       type: Object,
       required: true,
@@ -165,10 +169,6 @@ export default {
       dialog: false,
       active: 0,
       excluded: [],
-      store: {},
-      stores: [],
-      client: {},
-      clients: [],
       sizeType: {},
       sizeTypes: [],
       productName: {},
@@ -192,8 +192,9 @@ export default {
     },
     clearSelection() {
       if (this.movementType.code == 'ENTRY') {
-        this.store = {}
         this.active = 0
+      } else {
+        this.active = 1
       }
       this.sizeType = {}
       this.sizeTypes = []

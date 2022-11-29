@@ -6,7 +6,7 @@
       >
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/movements` }">Movimientos de stock</router-link>
         <span class="white--text px-3">/</span>
-        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/movements/ENTRY` }">{{ movementType.name }}</router-link>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/movements/TRANSFER` }">{{ movementType.name }}</router-link>
       </v-toolbar>
       <building-details :building="$store.getters.store"/>
       <v-row
@@ -16,7 +16,8 @@
       >
         <v-col
           cols="12"
-          md="7"
+          sm="12"
+          xl="6"
         >
           <v-text-field
             label="Glosa"
@@ -31,21 +32,43 @@
         </v-col>
         <v-col
           cols="12"
-          md="5"
+          md="6"
+          xl="3"
           :class="{
-            'text-right': $vuetify.breakpoint.mdAndUp,
+            'text-right': $vuetify.breakpoint.smAndUp,
+          }"
+        >
+          <v-select
+            :label="store.warehouse == undefined ? 'Tienda/Almacén' : (store.warehouse ? 'Almacén' : 'Tienda')"
+            v-model="store"
+            item-text="name"
+            :items="stores"
+            prepend-icon="mdi-store"
+            return-object
+            dense
+            hide-details
+            @change="products = []"
+          ></v-select>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+          xl="3"
+          :class="{
+            'text-right': $vuetify.breakpoint.smAndUp,
           }"
         >
           <add-button
             text="Seleccionar productos"
-            :block="$vuetify.breakpoint.smAndDown"
+            block
+            :disabled="Object.keys(store).length === 0"
             @click="$refs.productSelection.showDialog(products.map(o => o.products.map(i => i.id)).flat())"
           />
         </v-col>
       </v-row>
       <v-card-text v-show="products.length > 0">
         <v-col cols="12">
-          <div class="text-h5 font-weight-bold text-center">Productos a Ingresar</div>
+          <div class="text-h5 font-weight-bold text-center">Productos a Transferir</div>
         </v-col>
         <v-row dense v-for="(item, index) in products" :key="index" class="mb-2" style="border: thin solid black; border-radius: 15px;">
           <v-col cols="12">
@@ -102,10 +125,13 @@
                     <th class="text-center" width="10%">
                       NRO
                     </th>
-                    <th class="text-center" width="40%">
+                    <th class="text-center" width="30%">
                       TALLA
                     </th>
-                    <th class="text-center" width="40%">
+                    <th class="text-center" width="25%">
+                      STOCK ACTUAL
+                    </th>
+                    <th class="text-center" width="25%">
                       CANTIDAD
                     </th>
                     <th class="text-center" width="10%">
@@ -120,11 +146,13 @@
                   >
                     <td class="text-center">{{ i+1 }}</td>
                     <td class="text-center">{{ product.size_name }}</td>
+                    <td class="text-center">{{ product.total_stock }}</td>
                     <td>
                       <v-text-field
                         v-model="product.stock"
                         type="number"
                         min="1"
+                        :max="product.total_stock"
                         hide-details
                         outlined
                         dense
@@ -166,7 +194,7 @@
         </v-row>
       </v-card-actions>
     </v-card>
-    <product-selection ref="productSelection" :movementType="movementType" :available="false" :store="{}" v-on:updateList="updateList"/>
+    <product-selection ref="productSelection" :movementType="movementType" :available="true" :store="$store.getters.store" v-on:updateList="updateList"/>
   </v-container>
 </template>
 
@@ -182,18 +210,21 @@ export default {
       comment: '',
       products: [],
       movementType: {},
+      store: {},
+      stores: [],
     }
   },
   created() {
     this.fetchMovementType()
+    this.fetchStores()
   },
   methods: {
     async submit() {
       try {
         const response = await axios.post('movement', {
           movement_type_id: this.movementType.id,
-          from_store_id: null,
-          to_store_id: this.$store.getters.store.id,
+          from_store_id: this.$store.getters.store.id,
+          to_store_id: this.store.id,
           comment: this.comment,
           details: this.products.map(o => o.products).flat(),
         })
@@ -208,7 +239,20 @@ export default {
     async fetchMovementType() {
       try {
         let response = await axios.get(`movement_type`)
-        this.movementType = response.data.payload.data.find(o => o.code == 'ENTRY')
+        this.movementType = response.data.payload.data.find(o => o.code == 'TRANSFER')
+      } catch(error) {
+        console.error(error)
+      }
+    },
+    async fetchStores() {
+      try {
+        let response = await axios.get(`store`, {
+          params: {
+            combo: true,
+            warehouse: 0,
+          }
+        })
+        this.stores = response.data.payload.data.filter(o => o.id != this.$store.getters.store.id)
       } catch(error) {
         console.error(error)
       }

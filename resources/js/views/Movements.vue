@@ -215,9 +215,9 @@ export default {
       } else if (data.to_store_id == null) {
         return data.from_store_name
       } else if (data.from_store_id == this.$store.getters.store.id) {
-        return data.to_store_name
+        return `Hacia: ${data.to_store_name}`
       } else if (data.to_store_id == this.$store.getters.store.id) {
-        return data.from_store_name
+        return `Desde: ${data.from_store_name}`
       }
     },
     async fetchMovements() {

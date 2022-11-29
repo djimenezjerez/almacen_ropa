@@ -21,7 +21,7 @@ class StoreController extends Controller
             return [
                 'message' => 'Lista de tiendas',
                 'payload' => [
-                    'data' => DB::table('stores')->select('stores.id', 'people.name')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('stores.active', '=', true)->where('stores.deleted_at', null)->orderBy('people.name')->get(),
+                    'data' => DB::table('stores')->select('stores.id', 'people.name', 'stores.warehouse')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('stores.active', '=', true)->where('stores.deleted_at', null)->orderBy('people.name')->get(),
                 ],
             ];
         }

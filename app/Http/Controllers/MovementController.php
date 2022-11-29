@@ -53,7 +53,7 @@ class MovementController extends Controller
     {
         if ($request->from_store_id == null && $request->to_store_id == null) {
             return response()->json([
-                'message' => 'Error al registrar',
+                'message' => 'Debe seleccionar una tienda/almacén',
                 'errors' => [
                     'from_store_id' => ['Debe definir el origen'],
                     'to_store_id' => ['Debe definir el destino'],
@@ -61,6 +61,43 @@ class MovementController extends Controller
             ], 422);
         }
         $movement_type = MovementType::find($request->movement_type_id);
+        switch ($movement_type->code) {
+            case 'ENTRY':
+            case 'CANCEL_SELL':
+                if ($request->from_store_id != null || $request->to_store_id == null) {
+                    return response()->json([
+                        'message' => 'Debe seleccionar una tienda/almacén',
+                        'errors' => [
+                            'from_store_id' => ['Campo prohibido'],
+                            'to_store_id' => ['Debe definir el destino'],
+                        ]
+                    ], 422);
+                }
+                break;
+            case 'ADJUSTMENT':
+            case 'SELL':
+                if ($request->from_store_id == null || $request->to_store_id != null) {
+                    return response()->json([
+                        'message' => 'Debe seleccionar una tienda/almacén',
+                        'errors' => [
+                            'from_store_id' => ['Debe definir el origen'],
+                            'to_store_id' => ['Campo prohibido'],
+                        ]
+                    ], 422);
+                }
+                break;
+            case 'TRANSFER':
+                if ($request->from_store_id == null || $request->to_store_id == null) {
+                    return response()->json([
+                        'message' => 'Debe seleccionar una tienda/almacén',
+                        'errors' => [
+                            'from_store_id' => ['Debe definir el origen'],
+                            'to_store_id' => ['Debe definir el destino'],
+                        ]
+                    ], 422);
+                }
+                break;
+        }
         $movement = new Movement();
         $movement->comment = $request->comment;
         $movement->movement_type()->associate($movement_type);
