@@ -85,6 +85,10 @@ const router = new VueRouter({
           path: '/movements',
           name: 'movements',
           component: () => import('@/views/Movements.vue'),
+        }, {
+          path: '/movements/ENTRY',
+          name: 'movementEntry',
+          component: () => import('@/components/movements/MovementEntry.vue'),
         },
       ]
     },

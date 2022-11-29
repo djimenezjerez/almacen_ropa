@@ -301,7 +301,7 @@
                   <v-btn
                     block
                     type="submit"
-                    color="info"
+                    color="success"
                     :disabled="invalid"
                     v-if="!readOnly"
                   >

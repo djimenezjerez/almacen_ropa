@@ -167,5 +167,6 @@ return [
         'to_date' => 'fecha de caducidad',
         'city_id' => 'ciudad',
         'role_id' => 'rol',
+        'details.*.stock' => 'cantidad',
     ],
 ];

@@ -12,7 +12,7 @@
       <v-divider class="ml-1 mr-5" vertical></v-divider>
       <v-btn
         outlined
-        to="dashboard"
+        to="/dashboard"
       >
         <v-icon
           class="mr-3"

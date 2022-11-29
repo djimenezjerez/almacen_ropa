@@ -7,7 +7,7 @@
     single-line
     clearable
     dense
-    hide-details=""
+    hide-details
     v-model="searchValue"
     @input="inputUpdated"
     v-on:keyup.enter="searchValue && $emit('input', searchValue)"

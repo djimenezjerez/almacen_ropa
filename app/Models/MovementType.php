@@ -9,6 +9,7 @@ class MovementType extends Model
     protected $fillable = [
         'name',
         'code',
+        'icon',
         'active',
         'entry',
         'order',

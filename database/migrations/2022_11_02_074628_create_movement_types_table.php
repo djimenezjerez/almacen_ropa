@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('movement_types', function (Blueprint $table) {
             $table->tinyIncrements('id');
+            $table->string('icon')->comment('Ícono');
             $table->string('name')->comment('Nombre');
             $table->string('code')->unique()->comment('Código');
             $table->boolean('active')->default(true)->comment('Estado activo');

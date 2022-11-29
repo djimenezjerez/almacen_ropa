@@ -2,17 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MovementType;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MovementTypeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         return [
-            'message' => 'Lista de ciudades',
+            'message' => 'Lista de tipos de movimientos',
             'payload' => [
-                'data' => DB::table('movement_types')->select('id', 'name', 'code', 'entry')->where('active', true)->orderBy('order')->get(),
+                'data' => DB::table('movement_types')->select('id', 'name', 'icon', 'code', 'entry')->where('active', true)->orderBy('order')->get(),
             ],
+        ];
+    }
+
+    public function show(MovementType $movement_type)
+    {
+        return [
+            'message' => 'Tipo de movimientos',
+            'payload' => $movement_type,
         ];
     }
 }

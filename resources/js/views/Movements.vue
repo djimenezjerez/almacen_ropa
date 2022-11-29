@@ -34,6 +34,7 @@
           <add-button
             text="Agregar movimiento"
             :block="$vuetify.breakpoint.smAndDown"
+            @click="$refs.movementSelection.showDialog()"
           />
         </v-col>
       </v-row>
@@ -66,6 +67,9 @@
           <template v-slot:[`item.from_store_id`]="{ item }">
             {{ storeName(item) }}
           </template>
+          <template v-slot:[`item.created_at`]="{ item }">
+            {{ item.created_at | moment('L') }}
+          </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
               <v-col cols="4">
@@ -94,25 +98,6 @@
                       icon
                       v-bind="attrs"
                       v-on="on"
-                      color="info"
-                    >
-                      <v-icon
-                        dense
-                      >
-                        mdi-pencil
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Editar</span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="4">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
                       color="error"
                     >
                       <v-icon
@@ -131,12 +116,16 @@
       </v-col>
     </v-row>
     <dialog-remove ref="dialogRemove" type="movimiento" url="movement" v-on:updateList="fetchMovements"/>
+    <movement-selection ref="movementSelection"/>
   </v-container>
 </template>
 
 <script>
 export default {
   name: 'Movements',
+  components: {
+    'movement-selection': () => import('@/components/movements/MovementSelection.vue'),
+  },
   data() {
     return {
       search: null,

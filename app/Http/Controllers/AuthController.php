@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\StoreResource;
 use App\Http\Requests\AuthRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -66,13 +67,7 @@ class AuthController extends Controller
                                     'name' => $role->name,
                                     'display_name' => $role->display_name,
                                 ],
-                                'store' => [
-                                    'id' => $store->id,
-                                    'name' => $store->person->name,
-                                    'document' => $store->person->document,
-                                    'document_type_code' => $store->person->document_type->code,
-                                    'warehouse' => $store->warehouse,
-                                ],
+                                'store' => new StoreResource($store),
                                 'permissions' => $role->permissions->pluck('name'),
                             ],
                         ];

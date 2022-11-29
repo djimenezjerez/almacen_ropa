@@ -20,7 +20,9 @@ use App\Http\Controllers\SizeController;
 use App\Http\Controllers\SizeTypeController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\MovementTypeController;
 use App\Http\Controllers\MovementController;
+use App\Http\Controllers\ProductSelectionController;
 
 // Autenticación
 Route::post('login', [AuthController::class, 'store']);
@@ -131,7 +133,19 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('product/{product_name}/stock', [ProductController::class, 'stock']);
     });
 
+    // Tipos de movimiento de stock
+    Route::get('movement_type', [MovementTypeController::class, 'index']);
+    Route::get('movement_type/{movement_type}', [MovementTypeController::class, 'show']);
+
     // Movimientos de stock
     Route::get('movement', [MovementController::class, 'index']);
     Route::post('movement', [MovementController::class, 'store']);
+
+    // Selección de productos
+    Route::get('product_selection/size_types', [ProductSelectionController::class, 'size_types']);
+    Route::get('product_selection/product_names', [ProductSelectionController::class, 'product_names']);
+    Route::get('product_selection/genders', [ProductSelectionController::class, 'genders']);
+    Route::get('product_selection/brands', [ProductSelectionController::class, 'brands']);
+    Route::get('product_selection/colors', [ProductSelectionController::class, 'colors']);
+    Route::get('product_selection/sizes', [ProductSelectionController::class, 'sizes']);
 });
