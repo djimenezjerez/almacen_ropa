@@ -55,15 +55,6 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
-          <template v-slot:[`item.deleted_at`]="{ item }">
-            <v-chip
-              :color="isActive(item.deleted_at) ? 'success' : 'error'"
-              dark
-              small
-            >
-              {{ isActive(item.deleted_at) ? 'ACTIVO' : 'ANULADO' }}
-            </v-chip>
-          </template>
           <template v-slot:[`item.from_store_id`]="{ item }">
             {{ storeName(item) }}
           </template>
@@ -72,7 +63,7 @@
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="4">
+              <v-col cols="12">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -80,6 +71,7 @@
                       v-bind="attrs"
                       v-on="on"
                       color="warning"
+                      @click="gotoDetails(item.id)"
                     >
                       <v-icon
                         dense
@@ -89,25 +81,6 @@
                     </v-btn>
                   </template>
                   <span>Ver</span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="4">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="error"
-                    >
-                      <v-icon
-                        dense
-                      >
-                        mdi-close-circle
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Remover</span>
                 </v-tooltip>
               </v-col>
             </v-row>
@@ -175,17 +148,11 @@ export default {
           value: 'from_store_id',
           class: this.$headerClass,
         }, {
-          text: 'ESTADO',
-          align: 'center',
-          sortable: true,
-          value: 'deleted_at',
-          class: this.$headerClass,
-        }, {
           text: 'ACCIONES',
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '9%',
+          width: '30px',
           class: this.$headerClass,
         },
       ],
@@ -206,8 +173,10 @@ export default {
     }
   },
   methods: {
-    isActive(deleted) {
-      return deleted == null
+    gotoDetails(id) {
+      this.$router.push({
+        path: `/movements/${id}`,
+      })
     },
     storeName(data) {
       if (data.from_store_id == null) {

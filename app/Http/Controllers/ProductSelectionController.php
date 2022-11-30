@@ -276,7 +276,7 @@ class ProductSelectionController extends Controller
         }
 
         return [
-            'message' => 'Colores',
+            'message' => 'Tallas',
             'payload' => [
                 'data' => $query->get(),
             ],
