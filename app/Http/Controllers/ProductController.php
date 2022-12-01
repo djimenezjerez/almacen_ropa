@@ -211,19 +211,17 @@ class ProductController extends Controller
             }
         }
 
-        $select = ['products.id', 'products.size_id', 'sizes.numeric as size_numeric', 'sizes.name as size_name', 'products.active'];
-
-        $query = DB::table('products');
+        $query = DB::table('products')->select('products.id', 'products.size_id', 'sizes.numeric as size_numeric', 'sizes.name as size_name', 'products.active');
 
         if ($store) {
             $query->selectRaw('coalesce(md.stock, 0) as stock')->leftJoinSub($movements, 'md', function($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
-            $select[] = 'products.stock';
+            $query->addSelect('products.stock');
         }
 
-        $query->select($select)->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.product_name_id', $product->product_name_id)->where('products.brand_id', $product->brand_id)->where('products.gender_id', $product->gender_id)->where('products.color_id', $product->color_id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null);
+        $query->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.product_name_id', $product->product_name_id)->where('products.brand_id', $product->brand_id)->where('products.gender_id', $product->gender_id)->where('products.color_id', $product->color_id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');

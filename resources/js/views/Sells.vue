@@ -4,7 +4,7 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Movimientos de stock"/>
+        <tool-bar-title title="Ventas"/>
       </v-toolbar>
       <v-row
         class="pt-4 px-4"
@@ -32,9 +32,9 @@
           order-md="last"
         >
           <add-button
-            text="Agregar movimiento"
+            text="Realizar venta"
             :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.movementSelection.showDialog()"
+            @click="gotoSell()"
           />
         </v-col>
       </v-row>
@@ -44,7 +44,7 @@
         <v-data-table
           id="datatable"
           :headers="headers"
-          :items="movements"
+          :items="sells"
           :options.sync="options"
           :server-items-length="totalItems"
           :footer-props="{
@@ -55,14 +55,8 @@
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
-          <template v-slot:[`item.from_store_id`]="{ item }">
-            {{ storeName(item) }}
-          </template>
           <template v-slot:[`item.created_at`]="{ item }">
             {{ item.created_at | moment('L') }}
-          </template>
-          <template v-slot:[`item.comment`]="{ item }">
-            {{ (item.comment == null || item.comment == '') ? '-' : item.comment }}
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
@@ -91,27 +85,23 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <movement-selection ref="movementSelection"/>
   </v-container>
 </template>
 
 <script>
 export default {
-  name: 'Movements',
-  components: {
-    'movement-selection': () => import('@/components/movements/MovementSelection.vue'),
-  },
+  name: 'Sells',
   data() {
     return {
       search: null,
       options: {
         page: 1,
         itemsPerPage: 8,
-        sortBy: ['created_at'],
-        sortDesc: [true]
+        sortBy: [],
+        sortDesc: []
       },
       totalItems: 0,
-      movements: [],
+      sells: [],
       headers: [
         {
           text: 'NRO',
@@ -126,28 +116,28 @@ export default {
           value: 'created_at',
           class: this.$headerClass,
         }, {
-          text: 'TIPO',
-          align: 'center',
-          sortable: true,
-          value: 'movement_type_name',
-          class: this.$headerClass,
-        }, {
-          text: 'GLOSA',
-          align: 'center',
-          sortable: true,
-          value: 'comment',
-          class: this.$headerClass,
-        }, {
           text: 'USUARIO',
           align: 'center',
           sortable: true,
           value: 'user_name',
           class: this.$headerClass,
         }, {
-          text: 'TIENDA/ALMACÉN',
+          text: 'CLIENTE',
           align: 'center',
           sortable: true,
-          value: 'from_store_id',
+          value: 'client_name',
+          class: this.$headerClass,
+        }, {
+          text: 'TIPO DE DOCUMENTO',
+          align: 'center',
+          sortable: true,
+          value: 'document_type_code',
+          class: this.$headerClass,
+        }, {
+          text: 'DOCUMENTO',
+          align: 'center',
+          sortable: true,
+          value: 'client_document',
           class: this.$headerClass,
         }, {
           text: 'ACCIONES',
@@ -177,22 +167,16 @@ export default {
   methods: {
     gotoDetails(id) {
       this.$router.push({
-        path: `/movements/${id}`,
+        path: `/sells/${id}`,
         query: {
-          type: 'movements',
+          type: 'sells',
         },
       })
     },
-    storeName(data) {
-      if (data.from_store_id == null) {
-        return data.to_store_name
-      } else if (data.to_store_id == null) {
-        return data.from_store_name
-      } else if (data.from_store_id == this.$store.getters.store.id) {
-        return `Hacia: ${data.to_store_name}`
-      } else if (data.to_store_id == this.$store.getters.store.id) {
-        return `Desde: ${data.from_store_name}`
-      }
+    gotoSell() {
+      this.$router.push({
+        path: `/sells/new`,
+      })
     },
     async fetchMovements() {
       try {
@@ -205,10 +189,10 @@ export default {
             sort_by: this.options.sortBy,
             sort_desc: this.options.sortDesc,
             search: this.search,
-            active: 1,
+            active: 0,
           },
         })
-        this.movements = response.data.payload.data
+        this.sells = response.data.payload.data
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)

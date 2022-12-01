@@ -25,6 +25,7 @@ class RolesSeeder extends Seeder
                     'CLIENTES',
                     'PRODUCTOS',
                     'TRANSFERENCIAS',
+                    'VENTAS',
                     'CONFIGURACION',
                 ],
             ], [
@@ -32,16 +33,7 @@ class RolesSeeder extends Seeder
                 'display_name' => 'Gerente',
                 'warehouse' => 0,
                 'order' => 2,
-                'permissions' => [
-                    'USUARIOS',
-                    'TIENDAS',
-                    'ALMACENES',
-                    'PROVEEDORES',
-                    'CLIENTES',
-                    'PRODUCTOS',
-                    'TRANSFERENCIAS',
-                    'CONFIGURACION',
-                ],
+                'permissions' => [],
             ], [
                 'name' => 'SUPERVISOR',
                 'display_name' => 'Supervisor',

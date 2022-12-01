@@ -17,9 +17,13 @@ class MovementController extends Controller
 {
     public function index(StoreRequest $request)
     {
-        $query = DB::table('movements')->select('movements.*', 'movement_types.code as movement_type_code', 'movement_types.name as movement_type_name', 'person_user.name as user_name', 'person_from_store.name as from_store_name', 'person_to_store.name as to_store_name')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->leftJoin('users', 'users.id', '=', 'movements.user_id')->leftJoin('stores as from_store', 'from_store.id', '=', 'movements.from_store_id')->leftJoin('stores as to_store', 'to_store.id', '=', 'movements.to_store_id')->leftJoin('people as person_user', 'person_user.id', '=', 'users.person_id')->leftJoin('people as person_from_store', 'person_from_store.id', '=', 'from_store.person_id')->leftJoin('people as person_to_store', 'person_to_store.id', '=', 'to_store.person_id')->where('movement_types.active', 1)->where(function($q) use ($request) {
+        $active = (int)$request->active ?? 1;
+        $query = DB::table('movements')->select('movements.*', 'movement_types.code as movement_type_code', 'movement_types.name as movement_type_name', 'person_user.name as user_name', 'person_from_store.name as from_store_name', 'person_to_store.name as to_store_name')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->leftJoin('users', 'users.id', '=', 'movements.user_id')->leftJoin('stores as from_store', 'from_store.id', '=', 'movements.from_store_id')->leftJoin('stores as to_store', 'to_store.id', '=', 'movements.to_store_id')->leftJoin('people as person_user', 'person_user.id', '=', 'users.person_id')->leftJoin('people as person_from_store', 'person_from_store.id', '=', 'from_store.person_id')->leftJoin('people as person_to_store', 'person_to_store.id', '=', 'to_store.person_id')->where('movement_types.active', $active)->where(function($q) use ($request) {
             return $q->orWhere('from_store_id', (int)$request->store_id)->orWhere('to_store_id', (int)$request->store_id);
         });
+        if (!$active) {
+            $query->addSelect('person_client.name as client_name', 'person_client.document as client_document', 'document_types.code as document_type_code')->leftJoin('clients', 'clients.id', '=', 'movements.client_id')->leftJoin('people as person_client', 'person_client.id', '=', 'clients.person_id')->leftJoin('document_types', 'document_types.id', '=', 'person_client.document_type_id');
+        }
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
@@ -31,7 +35,13 @@ class MovementController extends Controller
         if ($request->has('search')) {
             if ($request->search != '') {
                 $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(movements.comment)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(movement_types.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_user.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_from_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_to_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                    $q->orWhere(DB::raw('upper(movements.comment)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_user.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                    if ($active) {
+                        $q->orWhere(DB::raw('upper(movement_types.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_from_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_to_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                    } else {
+                        $q->orWhere(DB::raw('upper(person_client.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_client.document)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                    }
+                    return $q;
                 });
             }
         }
@@ -43,8 +53,13 @@ class MovementController extends Controller
             }
         } catch(\Exception $e) {}
 
+        $user = auth()->user();
+        if (!in_array($user->roles()->where('store_id', (int)$request->store_id)->first()->name, ['ADMINISTRADOR', 'GERENTE'])) {
+            $query->where('movements.user_id', $user->id);
+        }
+
         return [
-            'message' => 'Lista de clientes',
+            'message' => 'Lista de movimientos',
             'payload' => $query->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1),
         ];
     }

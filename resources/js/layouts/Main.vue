@@ -148,6 +148,12 @@
           </v-list-item-icon>
           <v-list-item-content>Movimientos de stock</v-list-item-content>
         </v-list-item>
+        <v-list-item link :to="{ name: 'sells' }" v-if="$store.getters.user.permissions.includes('VENTAS')">
+          <v-list-item-icon>
+            <v-icon>mdi-cash-register</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>Ventas</v-list-item-content>
+        </v-list-item>
         <v-list-group color="white" v-if="$store.getters.user.permissions.includes('CONFIGURACION')">
           <template v-slot:activator>
             <v-list-item class="px-0">

@@ -225,7 +225,7 @@ export default {
       return this.store.warehouse
     },
     breadcrumbs() {
-      if (this.isWarehouse) {
+      if (this.isBuilding) {
         return [
           {
             text: this.isWarehouse ? 'Almacenes' : 'Tiendas',

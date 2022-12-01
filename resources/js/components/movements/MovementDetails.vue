@@ -4,9 +4,9 @@
       <v-toolbar
         color="secondary"
       >
-        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/movements` }">Movimientos de stock</router-link>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/${$route.query.type}` }">{{ $route.query.type == 'movements' ? 'Movimientos de stock' : 'Ventas' }}</router-link>
         <span class="white--text px-3">/</span>
-        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/movements/${$route.params.movementId}` }">Detalle</router-link>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/${$route.query.type}/${$route.params.movementId}` }">Detalle</router-link>
       </v-toolbar>
       <v-row
         class="backgroundContrast pb-0 pt-2 px-4 mx-0"
@@ -55,6 +55,12 @@
         </v-col>
         <v-col cols="8" md="4" v-if="movement.client_id != null">
           <div class="font-weight-bold">{{ movement.client_document }}</div>
+        </v-col>
+        <v-col cols="4" md="2" v-if="movement.comment">
+          <div class="text-right">Glosa: </div>
+        </v-col>
+        <v-col cols="8" md="4" v-if="movement.comment">
+          <div class="font-weight-bold">{{ movement.comment }}</div>
         </v-col>
       </v-row>
       <v-card-text v-if="products.length > 0">
@@ -169,9 +175,9 @@ export default {
     this.fetchMovement()
   },
   methods: {
-    gotoMovements(id) {
+    gotoMovements() {
       this.$router.push({
-        path: `/movements`,
+        path: `/${this.$route.query.type}`,
       })
     },
     async fetchMovement() {

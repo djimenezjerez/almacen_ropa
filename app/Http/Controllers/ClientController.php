@@ -15,9 +15,9 @@ class ClientController extends Controller
     {
         if ($request->has('combo')) {
             return [
-                'message' => 'Lista de proveedores',
+                'message' => 'Lista de clientes',
                 'payload' => [
-                    'data' => DB::table('clients')->select('clients.id', 'people.name')->leftJoin('people', 'people.id', '=', 'clients.person_id')->where('clients.active', '=', true)->where('clients.deleted_at', null)->orderBy('people.name')->get(),
+                    'data' => DB::table('clients')->select('clients.id', 'people.name', 'people.document', 'document_types.code as document_type_code')->leftJoin('people', 'people.id', '=', 'clients.person_id')->leftJoin('document_types', 'document_types.id', '=', 'people.document_type_id')->where('clients.active', '=', true)->where('clients.deleted_at', null)->orderBy('people.name')->get(),
                 ],
             ];
         }

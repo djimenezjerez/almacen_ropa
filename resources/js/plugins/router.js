@@ -101,8 +101,20 @@ const router = new VueRouter({
           path: '/movements/:movementId',
           name: 'movementDetails',
           component: () => import('@/components/movements/MovementDetails.vue'),
+        }, {
+          path: '/sells',
+          name: 'sells',
+          component: () => import('@/views/Sells.vue'),
+        }, {
+          path: '/sells/new',
+          name: 'newSell',
+          component: () => import('@/components/movements/MovementSell.vue'),
+        }, {
+          path: '/sells/:movementId',
+          name: 'newSell',
+          component: () => import('@/components/movements/MovementDetails.vue'),
         },
-      ]
+      ],
     },
   ]
 })

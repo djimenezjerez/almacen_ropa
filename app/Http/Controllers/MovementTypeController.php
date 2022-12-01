@@ -10,10 +10,11 @@ class MovementTypeController extends Controller
 {
     public function index(Request $request)
     {
+        $active = (int)$request->active ?? 1;
         return [
             'message' => 'Lista de tipos de movimientos',
             'payload' => [
-                'data' => DB::table('movement_types')->select('id', 'name', 'icon', 'code', 'entry')->where('active', true)->orderBy('order')->get(),
+                'data' => DB::table('movement_types')->select('id', 'name', 'icon', 'code', 'entry')->where('active', $active)->orderBy('order')->get(),
             ],
         ];
     }
