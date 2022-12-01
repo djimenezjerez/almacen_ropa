@@ -20,7 +20,8 @@
         <v-col
           cols="12"
           sm="12"
-          xl="8"
+          :md="isBuilding ? 9 : 12"
+          :xl="isBuilding ? 10 : 8"
         >
           <search-input
             v-model="search"
@@ -29,7 +30,7 @@
         </v-col>
         <v-col
           cols="12"
-          sm="5"
+          :sm="isBuilding ? 12 : 5"
           md="3"
           xl="2"
           :class="{
@@ -56,6 +57,7 @@
           :class="{
             'text-right': $vuetify.breakpoint.smAndUp,
           }"
+          v-if="!isBuilding"
         >
           <add-button
             text="Agregar producto"
@@ -191,9 +193,6 @@ export default {
       ],
     }
   },
-  created() {
-    this.fetchSizeTypes()
-  },
   computed: {
     isBuilding() {
       return (this.$route.params.storeId != undefined)
@@ -231,9 +230,7 @@ export default {
     }
   },
   mounted() {
-    if (this.isBuilding) {
-      this.fetchStore()
-    }
+    this.fetchSizeTypes()
   },
   methods: {
     gotoProductDetails(productNameId) {
@@ -246,6 +243,7 @@ export default {
     },
     async fetchSizeTypes() {
       try {
+        this.$store.dispatch('loading', true)
         let response = await axios.get('size_type')
         this.sizeTypes = response.data.payload.data
         if (this.sizeTypes.length > 0) {
@@ -254,17 +252,18 @@ export default {
         }
       } catch(error) {
         console.error(error)
+      } finally {
+        if (this.isBuilding) {
+          this.fetchStore()
+        }
       }
     },
     async fetchStore() {
       try {
-        this.$store.dispatch('loading', true)
         let response = await axios.get(`store/${this.$route.params.storeId}`)
         this.store = response.data.payload.store
       } catch(error) {
         console.error(error)
-      } finally {
-        this.$store.dispatch('loading', false)
       }
     },
     async fetchProducts() {

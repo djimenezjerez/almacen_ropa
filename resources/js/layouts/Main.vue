@@ -154,6 +154,22 @@
           </v-list-item-icon>
           <v-list-item-content>Ventas</v-list-item-content>
         </v-list-item>
+        <v-list-group color="white" v-if="$store.getters.user.permissions.includes('REPORTES')">
+          <template v-slot:activator>
+            <v-list-item class="px-0">
+              <v-list-item-icon>
+                <v-icon>mdi-chart-bar</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>Reportes</v-list-item-content>
+            </v-list-item>
+          </template>
+          <v-list-item link :to="{ name: 'reportProducts' }" :class="drawer ? 'ml-1' : 'ml-4'">
+            <v-list-item-icon>
+              <v-icon>mdi-tshirt-v-outline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Inventario</v-list-item-content>
+          </v-list-item>
+        </v-list-group>
         <v-list-group color="white" v-if="$store.getters.user.permissions.includes('CONFIGURACION')">
           <template v-slot:activator>
             <v-list-item class="px-0">

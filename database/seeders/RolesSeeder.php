@@ -26,6 +26,7 @@ class RolesSeeder extends Seeder
                     'PRODUCTOS',
                     'TRANSFERENCIAS',
                     'VENTAS',
+                    'REPORTES',
                     'CONFIGURACION',
                 ],
             ], [

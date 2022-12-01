@@ -292,9 +292,6 @@ export default {
   },
   mounted() {
     this.fetchProduct()
-    if (this.isBuilding) {
-      this.fetchStore()
-    }
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -311,14 +308,6 @@ export default {
     isActive(active) {
       return active == true
     },
-    async fetchStore() {
-      try {
-        let response = await axios.get(`store/${this.$route.params.storeId}`)
-        this.store = response.data.payload.store
-      } catch(error) {
-        console.error(error)
-      }
-    },
     async fetchProduct() {
       try {
         let response = await axios.get(`product/${this.$route.params.productId}/details`, {
@@ -328,6 +317,19 @@ export default {
           }
         })
         this.product = response.data.payload
+        this.fetchSizes()
+      } catch(error) {
+        console.error(error)
+      } finally {
+        if (this.isBuilding) {
+          this.fetchStore()
+        }
+      }
+    },
+    async fetchStore() {
+      try {
+        let response = await axios.get(`store/${this.$route.params.storeId}`)
+        this.store = response.data.payload.store
       } catch(error) {
         console.error(error)
       }

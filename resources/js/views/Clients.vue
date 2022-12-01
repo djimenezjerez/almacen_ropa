@@ -140,8 +140,8 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <client-form ref="clientForm" :documentTypes="documentTypes" :cities="cities" v-on:updateList="fetchclients"/>
-    <dialog-remove ref="dialogRemove" type="cliente" url="client" v-on:updateList="fetchclients"/>
+    <client-form ref="clientForm" :documentTypes="documentTypes" :cities="cities" v-on:updateList="fetchClients"/>
+    <dialog-remove ref="dialogRemove" type="cliente" url="client" v-on:updateList="fetchClients"/>
   </v-container>
 </template>
 
@@ -224,20 +224,18 @@ export default {
       ],
     }
   },
-  created() {
-    this.fetchclients()
+  mounted() {
     this.fetchDocumentTypes()
-    this.fetchCities()
   },
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.fetchclients()
+        this.fetchClients()
       }
     },
     search: function() {
       this.options.page = 1
-      this.fetchclients()
+      this.fetchClients()
     }
   },
   methods: {
@@ -246,6 +244,7 @@ export default {
     },
     async fetchDocumentTypes() {
       try {
+        this.$store.dispatch('loading', true)
         let response = await axios.get('document_type', {
           params: {
             combo: true,
@@ -254,6 +253,8 @@ export default {
         this.documentTypes = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchCities()
       }
     },
     async fetchCities() {
@@ -266,9 +267,11 @@ export default {
         this.cities = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchClients()
       }
     },
-    async fetchclients() {
+    async fetchClients() {
       try {
         this.$store.dispatch('loading', true)
         let response = await axios.get('client', {

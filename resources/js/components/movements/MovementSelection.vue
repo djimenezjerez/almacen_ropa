@@ -55,7 +55,7 @@ export default {
       movementTypes: [],
     }
   },
-  created() {
+  mounted() {
     this.fetchMovementTypes()
   },
   methods: {
@@ -64,7 +64,11 @@ export default {
     },
     async fetchMovementTypes() {
       try {
-        let response = await axios.get(`movement_type`)
+        let response = await axios.get(`movement_type`, {
+          params: {
+            active: 1,
+          },
+        })
         this.movementTypes = response.data.payload.data
       } catch(error) {
         console.error(error)

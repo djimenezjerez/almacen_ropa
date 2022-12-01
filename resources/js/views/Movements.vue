@@ -160,7 +160,7 @@ export default {
       ],
     }
   },
-  created() {
+  mounted() {
     this.fetchMovements()
   },
   watch: {

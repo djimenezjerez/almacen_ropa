@@ -171,7 +171,7 @@ export default {
       products: [],
     }
   },
-  created() {
+  mounted() {
     this.fetchMovement()
   },
   methods: {

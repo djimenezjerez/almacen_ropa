@@ -374,13 +374,8 @@ export default {
       },
     }
   },
-  created() {
+  mounted() {
     this.fetchNames()
-    this.fetchCategories()
-    this.fetchBrands()
-    this.fetchGenders()
-    this.fetchSizes()
-    this.fetchColors()
   },
   methods: {
     filteredSizes() {
@@ -424,6 +419,17 @@ export default {
         this.$refs.productObserver.reset()
       })
     },
+    async fetchNames() {
+      try {
+        this.$store.dispatch('loading', true)
+        let response = await axios.get('product_name')
+        this.names = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      } finally {
+        this.fetchCategories()
+      }
+    },
     async fetchCategories() {
       try {
         let response = await axios.get('category', {
@@ -434,22 +440,8 @@ export default {
         this.categories = response.data.payload.data
       } catch(error) {
         console.error(error)
-      }
-    },
-    async fetchNames() {
-      try {
-        let response = await axios.get('product_name')
-        this.names = response.data.payload.data
-      } catch(error) {
-        console.error(error)
-      }
-    },
-    async fetchColors() {
-      try {
-        let response = await axios.get('color')
-        this.colors = response.data.payload.data
-      } catch(error) {
-        console.error(error)
+      } finally {
+        this.fetchBrands()
       }
     },
     async fetchBrands() {
@@ -458,6 +450,8 @@ export default {
         this.brands = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchGenders()
       }
     },
     async fetchGenders() {
@@ -466,6 +460,8 @@ export default {
         this.genders = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchSizes()
       }
     },
     async fetchSizes() {
@@ -474,6 +470,18 @@ export default {
         this.sizes = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchColors()
+      }
+    },
+    async fetchColors() {
+      try {
+        let response = await axios.get('color')
+        this.colors = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      } finally {
+        this.$store.dispatch('loading', false)
       }
     },
     async fetchProduct(id) {
@@ -489,6 +497,7 @@ export default {
     },
     async submit() {
       try {
+        this.$store.dispatch('loading', true)
         let valid = await this.$refs.productObserver.validate()
         if (valid) {
           this.$store.dispatch('loading', true)

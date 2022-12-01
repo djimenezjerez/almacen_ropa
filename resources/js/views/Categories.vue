@@ -183,7 +183,7 @@ export default {
       ],
     }
   },
-  created() {
+  mounted() {
     this.fetchCategories()
   },
   watch: {

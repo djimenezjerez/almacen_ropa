@@ -217,13 +217,13 @@ export default {
       clients: [],
     }
   },
-  created() {
+  mounted() {
     this.fetchMovementType()
-    this.fetchClients()
   },
   methods: {
     async submit() {
       try {
+        this.$store.dispatch('loading', true)
         const response = await axios.post('movement', {
           movement_type_id: this.movementType.id,
           from_store_id: this.$store.getters.store.id,
@@ -242,6 +242,7 @@ export default {
     },
     async fetchMovementType() {
       try {
+        this.$store.dispatch('loading', true)
         let response = await axios.get(`movement_type`, {
           params: {
             active: 0
@@ -250,6 +251,8 @@ export default {
         this.movementType = response.data.payload.data.find(o => o.code == 'SELL')
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchClients()
       }
     },
     async fetchClients() {
@@ -262,6 +265,8 @@ export default {
         this.clients = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.$store.dispatch('loading', false)
       }
     },
     updateList(product) {

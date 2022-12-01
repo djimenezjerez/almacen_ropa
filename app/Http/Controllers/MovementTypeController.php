@@ -10,7 +10,7 @@ class MovementTypeController extends Controller
 {
     public function index(Request $request)
     {
-        $active = (int)$request->active ?? 1;
+        $active = (int)$request->active ?? true;
         return [
             'message' => 'Lista de tipos de movimientos',
             'payload' => [

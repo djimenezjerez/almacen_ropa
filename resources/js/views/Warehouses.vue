@@ -246,10 +246,8 @@ export default {
       ],
     }
   },
-  created() {
-    this.fetchWarehouses()
+  mounted() {
     this.fetchUsers()
-    this.fetchCities()
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -274,6 +272,7 @@ export default {
     },
     async fetchUsers() {
       try {
+        this.$store.dispatch('loading', true)
         let response = await axios.get('user', {
           params: {
             combo: true,
@@ -282,6 +281,8 @@ export default {
         this.users = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchCities()
       }
     },
     async fetchCities() {
@@ -294,6 +295,8 @@ export default {
         this.cities = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchWarehouses()
       }
     },
     async fetchWarehouses() {

@@ -224,10 +224,8 @@ export default {
       ],
     }
   },
-  created() {
-    this.fetchSuppliers()
+  mounted() {
     this.fetchDocumentTypes()
-    this.fetchCities()
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -246,6 +244,7 @@ export default {
     },
     async fetchDocumentTypes() {
       try {
+        this.$store.dispatch('loading', true)
         let response = await axios.get('document_type', {
           params: {
             combo: true,
@@ -254,6 +253,8 @@ export default {
         this.documentTypes = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchCities()
       }
     },
     async fetchCities() {
@@ -266,6 +267,8 @@ export default {
         this.cities = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchSuppliers()
       }
     },
     async fetchSuppliers() {

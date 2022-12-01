@@ -249,10 +249,6 @@ export default {
   },
   mounted() {
     this.fetchProductName()
-    this.fetchSizeType()
-    if (this.isBuilding) {
-      this.fetchStore()
-    }
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -274,14 +270,6 @@ export default {
         }
       })
     },
-    async fetchStore() {
-      try {
-        let response = await axios.get(`store/${this.$route.params.storeId}`)
-        this.store = response.data.payload.store
-      } catch(error) {
-        console.error(error)
-      }
-    },
     async fetchProductName() {
       try {
         let response = await axios.get(`product_name/${this.$route.params.productNameId}`, {
@@ -293,12 +281,26 @@ export default {
         this.productName = response.data.payload
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchSizeType()
       }
     },
     async fetchSizeType() {
       try {
         let response = await axios.get(`size_type/${this.$route.query.size_type_id}`)
         this.sizeType = response.data.payload
+      } catch(error) {
+        console.error(error)
+      } finally {
+        if (this.isBuilding) {
+          this.fetchStore()
+        }
+      }
+    },
+    async fetchStore() {
+      try {
+        let response = await axios.get(`store/${this.$route.params.storeId}`)
+        this.store = response.data.payload.store
       } catch(error) {
         console.error(error)
       }

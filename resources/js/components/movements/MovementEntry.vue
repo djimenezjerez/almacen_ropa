@@ -184,7 +184,7 @@ export default {
       movementType: {},
     }
   },
-  created() {
+  mounted() {
     this.fetchMovementType()
   },
   methods: {
@@ -207,7 +207,11 @@ export default {
     },
     async fetchMovementType() {
       try {
-        let response = await axios.get(`movement_type`)
+        let response = await axios.get(`movement_type`, {
+          params: {
+            active: 1,
+          },
+        })
         this.movementType = response.data.payload.data.find(o => o.code == 'ENTRY')
       } catch(error) {
         console.error(error)

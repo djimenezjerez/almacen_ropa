@@ -140,7 +140,7 @@ export default {
       store: {},
     }
   },
-  created() {
+  mounted() {
     this.fetchUser()
   },
   methods: {

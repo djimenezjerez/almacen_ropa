@@ -23,6 +23,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\MovementTypeController;
 use App\Http\Controllers\MovementController;
 use App\Http\Controllers\ProductSelectionController;
+use App\Http\Controllers\ReportController;
 
 // Autenticación
 Route::post('login', [AuthController::class, 'store']);
@@ -149,4 +150,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::get('product_selection/brands', [ProductSelectionController::class, 'brands']);
     Route::get('product_selection/colors', [ProductSelectionController::class, 'colors']);
     Route::get('product_selection/sizes', [ProductSelectionController::class, 'sizes']);
+
+    // Reportes
+    Route::get('report/products', [ReportController::class, 'products']);
 });

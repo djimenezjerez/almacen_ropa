@@ -197,9 +197,7 @@ export default {
       ],
     }
   },
-  created() {
-    this.fetchEmployees()
-    this.fetchStore()
+  mounted() {
     this.fetchUsers()
   },
   watch: {
@@ -216,6 +214,7 @@ export default {
   methods: {
     async fetchUsers() {
       try {
+        this.$store.dispatch('loading', true)
         let response = await axios.get('user', {
           params: {
             combo: true,
@@ -224,6 +223,8 @@ export default {
         this.users = response.data.payload.data
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchStore()
       }
     },
     async fetchStore() {
@@ -232,6 +233,8 @@ export default {
         this.store = response.data.payload.store
       } catch(error) {
         console.error(error)
+      } finally {
+        this.fetchEmployees()
       }
     },
     async fetchEmployees() {
