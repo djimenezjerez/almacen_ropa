@@ -240,7 +240,7 @@ export default {
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '9%',
+          width: '160px',
           class: this.$headerClass,
         },
       ],

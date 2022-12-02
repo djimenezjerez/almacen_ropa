@@ -85,7 +85,7 @@
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="6">
+              <v-col cols="12">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -105,33 +105,12 @@
                   <span>Detalle</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="6">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="info"
-                      @click="$refs.productReport.showDialog(sizeType, item)"
-                    >
-                      <v-icon
-                        dense
-                      >
-                        mdi-chart-line-variant
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Reporte</span>
-                </v-tooltip>
-              </v-col>
             </v-row>
           </template>
         </v-data-table>
       </v-col>
     </v-row>
     <product-form ref="productForm" :sizeTypes="sizeTypes" v-on:updateList="fetchProducts"/>
-    <product-report ref="productReport" :sizeTypes="sizeTypes"/>
   </v-container>
 </template>
 
@@ -140,7 +119,6 @@ export default {
   name: 'Products',
   components: {
     'product-form': () => import('@/components/products/ProductForm.vue'),
-    'product-report': () => import('@/components/products/ProductReport.vue'),
     'building-details': () => import('@/components/shared/BuildingDetails.vue'),
   },
   data() {
@@ -187,7 +165,7 @@ export default {
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '9%',
+          width: '40px',
           class: this.$headerClass,
         },
       ],

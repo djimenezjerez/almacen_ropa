@@ -187,7 +187,7 @@ class ProductController extends Controller
                 $details[] = [
                     'color_id' => $color->id,
                     'color_name' => $color->name,
-                    'subtotal' => $sizes->sum('total_stock'),
+                    'subtotal' => $sizes->sum('stock'),
                     'sizes' => $sizes,
                 ];
             }

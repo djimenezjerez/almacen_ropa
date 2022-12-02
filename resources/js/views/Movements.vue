@@ -154,7 +154,7 @@ export default {
           align: 'center',
           value: 'actions',
           sortable: false,
-          width: '30px',
+          width: '40px',
           class: this.$headerClass,
         },
       ],
