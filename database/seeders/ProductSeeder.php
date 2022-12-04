@@ -21,6 +21,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Jean clásico',
                 'category' => 'Jeans',
+                'sell_price' => 50,
                 'genders' => ['Unisex'],
                 'brands' => ['American Colt', 'Tommy Hilfiger'],
                 'sizes' => ['40', '42', '44', '46', '48', '50'],
@@ -29,6 +30,7 @@ class ProductSeeder extends Seeder
             ], [
                 'name' => 'Jean prelavado',
                 'category' => 'Jeans',
+                'sell_price' => 75.50,
                 'genders' => ['Varón', 'Mujer'],
                 'brands' => ['American Colt', 'Tommy Hilfiger'],
                 'sizes' => ['42', '44', '46', '48'],
@@ -37,6 +39,7 @@ class ProductSeeder extends Seeder
             ], [
                 'name' => 'Camiseta deportiva',
                 'category' => 'Camisetas',
+                'sell_price' => 75,
                 'genders' => ['Varón', 'Mujer'],
                 'brands' => ['Nike', 'Tommy Hilfiger'],
                 'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
@@ -45,6 +48,7 @@ class ProductSeeder extends Seeder
             ], [
                 'name' => 'Camiseta estampada',
                 'category' => 'Camisetas',
+                'sell_price' => 60,
                 'genders' => ['Varón', 'Mujer'],
                 'brands' => ['Nike', 'Tommy Hilfiger'],
                 'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
@@ -53,6 +57,7 @@ class ProductSeeder extends Seeder
             ], [
                 'name' => 'Polerón deportivo',
                 'category' => 'Polerones',
+                'sell_price' => 65.20,
                 'genders' => ['Unisex'],
                 'brands' => ['Chico', 'Nike', 'Adidas'],
                 'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
@@ -61,6 +66,7 @@ class ProductSeeder extends Seeder
             ], [
                 'name' => 'Zapatillas ortopédicas',
                 'category' => 'Zapatillas',
+                'sell_price' => 120.50,
                 'genders' => ['Varón', 'Mujer'],
                 'brands' => ['Chico', 'Nike', 'Adidas'],
                 'sizes' => ['20', '22', '24', '26'],
@@ -76,6 +82,7 @@ class ProductSeeder extends Seeder
             $product_name = ProductName::firstOrCreate([
                 'name' => $item['name'],
                 'category_id' => $category->id,
+                'sell_price' => $item['sell_price'],
             ]);
             $size_type = SizeType::firstOrCreate([
                 'name' => $item['size_type'],

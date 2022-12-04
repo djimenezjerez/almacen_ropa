@@ -60,6 +60,23 @@
                 <v-col cols="12">
                   <validation-provider
                     v-slot="{ errors }"
+                    name="sell_price"
+                    rules="required|min_value:1.0|max_value:9999999999.99"
+                  >
+                    <v-text-field
+                      label="Precio de venta"
+                      v-model.number="productForm.sell_price"
+                      data-vv-name="sell_price"
+                      :error-messages="errors"
+                      prepend-icon="mdi-currency-usd"
+                      type="number"
+                      step=".5"
+                    ></v-text-field>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12">
+                  <validation-provider
+                    v-slot="{ errors }"
                     name="category_name"
                     rules="required"
                   >
@@ -366,6 +383,7 @@ export default {
       productForm: {
         id: null,
         name: null,
+        sell_price: null,
         category_name: null,
         gender_id: null,
         sizes: [],
@@ -407,6 +425,7 @@ export default {
         this.productForm = {
           id: null,
           name: null,
+          sell_price: null,
           category_name: null,
           gender_id: null,
           sizes: [],

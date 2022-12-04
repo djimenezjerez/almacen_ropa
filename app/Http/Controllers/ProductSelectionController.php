@@ -251,7 +251,7 @@ class ProductSelectionController extends Controller
             }
         }
 
-        $query = DB::table('products')->select('products.id', 'sizes.id as size_id', 'sizes.name as size_name');
+        $query = DB::table('products')->select('products.id', 'sizes.id as size_id', 'sizes.name as size_name', 'product_names.sell_price');
 
         if ($store) {
             $query->selectRaw('coalesce(md.stock, 0) as total_stock')->selectRaw('1 as stock')->joinSub($movements, 'md', function($join) {

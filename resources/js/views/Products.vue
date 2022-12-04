@@ -83,6 +83,9 @@
           <template v-slot:[`item.product_name_id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
+          <template v-slot:[`item.sell_price`]="{ item }">
+            {{ item.sell_price.toFixed(2) }}
+          </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
               <v-col cols="12">
@@ -153,6 +156,12 @@ export default {
           align: 'center',
           sortable: false,
           value: 'product_name',
+          class: this.$headerClass,
+        }, {
+          text: 'PRECIO',
+          align: 'center',
+          sortable: false,
+          value: 'sell_price',
           class: this.$headerClass,
         }, {
           text: 'STOCK',

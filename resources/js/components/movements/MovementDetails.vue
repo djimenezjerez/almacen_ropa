@@ -122,11 +122,17 @@
                     <th class="text-center" width="10%">
                       NRO
                     </th>
-                    <th class="text-center" width="45%">
+                    <th class="text-center" :width="isSell ? '30%' : '45%'">
                       TALLA
                     </th>
-                    <th class="text-center" width="45%">
+                    <th class="text-right" width="20%" v-if="isSell">
+                      PRECIO UNITARIO
+                    </th>
+                    <th class="text-center" :width="isSell ? '20%' : '45%'">
                       CANTIDAD
+                    </th>
+                    <th class="text-right" width="20%" v-if="isSell">
+                      SUBTOTAL
                     </th>
                   </tr>
                 </thead>
@@ -137,7 +143,27 @@
                   >
                     <td class="text-center">{{ i+1 }}</td>
                     <td class="text-center">{{ product.size_name }}</td>
+                    <td class="text-right" v-if="isSell">{{ item.sell_price.toFixed(2) }}</td>
                     <td class="text-center">{{ product.stock }}</td>
+                    <td class="text-right" v-if="isSell">{{ (item.sell_price * product.stock).toFixed(2) }}</td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-col>
+        </v-row>
+        <v-row dense class="mb-2" style="border: thin solid black; border-radius: 15px;" v-if="isSell">
+          <v-col cols="12" class="pa-0">
+            <v-simple-table dense style="border-radius: 15px;">
+              <template v-slot:default>
+                <tbody>
+                  <tr>
+                    <td colspan="4" class="text-right font-weight-bold" width="80%">
+                      TOTAL
+                    </td>
+                    <td class="text-right font-weight-bold" width="20%">
+                      {{ movement.total_price.toFixed(2) }}
+                    </td>
                   </tr>
                 </tbody>
               </template>
@@ -169,6 +195,11 @@ export default {
     return {
       movement: {},
       products: [],
+    }
+  },
+  computed: {
+    isSell() {
+      return this.$route.query.type == 'sells'
     }
   },
   mounted() {

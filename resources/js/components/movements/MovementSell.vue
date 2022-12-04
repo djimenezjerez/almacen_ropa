@@ -130,14 +130,20 @@
                     <th class="text-center" width="10%">
                       NRO
                     </th>
-                    <th class="text-center" width="30%">
+                    <th class="text-center" width="20%">
                       TALLA
                     </th>
-                    <th class="text-center" width="25%">
+                    <th class="text-center" width="15%">
                       STOCK ACTUAL
                     </th>
-                    <th class="text-center" width="25%">
+                    <th class="text-right" width="15%">
+                      PRECIO UNITARIO
+                    </th>
+                    <th class="text-center" width="15%">
                       CANTIDAD
+                    </th>
+                    <th class="text-right" width="15%">
+                      SUBTOTAL
                     </th>
                     <th class="text-center" width="10%">
                       ACCIONES
@@ -152,6 +158,7 @@
                     <td class="text-center">{{ i+1 }}</td>
                     <td class="text-center">{{ product.size_name }}</td>
                     <td class="text-center">{{ product.total_stock }}</td>
+                    <td class="text-right">{{ product.sell_price.toFixed(2) }}</td>
                     <td>
                       <v-text-field
                         v-model="product.stock"
@@ -165,6 +172,7 @@
                         required
                       ></v-text-field>
                     </td>
+                    <td class="text-right">{{ (product.sell_price * product.stock).toFixed(2) }}</td>
                     <td class="text-center">
                       <v-btn
                         icon
@@ -178,6 +186,21 @@
                         </v-icon>
                       </v-btn>
                     </td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-col>
+        </v-row>
+        <v-row dense class="mb-2" style="border: thin solid black; border-radius: 15px;">
+          <v-col cols="12" class="pa-0">
+            <v-simple-table dense style="border-radius: 15px;">
+              <template v-slot:default>
+                <tbody>
+                  <tr>
+                    <td colspan="6" class="text-right font-weight-bold" width="75%">TOTAL</td>
+                    <td class="text-right font-weight-bold" width="15%">{{ products.map(o => o.products.map(i => i.sell_price * i.stock).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b, 0).toFixed(2) }}</td>
+                    <td width="10%"></td>
                   </tr>
                 </tbody>
               </template>

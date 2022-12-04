@@ -11,6 +11,7 @@ class Movement extends Model
 
     protected $fillable = [
         'comment',
+        'total_price',
         'movement_type_id',
         'user_id',
         'client_id',

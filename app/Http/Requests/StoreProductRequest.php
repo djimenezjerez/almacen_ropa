@@ -23,6 +23,7 @@ class StoreProductRequest extends FormRequest
             'brands.*' => 'required|exists:brands,id',
             'colors' => 'required|array|min:1',
             'colors.*' => 'required|exists:colors,id',
+            'sell_price' => ['required', 'regex:/^((?!0)\d{1,10}|0|\.\d{1,2})($|\.$|\.\d{1,2}$)/', 'min:1', 'max:9999999999.99'],
         ];
     }
 

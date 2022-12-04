@@ -15,6 +15,7 @@ class UpdateProductRequest extends FormRequest
     {
         return [
             'active' => 'required|boolean',
+            'sell_price' => 'required|numeric|min:1',
         ];
     }
 }

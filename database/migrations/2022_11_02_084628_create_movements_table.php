@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign('from_store_id')->references('id')->on('stores')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('to_store_id')->nullable()->comment('Ingreso a tienda o almacén');
             $table->foreign('to_store_id')->references('id')->on('stores')->onDelete('cascade')->onUpdate('cascade');
+            $table->float('total_price', 12, 2)->comment('Costo total');
             $table->timestamps();
             $table->softDeletes();
         });

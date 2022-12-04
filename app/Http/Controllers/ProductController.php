@@ -37,7 +37,7 @@ class ProductController extends Controller
             }
         }
 
-        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name');
+        $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name', 'product_names.sell_price');
 
         if ($store) {
             $query->selectRaw('cast(sum(md.stock) as UNSIGNED) as total_stock')->joinSub($movements, 'md', function($join) {
@@ -126,6 +126,7 @@ class ProductController extends Controller
                 $product_name = ProductName::create([
                     'name' => $request->name,
                     'category_id' => $category->id,
+                    'sell_price' => $request->sell_price,
                 ]);
             }
             foreach($request->brands as $brand) {

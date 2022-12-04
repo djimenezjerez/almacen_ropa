@@ -18,7 +18,7 @@ class MovementController extends Controller
     public function index(StoreRequest $request)
     {
         $active = (int)$request->active ?? 1;
-        $query = DB::table('movements')->select('movements.*', 'movement_types.code as movement_type_code', 'movement_types.name as movement_type_name', 'person_user.name as user_name', 'person_from_store.name as from_store_name', 'person_to_store.name as to_store_name')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->leftJoin('users', 'users.id', '=', 'movements.user_id')->leftJoin('stores as from_store', 'from_store.id', '=', 'movements.from_store_id')->leftJoin('stores as to_store', 'to_store.id', '=', 'movements.to_store_id')->leftJoin('people as person_user', 'person_user.id', '=', 'users.person_id')->leftJoin('people as person_from_store', 'person_from_store.id', '=', 'from_store.person_id')->leftJoin('people as person_to_store', 'person_to_store.id', '=', 'to_store.person_id')->where('movement_types.active', $active)->where(function($q) use ($request) {
+        $query = DB::table('movements')->select('movements.*', 'movement_types.code as movement_type_code', 'movement_types.name as movement_type_name', 'person_user.name as user_name', 'person_from_store.name as from_store_name', 'person_to_store.name as to_store_name', 'movements.total_price')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->leftJoin('users', 'users.id', '=', 'movements.user_id')->leftJoin('stores as from_store', 'from_store.id', '=', 'movements.from_store_id')->leftJoin('stores as to_store', 'to_store.id', '=', 'movements.to_store_id')->leftJoin('people as person_user', 'person_user.id', '=', 'users.person_id')->leftJoin('people as person_from_store', 'person_from_store.id', '=', 'from_store.person_id')->leftJoin('people as person_to_store', 'person_to_store.id', '=', 'to_store.person_id')->where('movement_types.active', $active)->where(function($q) use ($request) {
             return $q->orWhere('from_store_id', (int)$request->store_id)->orWhere('to_store_id', (int)$request->store_id);
         });
         if (!$active) {
@@ -34,7 +34,7 @@ class MovementController extends Controller
 
         if ($request->has('search')) {
             if ($request->search != '') {
-                $query->where(function($q) use ($request) {
+                $query->where(function($q) use ($request, $active) {
                     $q->orWhere(DB::raw('upper(movements.comment)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_user.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
                     if ($active) {
                         $q->orWhere(DB::raw('upper(movement_types.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_from_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_to_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
@@ -115,6 +115,7 @@ class MovementController extends Controller
         }
         $movement = new Movement();
         $movement->comment = $request->comment;
+        $movement->total_price = 0;
         $movement->movement_type()->associate($movement_type);
         $movement->user()->associate(auth()->user());
         $movement->from_store_id = $request->from_store_id;
@@ -128,7 +129,8 @@ class MovementController extends Controller
             DB::beginTransaction();
             $movement->save();
             foreach ($request->details as $detail) {
-                $product = Product::find((int)$detail['id']);
+                $product = Product::with('name:id,sell_price')->find((int)$detail['id']);
+                $movement->total_price += $product->name->sell_price * (int)$detail['stock'];
                 $movement_detail = new MovementDetail();
                 $movement_detail->product()->associate($product);
                 switch ($movement_type->code) {
@@ -169,6 +171,7 @@ class MovementController extends Controller
                         ], 422);
                 }
             }
+            $movement->save();
             DB::commit();
             return response()->json([
                 'message' => 'Movimiento registrado',
@@ -187,9 +190,9 @@ class MovementController extends Controller
 
     public function show(Movement $movement)
     {
-        $data = DB::table('movements')->select('movements.id', 'movements.created_at', 'movements.deleted_at', 'movements.comment', 'movement_types.name as movement_type_name', 'pu.name as user_name', 'movements.from_store_id', 'pfs.name as from_store_name', 'movements.to_store_id', 'pts.name as to_store_name', 'movements.client_id', 'pc.name as client_name', 'pc.document as client_document', 'document_types.code as client_document_type')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->leftJoin('users', 'users.id', '=', 'movements.user_id')->leftJoin('people as pu', 'pu.id', '=', 'users.person_id')->leftJoin('stores as fs', 'fs.id', '=', 'movements.from_store_id')->leftJoin('people as pfs', 'pfs.id', '=', 'fs.person_id')->leftJoin('stores as ts', 'ts.id', '=', 'movements.to_store_id')->leftJoin('people as pts', 'pts.id', '=', 'ts.person_id')->leftJoin('clients', 'clients.id', '=', 'movements.client_id')->leftJoin('people as pc', 'pc.id', '=', 'clients.person_id')->leftJoin('document_types', 'document_types.id', '=', 'pc.document_type_id')->where('movements.id', $movement->id)->first();
+        $data = DB::table('movements')->select('movements.id', 'movements.total_price', 'movements.created_at', 'movements.deleted_at', 'movements.comment', 'movement_types.code as movement_type_code', 'movement_types.name as movement_type_name', 'pu.name as user_name', 'movements.from_store_id', 'pfs.name as from_store_name', 'movements.to_store_id', 'pts.name as to_store_name', 'movements.client_id', 'pc.name as client_name', 'pc.document as client_document', 'document_types.code as client_document_type')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->leftJoin('users', 'users.id', '=', 'movements.user_id')->leftJoin('people as pu', 'pu.id', '=', 'users.person_id')->leftJoin('stores as fs', 'fs.id', '=', 'movements.from_store_id')->leftJoin('people as pfs', 'pfs.id', '=', 'fs.person_id')->leftJoin('stores as ts', 'ts.id', '=', 'movements.to_store_id')->leftJoin('people as pts', 'pts.id', '=', 'ts.person_id')->leftJoin('clients', 'clients.id', '=', 'movements.client_id')->leftJoin('people as pc', 'pc.id', '=', 'clients.person_id')->leftJoin('document_types', 'document_types.id', '=', 'pc.document_type_id')->where('movements.id', $movement->id)->first();
 
-        $products = DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name', 'products.brand_id', 'brands.name as brand_name', 'products.gender_id', 'genders.name as gender_name', 'products.color_id', 'colors.name as color_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('movement_details.movement_id', $movement->id)->groupBy('products.product_name_id', 'products.brand_id', 'products.gender_id', 'products.color_id', 'product_names.category_id', 'sizes.size_type_id')->get();
+        $products = DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name', 'products.brand_id', 'brands.name as brand_name', 'products.gender_id', 'genders.name as gender_name', 'products.color_id', 'colors.name as color_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'product_names.sell_price')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('movement_details.movement_id', $movement->id)->groupBy('products.product_name_id', 'products.brand_id', 'products.gender_id', 'products.color_id', 'product_names.category_id', 'sizes.size_type_id')->get();
 
         foreach ($products as $i => $product) {
             $products[$i]->products = DB::table('movement_details')->select('movement_details.id', 'sizes.name as size_name')->selectRaw('ABS(movement_details.stock) as stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('movement_details.movement_id', $movement->id)->where('products.product_name_id', $product->product_name_id)->where('products.brand_id', $product->brand_id)->where('products.gender_id', $product->gender_id)->where('products.color_id', $product->color_id)->where('product_names.category_id', $product->category_id)->where('sizes.size_type_id', $product->size_type_id)->get();

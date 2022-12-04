@@ -58,6 +58,9 @@
           <template v-slot:[`item.created_at`]="{ item }">
             {{ item.created_at | moment('L') }}
           </template>
+          <template v-slot:[`item.total_price`]="{ item }">
+            {{ item.total_price.toFixed(2) }}
+          </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
               <v-col cols="12">
@@ -138,6 +141,12 @@ export default {
           align: 'center',
           sortable: true,
           value: 'client_document',
+          class: this.$headerClass,
+        }, {
+          text: 'TOTAL',
+          align: 'center',
+          sortable: true,
+          value: 'total_price',
           class: this.$headerClass,
         }, {
           text: 'ACCIONES',

@@ -13,8 +13,9 @@
       >
         <v-col
           cols="12"
-          sm="9"
-          xl="10"
+          sm="12"
+          lg="6"
+          xl="8"
         >
           <search-input
             v-model="search"
@@ -23,7 +24,26 @@
         </v-col>
         <v-col
           cols="12"
-          sm="3"
+          sm="6"
+          lg="3"
+          xl="2"
+        >
+          <v-select
+            :label="store.id == 0 ? 'Tienda/Almacén' : (store.warehouse ? 'Almacén' : 'Tienda')"
+            v-model="store"
+            item-text="name"
+            :items="stores"
+            prepend-icon="mdi-store"
+            return-object
+            dense
+            hide-details
+            @change="fetchProducts"
+          ></v-select>
+        </v-col>
+        <v-col
+          cols="12"
+          sm="6"
+          lg="3"
           xl="2"
         >
           <v-select
@@ -60,6 +80,7 @@
                 <th rowspan="2" class="text-center blue-grey darken-2 white--text">NOMBRE</th>
                 <th :colspan="sizes.filter(o => o.numeric == 0).length" class="text-center blue-grey darken-1 white--text body">TALLAS ALFABETICAS</th>
                 <th :colspan="sizes.filter(o => o.numeric == 1).length" class="text-center blue-grey white--text">TALLAS NUMÉRICAS</th>
+                <th rowspan="2" class="text-center blue-grey darken-2 white--text">TOTAL</th>
                 <th rowspan="2" class="text-center blue-grey darken-2 white--text" style="width: 40px; min-width: 40px;">ACCIONES</th>
               </tr>
               <tr>
@@ -68,12 +89,13 @@
             </thead>
           </template>
           <template v-slot:body="{ items }">
-            <tbody>
+            <tbody v-if="items.length > 0">
               <tr v-for="(item, index) in items" :key="index">
                 <td class="text-center">{{ $helpers.listIndex(index, options) }}</td>
                 <td class="text-center">{{ item.category_name }}</td>
                 <td class="text-center">{{ item.product_name }}</td>
                 <td class="text-center" v-for="(size, i) in sizes" :key="`${item.product_name_id}-${size.id}`">{{ item.stock[i] }}</td>
+                <td class="text-center">{{ item.total_stock }}</td>
                 <td class="text-center">
                   <v-row dense no-gutters justify="space-around" align="center">
                     <v-col cols="12">
@@ -100,6 +122,11 @@
                 </td>
               </tr>
             </tbody>
+            <tbody v-else>
+              <tr>
+                <td class="text-center" :colspan="sizes.length + 5">No hay datos disponibles</td>
+              </tr>
+            </tbody>
           </template>
         </v-data-table>
       </v-col>
@@ -112,7 +139,7 @@
 export default {
   name: 'ReportProducts',
   components: {
-    'product-report': () => import('@/components/products/ProductReport.vue'),
+    'product-report': () => import('@/components/reports/ReportProduct.vue'),
   },
   data() {
     return {
@@ -128,6 +155,14 @@ export default {
       sizeType: null,
       products: [],
       sizes: [],
+      store: {},
+      stores: [
+        {
+          id: 0,
+          name: 'Todos',
+          warehouse: false
+        },
+      ],
     }
   },
   watch: {
@@ -142,12 +177,28 @@ export default {
     }
   },
   mounted() {
-    this.fetchSizeTypes()
+    this.fetchStores()
   },
   methods: {
-    async fetchSizeTypes() {
+    async fetchStores() {
+      this.store = this.stores[0]
       try {
         this.$store.dispatch('loading', true)
+        let response = await axios.get('store', {
+          params: {
+            combo: true,
+            warehouse: 0,
+          },
+        })
+        this.stores = this.stores.concat(response.data.payload.data)
+      } catch(error) {
+        console.error(error)
+      } finally {
+        this.fetchSizeTypes()
+      }
+    },
+    async fetchSizeTypes() {
+      try {
         let response = await axios.get('size_type')
         this.sizeTypes = response.data.payload.data
         if (this.sizeTypes.length > 0) {
@@ -169,12 +220,10 @@ export default {
             sort_desc: this.options.sortDesc,
             search: this.search,
             size_type_id: this.sizeType.id,
-            store_id: this.$store.getters.store.id,
+            store_id: this.store.id,
           },
         })
-        if (this.sizes.length == 0) {
-          this.sizes = response.data.payload.sizes
-        }
+        this.sizes = response.data.payload.sizes
         this.products = response.data.payload.products.data
         this.totalItems = response.data.payload.products.total
         this.options.page = response.data.payload.products.current_page

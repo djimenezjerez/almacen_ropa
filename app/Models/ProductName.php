@@ -10,6 +10,7 @@ class ProductName extends Model
     protected $fillable = [
         'name',
         'category_id',
+        'sell_price',
     ];
 
     public $timestamps = false;

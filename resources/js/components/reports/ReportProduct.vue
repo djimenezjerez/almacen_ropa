@@ -112,7 +112,7 @@
 
 <script>
 export default {
-  name: 'ProductReport',
+  name: 'ReportProduct',
   data: function() {
     return {
       dialog: false,
