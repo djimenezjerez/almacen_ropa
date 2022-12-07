@@ -57,7 +57,7 @@ class StoreController extends Controller
             $person = Person::create($request->merge([
                 'document_type_id' => $document_type->id,
             ])->only('name', 'document', 'document_type_id', 'address', 'email', 'phone', 'city_id'));
-            $store = $person->store()->create();
+            $store = $person->store()->create($request->only('warehouse'));
             $role = Role::where('name', 'ADMINISTRADOR')->first();
             $user = auth()->user();
             $query = DB::table('model_has_roles')->where('model_type', '=', 'App\Models\User')->where('model_id', $user->id)->where('store_id', $store->id);

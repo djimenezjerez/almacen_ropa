@@ -61,7 +61,21 @@ class SizeController extends Controller
             if ($request->order) {
                 $order = $request->order;
             } else {
-                $order = Size::whereSizeTypeId($request->size_type_id)->whereNumeric($request->numeric)->max('order') + 1;
+                if (Size::whereNumeric($request->numeric)->count() > 0) {
+                    if ($request->numeric) {
+                        $sizes = Size::select('order')->selectRaw('CAST(name AS INTEGER) as name')->whereSizeTypeId($request->size_type_id)->whereNumeric($request->numeric)->orderBy('name')->get();
+                        $size = $sizes->where('name', '>', (int)$request->name)->first();
+                        if ($size) {
+                            $order = $size->order;
+                        } else {
+                            $order = Size::whereSizeTypeId($request->size_type_id)->whereNumeric($request->numeric)->max('order') + 1;
+                        }
+                    } else {
+                        $order = Size::whereSizeTypeId($request->size_type_id)->whereNumeric($request->numeric)->max('order') + 1;
+                    }
+                } else {
+                    $order = 1;
+                }
             }
             $size = Size::create([
                 'name' => $request->name,

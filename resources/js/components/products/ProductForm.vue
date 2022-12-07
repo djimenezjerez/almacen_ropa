@@ -10,7 +10,7 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="readOnly ? 'Datos de producto' : 'Agregar producto'"/>
+        <tool-bar-title title="Agregar producto"/>
         <v-spacer></v-spacer>
         <v-btn
           icon
@@ -23,7 +23,7 @@
       </v-toolbar>
       <div class="px-5 pb-5">
         <validation-observer ref="productObserver" v-slot="{ invalid }">
-          <v-form @submit.prevent="submit" :readonly="readOnly">
+          <v-form @submit.prevent="submit">
             <v-card-text>
               <v-row dense>
                 <v-col cols="12">
@@ -54,24 +54,9 @@
                       prepend-icon="mdi-hanger"
                       :return-object="false"
                       autofocus
+                      clearable
+                      @change="setPrice"
                     ></v-combobox>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="sell_price"
-                    rules="required|min_value:1.0|max_value:9999999999.99"
-                  >
-                    <v-text-field
-                      label="Precio de venta"
-                      v-model.number="productForm.sell_price"
-                      data-vv-name="sell_price"
-                      :error-messages="errors"
-                      prepend-icon="mdi-currency-usd"
-                      type="number"
-                      step=".5"
-                    ></v-text-field>
                   </validation-provider>
                 </v-col>
                 <v-col cols="12">
@@ -90,7 +75,26 @@
                       :error-messages="errors"
                       prepend-icon="mdi-format-list-bulleted-type"
                       :return-object="false"
+                      clearable
                     ></v-combobox>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12">
+                  <validation-provider
+                    v-slot="{ errors }"
+                    name="sell_price"
+                    rules="required|min_value:1.0|max_value:9999999999.99"
+                  >
+                    <v-text-field
+                      label="Precio de venta"
+                      v-model.number="productForm.sell_price"
+                      data-vv-name="sell_price"
+                      :error-messages="errors"
+                      prepend-icon="mdi-currency-usd"
+                      type="number"
+                      step=".5"
+                      :disabled="readOnly"
+                    ></v-text-field>
                   </validation-provider>
                 </v-col>
                 <v-col cols="12">
@@ -158,7 +162,6 @@
                             v-bind="attrs"
                             v-on="on"
                             @click="productForm.sizes = filteredSizes().map(o => o.id)"
-                            :disabled="readOnly"
                           >
                             <v-icon>mdi-check-all</v-icon>
                           </v-btn>
@@ -176,7 +179,6 @@
                             v-bind="attrs"
                             v-on="on"
                             @click="$refs.sizeForm.showDialog(sizeType.id, sizeStandard == 'numeric')"
-                            :disabled="readOnly"
                           >
                             <v-icon>mdi-plus</v-icon>
                           </v-btn>
@@ -220,7 +222,6 @@
                             v-bind="attrs"
                             v-on="on"
                             @click="productForm.brands = brands.map(o => o.id)"
-                            :disabled="readOnly"
                           >
                             <v-icon>mdi-check-all</v-icon>
                           </v-btn>
@@ -238,7 +239,6 @@
                             v-bind="attrs"
                             v-on="on"
                             @click="$refs.brandForm.showDialog()"
-                            :disabled="readOnly"
                           >
                             <v-icon>mdi-plus</v-icon>
                           </v-btn>
@@ -282,7 +282,6 @@
                             v-bind="attrs"
                             v-on="on"
                             @click="productForm.colors = colors.map(o => o.id)"
-                            :disabled="readOnly"
                           >
                             <v-icon>mdi-check-all</v-icon>
                           </v-btn>
@@ -300,7 +299,6 @@
                             v-bind="attrs"
                             v-on="on"
                             @click="$refs.colorForm.showDialog()"
-                            :disabled="readOnly"
                           >
                             <v-icon>mdi-plus</v-icon>
                           </v-btn>
@@ -320,17 +318,8 @@
                     type="submit"
                     color="success"
                     :disabled="invalid"
-                    v-if="!readOnly"
                   >
                     Guardar
-                  </v-btn>
-                  <v-btn
-                    block
-                    color="error"
-                    v-else
-                    @click.stop="dialog = false"
-                  >
-                    Cerrar
                   </v-btn>
                 </v-col>
               </v-row>
@@ -362,7 +351,6 @@ export default {
   data: function() {
     return {
       dialog: false,
-      readOnly: false,
       names: [],
       categories: [],
       brands: [],
@@ -395,7 +383,32 @@ export default {
   mounted() {
     this.fetchNames()
   },
+  computed: {
+    readOnly() {
+      if (this.productForm.name != null) {
+        const product = this.names.find(o => o.name == this.productForm.name)
+        const category = this.categories.find(o => o.name == this.productForm.category_name)
+        if (product.category_id == category.id) {
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    }
+  },
   methods: {
+    setPrice() {
+      const product = this.names.find(o => o.name == this.productForm.name)
+      if (product) {
+        this.productForm.sell_price = product.sell_price
+        const category = this.categories.find(o => o.id == product.category_id)
+        if (category) {
+          this.productForm.category_name = category.name
+        }
+      }
+    },
     filteredSizes() {
       if (this.sizeTypes.length > 0) {
         const standard = this.sizeStandard == 'numeric'
@@ -416,8 +429,7 @@ export default {
       this.sizes.push(param)
       this.productForm.sizes.push(param.id)
     },
-    showDialog(sizeType, product = null, readOnly = false) {
-      this.readOnly = readOnly
+    showDialog(sizeType, product = null) {
       this.sizeType = sizeType
       if (product) {
         this.fetchProduct(product.product_name_id)

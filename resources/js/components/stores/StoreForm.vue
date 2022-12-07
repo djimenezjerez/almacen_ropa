@@ -195,7 +195,7 @@ export default {
         email: null,
         phone: null,
         city_id: null,
-        warehouse: null,
+        warehouse: Number(this.warehouse),
       },
     }
   },

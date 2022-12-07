@@ -106,7 +106,7 @@
                             v-bind="attrs"
                             v-on="on"
                             color="warning"
-                            @click="$refs.productReport.showDialog(sizeType, item)"
+                            @click="$refs.reportProduct.showDialog(sizeType, item, store)"
                           >
                             <v-icon
                               dense
@@ -131,7 +131,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <product-report ref="productReport" :sizeTypes="sizeTypes"/>
+    <report-product ref="reportProduct" :sizeTypes="sizeTypes"/>
   </v-container>
 </template>
 
@@ -139,7 +139,7 @@
 export default {
   name: 'ReportProducts',
   components: {
-    'product-report': () => import('@/components/reports/ReportProduct.vue'),
+    'report-product': () => import('@/components/reports/ReportProduct.vue'),
   },
   data() {
     return {

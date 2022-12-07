@@ -13,7 +13,7 @@ class ProductNameController extends Controller
         return [
             'message' => 'Lista de nombres de productos',
             'payload' => [
-                'data' => DB::table('product_names')->select('id', 'name')->orderBy('name')->get(),
+                'data' => DB::table('product_names')->select('id', 'name', 'sell_price', 'category_id')->orderBy('name')->get(),
             ],
         ];
     }
