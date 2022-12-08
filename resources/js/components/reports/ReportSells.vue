@@ -4,7 +4,7 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Reporte de Inventario"/>
+        <tool-bar-title title="Reporte de Productos Vendidos"/>
       </v-toolbar>
       <v-row
         class="pt-4 px-4"
@@ -32,7 +32,7 @@
             :label="store.id == 0 ? 'Tienda/Almacén' : (store.warehouse ? 'Almacén' : 'Tienda')"
             v-model="store"
             item-text="name"
-            :items="stores"
+            :items="filteredStores"
             prepend-icon="mdi-store"
             return-object
             dense
@@ -106,7 +106,7 @@
                             v-bind="attrs"
                             v-on="on"
                             color="warning"
-                            @click="$refs.reportProduct.showDialog(sizeType, item, store, 'stock')"
+                            @click="$refs.reportProduct.showDialog(sizeType, item, store, 'sells')"
                           >
                             <v-icon
                               dense
@@ -137,7 +137,7 @@
 
 <script>
 export default {
-  name: 'ReportProducts',
+  name: 'ReportSells',
   components: {
     'report-product': () => import('@/components/reports/ReportProduct.vue'),
   },
@@ -163,6 +163,11 @@ export default {
           warehouse: false
         },
       ],
+    }
+  },
+  computed: {
+    filteredStores() {
+      return this.stores.filter(o => !o.warehouse)
     }
   },
   watch: {
@@ -212,7 +217,7 @@ export default {
     async fetchProducts() {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get('report/products', {
+        let response = await axios.get('report/sells', {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,

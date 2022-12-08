@@ -136,6 +136,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::delete('color/{color}', [ColorController::class, 'destroy']);
         // Stock
         Route::get('product/{product_name}/stock', [ProductController::class, 'stock']);
+        Route::get('product/{product_name}/sells', [ProductController::class, 'sells']);
     });
 
     // Tipos de movimiento de stock
@@ -157,4 +158,5 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 
     // Reportes
     Route::get('report/products', [ReportController::class, 'products']);
+    Route::get('report/sells', [ReportController::class, 'sells']);
 });

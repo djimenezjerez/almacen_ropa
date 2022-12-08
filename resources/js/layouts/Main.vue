@@ -169,6 +169,12 @@
             </v-list-item-icon>
             <v-list-item-content>Inventario</v-list-item-content>
           </v-list-item>
+          <v-list-item link :to="{ name: 'reportSells' }" :class="drawer ? 'ml-1' : 'ml-4'" v-if="!$store.getters.store.warehouse">
+            <v-list-item-icon>
+              <v-icon>mdi-currency-usd</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Productos vendidos</v-list-item-content>
+          </v-list-item>
         </v-list-group>
         <v-list-group color="white" v-if="$store.getters.user.permissions.includes('CONFIGURACION')">
           <template v-slot:activator>

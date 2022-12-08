@@ -126,6 +126,7 @@ export default {
       details: [],
       sizes: [],
       store: {},
+      requestType: 'stock'
     }
   },
   methods: {
@@ -136,19 +137,20 @@ export default {
         return 0
       }
     },
-    showDialog(sizeType, productName, store) {
+    showDialog(sizeType, productName, store, requestType) {
       this.details = []
       this.sizes = []
       this.sizeType = sizeType
       this.productName = productName
       this.store = store
+      this.requestType = requestType
       this.dialog = true
       this.fetchProduct(productName.product_name_id, sizeType.id, store.id)
     },
     async fetchProduct(productNameId, sizeTypeId, storeId) {
       try {
         this.$store.dispatch('loading', true)
-        let response = await axios.get(`product/${productNameId}/stock`, {
+        let response = await axios.get(`product/${productNameId}/${this.requestType}`, {
           params: {
             size_type_id: sizeTypeId,
             store_id: storeId == 0 ? null : storeId,
