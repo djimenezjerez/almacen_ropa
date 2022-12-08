@@ -30,23 +30,16 @@ class RolesSeeder extends Seeder
                     'CONFIGURACION',
                 ],
             ], [
-                'name' => 'GERENTE',
-                'display_name' => 'Gerente',
-                'warehouse' => 0,
-                'order' => 2,
-                'permissions' => [],
-            ], [
-                'name' => 'SUPERVISOR',
-                'display_name' => 'Supervisor',
-                'warehouse' => 1,
-                'order' => 3,
-                'permissions' => [],
-            ], [
                 'name' => 'CAJERO',
                 'display_name' => 'Cajero',
                 'warehouse' => 0,
                 'order' => 4,
-                'permissions' => [],
+                'permissions' => [
+                    'CLIENTES',
+                    'TRANSFERENCIAS',
+                    'VENTAS',
+                    'REPORTES',
+                ],
             ]
         ];
 
