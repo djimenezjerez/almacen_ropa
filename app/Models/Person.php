@@ -41,11 +41,6 @@ class Person extends Model
         return $this->hasOne(Store::class);
     }
 
-    public function warehouse()
-    {
-        return $this->hasOne(Warehouse::class);
-    }
-
     public function supplier()
     {
         return $this->hasOne(Supplier::class);

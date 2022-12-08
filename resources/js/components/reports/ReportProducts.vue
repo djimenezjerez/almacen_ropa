@@ -59,78 +59,83 @@
           ></v-select>
         </v-col>
       </v-row>
+      <v-card-text>
+        <v-row>
+          <v-col cols="12" v-if="sizes.length > 0">
+            <v-data-table
+              :items="products"
+              :options.sync="options"
+              :server-items-length="totalItems"
+              :footer-props="{
+                itemsPerPageOptions: [8, 15, 30]
+              }"
+              :calculate-widths="true"
+              :mobile-breakpoint="0"
+            >
+              <template v-slot:header="{}">
+                <thead>
+                  <tr>
+                    <th rowspan="2" class="text-center blue-grey darken-2 white--text">NRO</th>
+                    <th rowspan="2" class="text-center blue-grey darken-2 white--text">CATEGORÍA</th>
+                    <th rowspan="2" class="text-center blue-grey darken-2 white--text">NOMBRE</th>
+                    <th v-if="alphabeticSizes > 0" :colspan="alphabeticSizes" class="text-center blue-grey darken-1 white--text body">TALLAS ALFABETICAS</th>
+                    <th v-if="numericSizes > 0" :colspan="numericSizes" class="text-center blue-grey white--text">TALLAS NUMÉRICAS</th>
+                    <th rowspan="2" class="text-center blue-grey darken-2 white--text">TOTAL</th>
+                    <th rowspan="2" class="text-center blue-grey darken-2 white--text" style="width: 40px; min-width: 40px;">ACCIONES</th>
+                  </tr>
+                  <tr>
+                    <th v-for="(size, index) in sizes" :key="index" class="text-center blue-grey white--text" :class="size.numeric == 0 ? 'darken-1' : ''">{{ size.name }}</th>
+                  </tr>
+                </thead>
+              </template>
+              <template v-slot:body="{ items }">
+                <tbody v-if="items.length > 0">
+                  <tr v-for="(item, index) in items" :key="index">
+                    <td class="text-center">{{ $helpers.listIndex(index, options) }}</td>
+                    <td class="text-center">{{ item.category_name }}</td>
+                    <td class="text-center">{{ item.product_name }}</td>
+                    <td class="text-center" v-for="(size, i) in sizes" :key="`${item.product_name_id}-${size.id}`">{{ item.stock[i] }}</td>
+                    <td class="text-center">{{ item.total_stock }}</td>
+                    <td class="text-center">
+                      <v-row dense no-gutters justify="space-around" align="center">
+                        <v-col cols="12">
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-btn
+                                icon
+                                v-bind="attrs"
+                                v-on="on"
+                                color="warning"
+                                @click="$refs.reportProduct.showDialog(sizeType, item, store, 'stock')"
+                              >
+                                <v-icon
+                                  dense
+                                >
+                                  mdi-eye
+                                </v-icon>
+                              </v-btn>
+                            </template>
+                            <span>Detalle</span>
+                          </v-tooltip>
+                        </v-col>
+                      </v-row>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody v-else>
+                  <tr>
+                    <td class="text-center" :colspan="sizes.length + 5">No hay datos disponibles</td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-data-table>
+          </v-col>
+          <v-col cols="12" class="text-center" v-else>
+            No hay datos disponibles
+          </v-col>
+        </v-row>
+      </v-card-text>
     </v-card>
-    <v-row>
-      <v-col cols="12" v-if="sizes.length > 0">
-        <v-data-table
-          :items="products"
-          :options.sync="options"
-          :server-items-length="totalItems"
-          :footer-props="{
-            itemsPerPageOptions: [8, 15, 30]
-          }"
-          :calculate-widths="true"
-          :mobile-breakpoint="0"
-        >
-          <template v-slot:header="{}">
-            <thead>
-              <tr>
-                <th rowspan="2" class="text-center blue-grey darken-2 white--text">NRO</th>
-                <th rowspan="2" class="text-center blue-grey darken-2 white--text">CATEGORÍA</th>
-                <th rowspan="2" class="text-center blue-grey darken-2 white--text">NOMBRE</th>
-                <th :colspan="sizes.filter(o => o.numeric == 0).length" class="text-center blue-grey darken-1 white--text body">TALLAS ALFABETICAS</th>
-                <th :colspan="sizes.filter(o => o.numeric == 1).length" class="text-center blue-grey white--text">TALLAS NUMÉRICAS</th>
-                <th rowspan="2" class="text-center blue-grey darken-2 white--text">TOTAL</th>
-                <th rowspan="2" class="text-center blue-grey darken-2 white--text" style="width: 40px; min-width: 40px;">ACCIONES</th>
-              </tr>
-              <tr>
-                <th v-for="(size, index) in sizes" :key="index" class="text-center blue-grey white--text" :class="size.numeric == 0 ? 'darken-1' : ''">{{ size.name }}</th>
-              </tr>
-            </thead>
-          </template>
-          <template v-slot:body="{ items }">
-            <tbody v-if="items.length > 0">
-              <tr v-for="(item, index) in items" :key="index">
-                <td class="text-center">{{ $helpers.listIndex(index, options) }}</td>
-                <td class="text-center">{{ item.category_name }}</td>
-                <td class="text-center">{{ item.product_name }}</td>
-                <td class="text-center" v-for="(size, i) in sizes" :key="`${item.product_name_id}-${size.id}`">{{ item.stock[i] }}</td>
-                <td class="text-center">{{ item.total_stock }}</td>
-                <td class="text-center">
-                  <v-row dense no-gutters justify="space-around" align="center">
-                    <v-col cols="12">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-btn
-                            icon
-                            v-bind="attrs"
-                            v-on="on"
-                            color="warning"
-                            @click="$refs.reportProduct.showDialog(sizeType, item, store, 'stock')"
-                          >
-                            <v-icon
-                              dense
-                            >
-                              mdi-eye
-                            </v-icon>
-                          </v-btn>
-                        </template>
-                        <span>Detalle</span>
-                      </v-tooltip>
-                    </v-col>
-                  </v-row>
-                </td>
-              </tr>
-            </tbody>
-            <tbody v-else>
-              <tr>
-                <td class="text-center" :colspan="sizes.length + 5">No hay datos disponibles</td>
-              </tr>
-            </tbody>
-          </template>
-        </v-data-table>
-      </v-col>
-    </v-row>
     <report-product ref="reportProduct" :sizeTypes="sizeTypes"/>
   </v-container>
 </template>
@@ -164,6 +169,14 @@ export default {
         },
       ],
     }
+  },
+  computed: {
+    alphabeticSizes() {
+      return this.sizes.filter(o => o.numeric == 0).length
+    },
+    numericSizes() {
+      return this.sizes.filter(o => o.numeric == 1).length
+    },
   },
   watch: {
     options: function(newVal, oldVal) {

@@ -73,6 +73,26 @@ class ReportController extends Controller
             }
             $products['data'][$i]->stock = $stock;
         }
+
+        $remove = [];
+        foreach ($sizes as $i => $size) {
+            $sum = 0;
+            foreach ($products['data'] as $product) {
+                $sum += $product->stock[$i];
+            }
+            if ($sum == 0) {
+                $remove[] = $i;
+            }
+        }
+        $sizes = $sizes->toArray();
+        $remove = array_reverse($remove);
+        foreach ($remove as $i) {
+            array_splice($sizes, $i, 1);
+            foreach ($products['data'] as $j => $product) {
+                array_splice($products['data'][$j]->stock, $i, 1);
+            }
+        }
+
         return [
             'message' => 'Lista de productos',
             'payload' => [
@@ -145,6 +165,26 @@ class ReportController extends Controller
             }
             $products['data'][$i]->stock = $stock;
         }
+
+        $remove = [];
+        foreach ($sizes as $i => $size) {
+            $sum = 0;
+            foreach ($products['data'] as $product) {
+                $sum += $product->stock[$i];
+            }
+            if ($sum == 0) {
+                $remove[] = $i;
+            }
+        }
+        $sizes = $sizes->toArray();
+        $remove = array_reverse($remove);
+        foreach ($remove as $i) {
+            array_splice($sizes, $i, 1);
+            foreach ($products['data'] as $j => $product) {
+                array_splice($products['data'][$j]->stock, $i, 1);
+            }
+        }
+
         return [
             'message' => 'Lista de productos vendidos',
             'payload' => [
