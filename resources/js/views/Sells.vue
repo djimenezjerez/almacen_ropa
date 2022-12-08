@@ -6,35 +6,95 @@
       >
         <tool-bar-title title="Ventas"/>
       </v-toolbar>
-      <v-row
-        class="pt-4 px-4"
-        align="center"
-        justify="start"
-      >
+      <v-row class="pt-5 px-4">
         <v-col
           cols="12"
-          md="7"
-          order="last"
-          order-md="first"
+          sm="6"
+          md="4"
+          lg="2"
         >
-          <search-input
-            v-model="search"
-            label="Texto o parámetro de búsqueda"
-          />
+          <v-menu
+            v-model="menuDateFrom"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="computedDateFrom"
+                label="Fecha inicial"
+                prepend-icon="mdi-calendar"
+                dense
+                hide-details
+                readonly
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="dateFrom"
+              no-title
+              @input="menuDateFrom = false"
+              @change="fetchMovements"
+              :max="$moment().format('YYYY-MM-DD')"
+            ></v-date-picker>
+          </v-menu>
         </v-col>
         <v-col
           cols="12"
-          md="5"
-          :class="{
-            'text-right': $vuetify.breakpoint.mdAndUp,
-          }"
-          order="first"
-          order-md="last"
+          sm="6"
+          md="4"
+          lg="2"
+        >
+          <v-menu
+            v-model="menuDateTo"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="computedDateTo"
+                label="Fecha final"
+                prepend-icon="mdi-calendar"
+                dense
+                hide-details
+                readonly
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="dateTo"
+              no-title
+              @input="menuDateTo = false"
+              @change="fetchMovements"
+              :max="$moment().format('YYYY-MM-DD')"
+            ></v-date-picker>
+          </v-menu>
+        </v-col>
+        <v-col
+          cols="12"
+          md="4"
+          lg="3"
+          offset-lg="5"
+          xl="2"
+          offset-xl="6"
         >
           <add-button
             text="Realizar venta"
-            :block="$vuetify.breakpoint.smAndDown"
+            :block="true"
             @click="gotoSell()"
+          />
+        </v-col>
+        <v-col cols="12">
+          <search-input
+            v-model="search"
+            label="Texto o parámetro de búsqueda"
           />
         </v-col>
       </v-row>
@@ -97,6 +157,10 @@ export default {
   data() {
     return {
       search: null,
+      menuDateFrom: false,
+      dateFrom: this.$moment().startOf('month').format('YYYY-MM-DD'),
+      menuDateTo: false,
+      dateTo: this.$moment().format('YYYY-MM-DD'),
       options: {
         page: 1,
         itemsPerPage: 8,
@@ -159,6 +223,14 @@ export default {
       ],
     }
   },
+  computed: {
+    computedDateFrom () {
+      return this.$moment(this.dateFrom).format('DD/MM/YYYY')
+    },
+    computedDateTo () {
+      return this.$moment(this.dateTo).format('DD/MM/YYYY')
+    },
+  },
   mounted() {
     this.fetchMovements()
   },
@@ -199,6 +271,8 @@ export default {
             sort_desc: this.options.sortDesc,
             search: this.search,
             active: 0,
+            date_from: this.dateFrom,
+            date_to: this.dateTo,
           },
         })
         this.sells = response.data.payload.data

@@ -9,7 +9,7 @@
         <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/sells/new` }">Nueva</router-link>
       </v-toolbar>
       <v-row
-        class="pt-4 px-4"
+        class="pt-5 px-4"
         align="center"
         justify="start"
       >

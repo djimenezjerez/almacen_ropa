@@ -8,7 +8,7 @@
       </v-toolbar>
       <v-spacer></v-spacer>
       <v-row
-        class="pt-4 px-4"
+        class="pt-5 px-4"
         align="center"
       >
         <v-col

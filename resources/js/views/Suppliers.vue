@@ -7,7 +7,7 @@
         <tool-bar-title title="Proveedores"/>
       </v-toolbar>
       <v-row
-        class="pt-4 px-4"
+        class="pt-5 px-4"
         align="center"
         justify="start"
       >

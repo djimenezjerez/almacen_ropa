@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SizeTypeRequest;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -83,8 +84,16 @@ class ReportController extends Controller
 
     public function sells(SizeTypeRequest $request)
     {
+        $date_from = Carbon::parse($request->date_from)->startOfDay();
+        $date_to = Carbon::parse($request->date_to)->endOfDay();
+        if ($date_from->greaterThanOrEqualTo($date_to)) { 
+            return response()->json([
+                'message' => 'La fecha inicial debe ser anterior a la fecha final'
+            ], 422);
+        }
+
         $store = false;
-        $movements = DB::table('movement_details')->select('movement_details.product_id')->selectRaw('cast(abs(coalesce(sum(movement_details.stock), 0)) as UNSIGNED) as stock')->leftJoin('movements', 'movements.id', '=', 'movement_details.movement_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->where('movement_types.active', false);
+        $movements = DB::table('movement_details')->select('movement_details.product_id')->selectRaw('cast(abs(coalesce(sum(movement_details.stock), 0)) as UNSIGNED) as stock')->leftJoin('movements', 'movements.id', '=', 'movement_details.movement_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->where('movement_types.active', false)->whereDate('movements.created_at', '>=', $date_from->toDateTimeString())->whereDate('movements.created_at', '<=', $date_to->toDateTimeString());
         if ($request->has('store_id')) {
             if ((int)$request->store_id > 0) {
                 $store = DB::table('stores')->where('id', (int)$request->store_id)->exists();

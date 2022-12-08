@@ -6,27 +6,80 @@
       >
         <tool-bar-title title="Reporte de Productos Vendidos"/>
       </v-toolbar>
-      <v-row
-        class="pt-4 px-4"
-        align="center"
-        justify="start"
-      >
+      <v-row class="pt-5 px-4">
         <v-col
           cols="12"
-          sm="12"
-          lg="6"
-          xl="8"
+          sm="6"
+          lg="2"
         >
-          <search-input
-            v-model="search"
-            label="Texto o parámetro de búsqueda"
-          />
+          <v-menu
+            v-model="menuDateFrom"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="computedDateFrom"
+                label="Fecha inicial"
+                prepend-icon="mdi-calendar"
+                dense
+                hide-details
+                readonly
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="dateFrom"
+              no-title
+              @input="menuDateFrom = false"
+              @change="fetchProducts"
+              :max="$moment().format('YYYY-MM-DD')"
+            ></v-date-picker>
+          </v-menu>
         </v-col>
         <v-col
           cols="12"
           sm="6"
+          lg="2"
+        >
+          <v-menu
+            v-model="menuDateTo"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="computedDateTo"
+                label="Fecha final"
+                prepend-icon="mdi-calendar"
+                dense
+                hide-details
+                readonly
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="dateTo"
+              no-title
+              @input="menuDateTo = false"
+              @change="fetchProducts"
+              :max="$moment().format('YYYY-MM-DD')"
+            ></v-date-picker>
+          </v-menu>
+        </v-col>
+        <v-col
+          cols="12"
+          sm="6"
+          offset-lg="2"
           lg="3"
-          xl="2"
         >
           <v-select
             :label="store.id == 0 ? 'Tienda/Almacén' : (store.warehouse ? 'Almacén' : 'Tienda')"
@@ -44,7 +97,6 @@
           cols="12"
           sm="6"
           lg="3"
-          xl="2"
         >
           <v-select
             label="Tipo de talla"
@@ -57,6 +109,12 @@
             hide-details
             @change="fetchProducts"
           ></v-select>
+        </v-col>
+        <v-col cols="12">
+          <search-input
+            v-model="search"
+            label="Texto o parámetro de búsqueda"
+          />
         </v-col>
       </v-row>
     </v-card>
@@ -144,6 +202,10 @@ export default {
   data() {
     return {
       search: null,
+      menuDateFrom: false,
+      dateFrom: this.$moment().startOf('month').format('YYYY-MM-DD'),
+      menuDateTo: false,
+      dateTo: this.$moment().format('YYYY-MM-DD'),
       options: {
         page: 1,
         itemsPerPage: 8,
@@ -168,7 +230,13 @@ export default {
   computed: {
     filteredStores() {
       return this.stores.filter(o => !o.warehouse)
-    }
+    },
+    computedDateFrom () {
+      return this.$moment(this.dateFrom).format('DD/MM/YYYY')
+    },
+    computedDateTo () {
+      return this.$moment(this.dateTo).format('DD/MM/YYYY')
+    },
   },
   watch: {
     options: function(newVal, oldVal) {
@@ -226,6 +294,8 @@ export default {
             search: this.search,
             size_type_id: this.sizeType.id,
             store_id: this.store.id,
+            date_from: this.dateFrom,
+            date_to: this.dateTo,
           },
         })
         this.sizes = response.data.payload.sizes
@@ -234,7 +304,7 @@ export default {
         this.options.page = response.data.payload.products.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.products.per_page)
       } catch(error) {
-        console.error(error)
+        this.$toast.error(error.response.data.message)
       } finally {
         this.$store.dispatch('loading', false)
       }

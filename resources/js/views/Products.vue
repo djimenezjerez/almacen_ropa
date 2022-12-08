@@ -13,7 +13,7 @@
       </v-toolbar>
       <building-details v-if="isBuilding" :building="store"/>
       <v-row
-        class="pt-4 px-4"
+        class="pt-5 px-4"
         align="center"
         justify="start"
       >

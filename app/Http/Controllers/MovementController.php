@@ -17,10 +17,18 @@ class MovementController extends Controller
 {
     public function index(StoreRequest $request)
     {
+        $date_from = Carbon::parse($request->date_from)->startOfDay();
+        $date_to = Carbon::parse($request->date_to)->endOfDay();
+        if ($date_from->greaterThanOrEqualTo($date_to)) {
+            return response()->json([
+                'message' => 'La fecha inicial debe ser anterior a la fecha final'
+            ], 422);
+        }
+
         $active = (int)$request->active ?? 1;
         $query = DB::table('movements')->select('movements.*', 'movement_types.code as movement_type_code', 'movement_types.name as movement_type_name', 'person_user.name as user_name', 'person_from_store.name as from_store_name', 'person_to_store.name as to_store_name', 'movements.total_price')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->leftJoin('users', 'users.id', '=', 'movements.user_id')->leftJoin('stores as from_store', 'from_store.id', '=', 'movements.from_store_id')->leftJoin('stores as to_store', 'to_store.id', '=', 'movements.to_store_id')->leftJoin('people as person_user', 'person_user.id', '=', 'users.person_id')->leftJoin('people as person_from_store', 'person_from_store.id', '=', 'from_store.person_id')->leftJoin('people as person_to_store', 'person_to_store.id', '=', 'to_store.person_id')->where('movement_types.active', $active)->where(function($q) use ($request) {
             return $q->orWhere('from_store_id', (int)$request->store_id)->orWhere('to_store_id', (int)$request->store_id);
-        });
+        })->whereDate('movements.created_at', '>=', $date_from->toDateTimeString())->whereDate('movements.created_at', '<=', $date_to->toDateTimeString());
         if (!$active) {
             $query->addSelect('person_client.name as client_name', 'person_client.document as client_document', 'document_types.code as document_type_code')->leftJoin('clients', 'clients.id', '=', 'movements.client_id')->leftJoin('people as person_client', 'person_client.id', '=', 'clients.person_id')->leftJoin('document_types', 'document_types.id', '=', 'person_client.document_type_id');
         }
