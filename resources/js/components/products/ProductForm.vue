@@ -477,7 +477,11 @@ export default {
     },
     async fetchBrands() {
       try {
-        let response = await axios.get('brand')
+        let response = await axios.get('brand', {
+          params: {
+            combo: true,
+          },
+        })
         this.brands = response.data.payload.data
       } catch(error) {
         console.error(error)
@@ -507,7 +511,11 @@ export default {
     },
     async fetchColors() {
       try {
-        let response = await axios.get('color')
+        let response = await axios.get('color', {
+          params: {
+            combo: true,
+          },
+        })
         this.colors = response.data.payload.data
       } catch(error) {
         console.error(error)

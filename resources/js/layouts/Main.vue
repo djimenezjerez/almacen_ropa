@@ -191,6 +191,18 @@
             </v-list-item-icon>
             <v-list-item-content>Tallas</v-list-item-content>
           </v-list-item>
+          <v-list-item link :to="{ name: 'colors' }" :class="drawer ? 'ml-1' : 'ml-4'">
+            <v-list-item-icon>
+              <v-icon>mdi-invert-colors</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Colores</v-list-item-content>
+          </v-list-item>
+          <v-list-item link :to="{ name: 'brands' }" :class="drawer ? 'ml-1' : 'ml-4'">
+            <v-list-item-icon>
+              <v-icon>mdi-shopping-outline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Marcas</v-list-item-content>
+          </v-list-item>
         </v-list-group>
       </v-list>
     </v-navigation-drawer>

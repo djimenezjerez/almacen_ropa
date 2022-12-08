@@ -121,6 +121,14 @@ const router = new VueRouter({
           path: '/sizes',
           name: 'sizes',
           component: () => import('@/views/Sizes.vue'),
+        }, {
+          path: '/colors',
+          name: 'colors',
+          component: () => import('@/views/Colors.vue'),
+        }, {
+          path: '/brands',
+          name: 'brands',
+          component: () => import('@/views/Brands.vue'),
         },
       ],
     },

@@ -81,7 +81,9 @@
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="text-center" width="10%"></th>
+                <th class="text-center" width="10%">
+                  MOVER
+                </th>
                 <th class="text-center" width="20%">
                   POSICIÓN
                 </th>

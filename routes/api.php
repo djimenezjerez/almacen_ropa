@@ -120,6 +120,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('brand', [BrandController::class, 'index']);
         Route::get('brand/{brand}', [BrandController::class, 'show']);
         Route::post('brand', [BrandController::class, 'store']);
+        Route::delete('brand/{brand}', [BrandController::class, 'destroy']);
         // Tallas
         Route::get('size', [SizeController::class, 'index']);
         Route::post('size', [SizeController::class, 'store']);
@@ -132,6 +133,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('color', [ColorController::class, 'index']);
         Route::get('color/{color}', [ColorController::class, 'show']);
         Route::post('color', [ColorController::class, 'store']);
+        Route::delete('color/{color}', [ColorController::class, 'destroy']);
         // Stock
         Route::get('product/{product_name}/stock', [ProductController::class, 'stock']);
     });
