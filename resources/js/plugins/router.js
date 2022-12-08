@@ -117,6 +117,10 @@ const router = new VueRouter({
           path: '/reports/products',
           name: 'reportProducts',
           component: () => import('@/components/reports/ReportProducts.vue'),
+        }, {
+          path: '/sizes',
+          name: 'sizes',
+          component: () => import('@/views/Sizes.vue'),
         },
       ],
     },

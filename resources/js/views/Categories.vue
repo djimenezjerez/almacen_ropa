@@ -4,7 +4,7 @@
       <v-toolbar
         color="secondary"
       >
-        <tool-bar-title title="Categorías"/>
+        <tool-bar-title title="Configuración de Categorías"/>
       </v-toolbar>
       <v-row
         class="pt-4 px-4"

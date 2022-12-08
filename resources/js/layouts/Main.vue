@@ -185,6 +185,12 @@
             </v-list-item-icon>
             <v-list-item-content>Categorías</v-list-item-content>
           </v-list-item>
+          <v-list-item link :to="{ name: 'sizes' }" :class="drawer ? 'ml-1' : 'ml-4'">
+            <v-list-item-icon>
+              <v-icon>mdi-human-male-height-variant</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Tallas</v-list-item-content>
+          </v-list-item>
         </v-list-group>
       </v-list>
     </v-navigation-drawer>

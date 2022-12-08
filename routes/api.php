@@ -123,6 +123,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         // Tallas
         Route::get('size', [SizeController::class, 'index']);
         Route::post('size', [SizeController::class, 'store']);
+        Route::patch('size', [SizeController::class, 'update']);
+        Route::delete('size/{size}', [SizeController::class, 'destroy']);
         // Tipos de tallas
         Route::get('size_type', [SizeTypeController::class, 'index']);
         Route::get('size_type/{size_type}', [SizeTypeController::class, 'show']);
