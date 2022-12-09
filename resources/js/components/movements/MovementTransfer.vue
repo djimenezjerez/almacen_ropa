@@ -158,6 +158,7 @@
                         dense
                         minlength="1"
                         required
+                        :class="$helpers.stockExceded(product) ? 'text-input-red' : ''"
                       ></v-text-field>
                     </td>
                     <td class="text-center">
@@ -218,18 +219,32 @@ export default {
     this.fetchMovementType()
   },
   methods: {
-    async submit() {
+    submit() {
       try {
         this.$store.dispatch('loading', true)
-        const response = await axios.post('movement', {
-          movement_type_id: this.movementType.id,
-          from_store_id: this.$store.getters.store.id,
-          to_store_id: this.store.id,
-          comment: this.comment,
-          details: this.products.map(o => o.products).flat(),
+        let valid = true
+        this.products.forEach(item => {
+          item.products.forEach(product => {
+            if (this.$helpers.stockExceded(product)) {
+              valid = false
+            }
+          })
         })
-        this.$toast.success(response.data.message)
-        this.$router.push({ path: '/movements' })
+        this.$nextTick(async() => {
+          if (valid) {
+            const response = await axios.post('movement', {
+              movement_type_id: this.movementType.id,
+              from_store_id: this.$store.getters.store.id,
+              to_store_id: this.store.id,
+              comment: this.comment,
+              details: this.products.map(o => o.products).flat(),
+            })
+            this.$toast.success(response.data.message)
+            this.$router.push({ path: '/movements' })
+          } else {
+            this.$toast.error(`La cantidad no puede exceder el stock actual`)
+          }
+        })
       } catch(error) {
         this.$toast.error(error.response.data.errors[Object.keys(error.response.data.errors)[0]][0])
       } finally {
@@ -285,3 +300,8 @@ export default {
   },
 }
 </script>
+<style scoped>
+  .text-input-red /deep/ input {
+    color: #f00 !important;
+  }
+</style>

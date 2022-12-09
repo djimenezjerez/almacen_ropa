@@ -42,24 +42,6 @@ class UserSeeder extends Seeder
                     ]
                 ],
             ], [
-                'name' => 'Pedro Ramos',
-                'document' => '987654321',
-                'email' => 'pramos@ropa.com',
-                'phone' => 76543210,
-                'city' => 'SC',
-                'document_type' => 'CI',
-                'username' => 'gerente',
-                'password' => 'gerente',
-                'stores' => [
-                    [
-                        'name' => 'Moda Bella',
-                        'role' => 'GERENTE',
-                    ], [
-                        'name' => 'Casa Moda',
-                        'role' => 'GERENTE',
-                    ]
-                ],
-            ], [
                 'name' => 'Jorge Medina',
                 'document' => '987654321',
                 'email' => 'prios@ropa.com',
@@ -75,24 +57,6 @@ class UserSeeder extends Seeder
                     ], [
                         'name' => 'Casa Moda',
                         'role' => 'CAJERO',
-                    ]
-                ],
-            ], [
-                'name' => 'Laura Flores',
-                'document' => '987654321',
-                'email' => 'prios@ropa.com',
-                'phone' => 76543210,
-                'city' => 'CB',
-                'document_type' => 'CI',
-                'username' => 'supervisor',
-                'password' => 'supervisor',
-                'stores' => [
-                    [
-                        'name' => 'Almacén principal',
-                        'role' => 'SUPERVISOR',
-                    ], [
-                        'name' => 'Almacén sucursal',
-                        'role' => 'SUPERVISOR',
                     ]
                 ],
             ],
