@@ -157,7 +157,7 @@ class MovementController extends Controller
                         $movement_detail->store_id = $movement->from_store_id;
                         $movement_detail->movement()->associate($movement);
                         $movement_detail->save();
-                        $product->stock -= $movement_detail->stock;
+                        $product->stock += $movement_detail->stock;
                         $product->save();
                         break;
                     case 'TRANSFER':
@@ -165,6 +165,8 @@ class MovementController extends Controller
                         $movement_detail->store_id = $movement->from_store_id;
                         $movement_detail->movement()->associate($movement);
                         $movement_detail->save();
+                        $movement_detail = new MovementDetail();
+                        $movement_detail->product()->associate($product);
                         $movement_detail->stock = (int)$detail['stock'];
                         $movement_detail->store_id = $movement->to_store_id;
                         $movement_detail->movement()->associate($movement);
@@ -203,7 +205,11 @@ class MovementController extends Controller
         $products = DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name', 'products.brand_id', 'brands.name as brand_name', 'products.gender_id', 'genders.name as gender_name', 'products.color_id', 'colors.name as color_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'product_names.sell_price')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('movement_details.movement_id', $movement->id)->groupBy('products.product_name_id', 'products.brand_id', 'products.gender_id', 'products.color_id', 'product_names.category_id', 'sizes.size_type_id')->get();
 
         foreach ($products as $i => $product) {
-            $products[$i]->products = DB::table('movement_details')->select('movement_details.id', 'sizes.name as size_name')->selectRaw('ABS(movement_details.stock) as stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('movement_details.movement_id', $movement->id)->where('products.product_name_id', $product->product_name_id)->where('products.brand_id', $product->brand_id)->where('products.gender_id', $product->gender_id)->where('products.color_id', $product->color_id)->where('product_names.category_id', $product->category_id)->where('sizes.size_type_id', $product->size_type_id)->get();
+            $query = DB::table('movement_details')->select('movement_details.id', 'sizes.name as size_name')->selectRaw('ABS(movement_details.stock) as stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('movement_details.movement_id', $movement->id)->where('products.product_name_id', $product->product_name_id)->where('products.brand_id', $product->brand_id)->where('products.gender_id', $product->gender_id)->where('products.color_id', $product->color_id)->where('product_names.category_id', $product->category_id)->where('sizes.size_type_id', $product->size_type_id);
+            if ($data->movement_type_code === 'TRANSFER') {
+                $query->where('movement_details.stock', '>', 0);
+            }
+            $products[$i]->products = $query->get();
         }
 
         return [

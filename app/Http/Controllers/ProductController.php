@@ -33,18 +33,18 @@ class ProductController extends Controller
         if ($request->has('store_id')) {
             $store = DB::table('stores')->where('id', $request->store_id)->exists();
             if ($store) {
-                $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as UNSIGNED) as stock')->where('store_id', $request->store_id)->groupBy('product_id');
+                $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as INTEGER) as stock')->where('store_id', $request->store_id)->groupBy('product_id');
             }
         }
 
         $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name', 'product_names.sell_price');
 
         if ($store) {
-            $query->selectRaw('cast(sum(md.stock) as UNSIGNED) as total_stock')->joinSub($movements, 'md', function($join) {
+            $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
-            $query->selectRaw('cast(sum(products.stock) as UNSIGNED) as total_stock');
+            $query->selectRaw('cast(sum(products.stock) as INTEGER) as total_stock');
         }
 
         $query->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.deleted_at', null)->where('size_types.id', (int)$request->size_type_id)->groupBy('products.product_name_id');
@@ -75,18 +75,18 @@ class ProductController extends Controller
         if ($request->has('store_id')) {
             $store = DB::table('stores')->where('id', $request->store_id)->exists();
             if ($store) {
-                $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as UNSIGNED) as stock')->where('store_id', $request->store_id)->groupBy('product_id');
+                $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as INTEGER) as stock')->where('store_id', $request->store_id)->groupBy('product_id');
             }
         }
 
         $query = DB::table('products')->select('products.id', 'products.product_name_id', 'products.brand_id', 'brands.name as brand_name', 'products.gender_id', 'genders.name as gender_name', 'products.color_id', 'colors.name as color_name');
 
         if ($store) {
-            $query->selectRaw('cast(sum(md.stock) as UNSIGNED) as total_stock')->joinSub($movements, 'md', function($join) {
+            $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
-            $query->selectRaw('cast(sum(products.stock) as UNSIGNED) as total_stock');
+            $query->selectRaw('cast(sum(products.stock) as INTEGER) as total_stock');
         }
 
         $query->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null)->groupBy('products.brand_id', 'products.gender_id', 'products.color_id');
@@ -189,7 +189,7 @@ class ProductController extends Controller
             if ((int)$request->store_id > 0) {
                 $store = DB::table('stores')->where('id', $request->store_id)->exists();
                 if ($store) {
-                    $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as UNSIGNED) as stock')->where('store_id', (int)$request->store_id)->groupBy('product_id');
+                    $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as INTEGER) as stock')->where('store_id', (int)$request->store_id)->groupBy('product_id');
                 }
             }
         }
@@ -207,11 +207,11 @@ class ProductController extends Controller
         foreach($colors as $color) {
             $sizes = DB::table('products')->select('sizes.id', 'sizes.name');
             if ($store) {
-                $sizes->selectRaw('cast(sum(md.stock) as UNSIGNED) as stock')->joinSub($movements, 'md', function($join) {
+                $sizes->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function($join) {
                     $join->on('products.id', '=', 'md.product_id');
                 });
             } else {
-                $sizes->selectRaw('cast(sum(products.stock) as UNSIGNED) as stock');
+                $sizes->selectRaw('cast(sum(products.stock) as INTEGER) as stock');
             }
             $sizes->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('colors.id', $color->id)->where('products.deleted_at', null)->groupBy('products.size_id')->orderBy('sizes.numeric')->orderBy('sizes.order')->orderBy('sizes.id');
             $sizes = $sizes->get();
@@ -240,7 +240,7 @@ class ProductController extends Controller
         ]);
 
         $store = false;
-        $movements = DB::table('movement_details')->select('movement_details.product_id')->selectRaw('cast(abs(coalesce(sum(movement_details.stock), 0)) as UNSIGNED) as stock')->leftJoin('movements', 'movements.id', '=', 'movement_details.movement_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->where('movement_types.active', false);
+        $movements = DB::table('movement_details')->select('movement_details.product_id')->selectRaw('cast(abs(coalesce(sum(movement_details.stock), 0)) as INTEGER) as stock')->leftJoin('movements', 'movements.id', '=', 'movement_details.movement_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->where('movement_types.active', false);
         if ($request->has('store_id')) {
             if ($request->store_id !== null) {
                 $store = DB::table('stores')->where('id', $request->store_id)->exists();
@@ -258,7 +258,7 @@ class ProductController extends Controller
         $colors = $colors->get();
 
         foreach($colors as $color) {
-            $sizes = DB::table('products')->select('sizes.id', 'sizes.name')->selectRaw('cast(sum(md.stock) as UNSIGNED) as stock')->joinSub($movements, 'md', function($join) {
+            $sizes = DB::table('products')->select('sizes.id', 'sizes.name')->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function($join) {
                 $join->on('products.id', '=', 'md.product_id');
             })->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('colors.id', $color->id)->where('products.deleted_at', null)->groupBy('products.size_id')->orderBy('sizes.numeric')->orderBy('sizes.order')->orderBy('sizes.id');
             $sizes = $sizes->get();
@@ -286,7 +286,7 @@ class ProductController extends Controller
         if ($request->has('store_id')) {
             $store = DB::table('stores')->where('id', $request->store_id)->exists();
             if ($store) {
-                $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as UNSIGNED) as stock')->where('store_id', $request->store_id)->groupBy('product_id');
+                $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as INTEGER) as stock')->where('store_id', $request->store_id)->groupBy('product_id');
             }
         }
 
@@ -329,18 +329,18 @@ class ProductController extends Controller
         if ($request->has('store_id')) {
             $store = DB::table('stores')->where('id', $request->store_id)->exists();
             if ($store) {
-                $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as UNSIGNED) as stock')->where('store_id', $request->store_id)->groupBy('product_id');
+                $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as INTEGER) as stock')->where('store_id', $request->store_id)->groupBy('product_id');
             }
         }
 
         $query = DB::table('products')->select('products.product_name_id', 'products.brand_id', 'products.gender_id', 'products.color_id', 'product_names.name as product_name', 'categories.name as category_name', 'brands.name as brand_name', 'genders.name as gender_name', 'size_types.name as size_type_name', 'colors.name as color_name');
 
         if ($store) {
-            $query->selectRaw('cast(sum(md.stock) as UNSIGNED) as total_stock')->joinSub($movements, 'md', function($join) {
+            $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
-            $query->selectRaw('cast(sum(products.stock) as UNSIGNED) as total_stock');
+            $query->selectRaw('cast(sum(products.stock) as INTEGER) as total_stock');
         }
 
         return [

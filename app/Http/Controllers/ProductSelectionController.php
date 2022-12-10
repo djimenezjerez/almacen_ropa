@@ -246,7 +246,7 @@ class ProductSelectionController extends Controller
             if ($request->store_id !== null && $request->active !== null) {
                 $store = DB::table('stores')->where('id', $request->store_id)->exists();
                 if ($store) {
-                    $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as UNSIGNED) as stock')->where('store_id', (int)$request->store_id)->groupBy('product_id');
+                    $movements = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(stock) as INTEGER) as stock')->where('store_id', (int)$request->store_id)->groupBy('product_id');
                 }
             }
         }
