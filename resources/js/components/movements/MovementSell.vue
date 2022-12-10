@@ -15,8 +15,7 @@
       >
         <v-col
           cols="12"
-          md="7"
-          lg="8"
+          lg="5"
           order="last"
           order-md="first"
         >
@@ -35,18 +34,24 @@
         </v-col>
         <v-col
           cols="12"
-          md="5"
+          md="6"
+          lg="3"
+        >
+          <add-button
+            text="Agregar cliente"
+            color="accent"
+            :block="true"
+            @click="$refs.clientForm.showDialog()"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
           lg="4"
-          :class="{
-            'text-right': $vuetify.breakpoint.mdAndUp,
-          }"
-          order="first"
-          order-md="last"
         >
           <add-button
             text="Seleccionar productos"
-            block
-            :disabled="Object.keys(client).length === 0"
+            :block="true"
             @click="$refs.productSelection.showDialog(products.map(o => o.products.map(i => i.id)).flat())"
           />
         </v-col>
@@ -223,6 +228,7 @@
         </v-row>
       </v-card-actions>
     </v-card>
+    <client-form ref="clientForm" :documentTypes="documentTypes" :cities="cities" v-on:updateList="fetchClients"/>
     <product-selection ref="productSelection" :movementType="movementType" :available="true" :store="$store.getters.store" v-on:updateList="updateList"/>
   </v-container>
 </template>
@@ -231,10 +237,13 @@
 export default {
   name: 'MovementSell',
   components: {
+    'client-form': () => import('@/components/clients/ClientForm.vue'),
     'product-selection': () => import('@/components/products/ProductSelection.vue'),
   },
   data() {
     return {
+      documentTypes: [],
+      cities: [],
       products: [],
       movementType: {},
       client: {},
@@ -242,7 +251,7 @@ export default {
     }
   },
   mounted() {
-    this.fetchMovementType()
+    this.fetchDocumentTypes()
   },
   methods: {
     submit() {
@@ -278,9 +287,37 @@ export default {
         this.$store.dispatch('loading', false)
       }
     },
-    async fetchMovementType() {
+    async fetchDocumentTypes() {
       try {
         this.$store.dispatch('loading', true)
+        let response = await axios.get('document_type', {
+          params: {
+            combo: true,
+          }
+        })
+        this.documentTypes = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      } finally {
+        this.fetchCities()
+      }
+    },
+    async fetchCities() {
+      try {
+        let response = await axios.get('city', {
+          params: {
+            combo: true,
+          }
+        })
+        this.cities = response.data.payload.data
+      } catch(error) {
+        console.error(error)
+      } finally {
+        this.fetchMovementType()
+      }
+    },
+    async fetchMovementType() {
+      try {
         let response = await axios.get(`movement_type`, {
           params: {
             active: 0
@@ -295,6 +332,8 @@ export default {
     },
     async fetchClients() {
       try {
+        this.$store.dispatch('loading', true)
+        this.client = {}
         let response = await axios.get(`client`, {
           params: {
             combo: true,
