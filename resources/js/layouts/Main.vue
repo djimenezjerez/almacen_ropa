@@ -67,6 +67,8 @@
       dark
       :mini-variant.sync="drawer"
       color="primary"
+      stateless
+      touchless
     >
       <v-row align="center" justify="center" class="white py-3" dense>
         <v-col cols="auto" class="text-center">
@@ -78,15 +80,16 @@
         </v-col>
       </v-row>
       <v-row align="center" justify="center" class="tertiary" dense v-show="!drawer">
-        <v-col cols="12" sm="11" md="10" class="text-center pt-3 pb-0">
+        <v-col cols="12" sm="11" md="10" class="text-center pt-2 pb-2">
           <v-text-field
             light
             :value="$store.getters.store.name"
-            label="Tienda"
+            :label="$store.getters.store.warehouse ? 'Almacén' : 'Tienda'"
             dense
             readonly
             hide-details
             outlined
+            @click="$refs.storeSelection.showDialog()"
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="11" md="10" class="text-center pt-2 pb-2">
@@ -215,13 +218,17 @@
     <v-main class="blue-grey lighten-5">
       <router-view></router-view>
     </v-main>
-    <loading-overlay></loading-overlay>
+    <loading-overlay/>
+    <store-selection ref="storeSelection"/>
   </v-app>
 </template>
 
 <script>
 export default {
   name: 'Main',
+  components: {
+    'store-selection': () => import('@/components/shared/StoreSelection.vue'),
+  },
   data: function() {
     return {
       drawer: false,
@@ -232,7 +239,7 @@ export default {
       try {
         await this.$store.dispatch('logout')
         this.$router.push({
-          name: 'login'
+          name: 'auth'
         })
       } catch(error) {
         console.error(error)

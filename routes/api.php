@@ -9,7 +9,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\DocumentTypeController;
-use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CategoryController;
@@ -26,13 +25,16 @@ use App\Http\Controllers\ProductSelectionController;
 use App\Http\Controllers\ReportController;
 
 // Autenticación
-Route::post('login', [AuthController::class, 'store']);
+Route::post('auth', [AuthController::class, 'store']);
 
 // Tiendas
 Route::get('store', [StoreController::class, 'index']);
-Route::get('warehouse', [WarehouseController::class, 'index']);
 
 Route::group(['middleware' => ['auth:sanctum']], function() {
+    // Autenticación
+    Route::get('auth', [AuthController::class, 'index']);
+    Route::patch('auth', [AuthController::class, 'update']);
+
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index']);
 

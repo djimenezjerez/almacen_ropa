@@ -77,7 +77,20 @@ export default new Vuex.Store({
     login({commit}, data) {
       return new Promise(async (resolve, reject) => {
         try {
-          let response = await axios.post('login', data)
+          let response = await axios.post('auth', data)
+          commit('login', response.data.payload)
+          resolve(response)
+        } catch(error) {
+          commit('logout')
+          reject(error)
+        }
+      })
+    },
+    changeStore({commit}, data) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          let response = await axios.patch('auth', data)
+          commit('logout')
           commit('login', response.data.payload)
           resolve(response)
         } catch(error) {

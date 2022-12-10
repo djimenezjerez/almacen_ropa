@@ -157,7 +157,7 @@ export default {
               name: 'dashboard'
             })
           } else {
-            let response = await axios.post(`login`, this.loginForm)
+            let response = await axios.post(`auth`, this.loginForm)
             this.loginForm.store_id = response.data.payload.stores[0].store_id
             if (response.data.payload.stores.length == 1) {
               this.submit()
