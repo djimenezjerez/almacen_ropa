@@ -56,9 +56,7 @@ class UserController extends Controller
             $person = Person::create($request->merge([
                 'document_type_id' => $document_type->id,
             ])->only('name', 'document', 'document_type_id', 'address', 'email', 'phone', 'city_id'));
-            $user = $person->user()->create($request->merge([
-                'password' => $person->document,
-            ])->only('username', 'password'));
+            $user = $person->user()->create($request->only('username', 'password'));
             DB::commit();
             return [
                 'message' => 'Usuario registrado',
