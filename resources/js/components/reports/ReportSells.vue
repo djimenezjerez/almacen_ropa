@@ -265,20 +265,27 @@ export default {
   },
   methods: {
     async fetchStores() {
-      this.store = this.stores[0]
-      try {
-        this.$store.dispatch('loading', true)
-        let response = await axios.get('store', {
-          params: {
-            combo: true,
-            warehouse: 0,
-          },
-        })
-        this.stores = this.stores.concat(response.data.payload.data)
-      } catch(error) {
-        console.error(error)
-      } finally {
+      if (this.$store.getters.role.name != 'ADMINISTRADOR') {
+        this.stores = []
+        this.stores.push(this.$store.getters.store)
+        this.store = this.$store.getters.store
         this.fetchSizeTypes()
+      } else {
+        this.store = this.stores[0]
+        try {
+          this.$store.dispatch('loading', true)
+          let response = await axios.get('store', {
+            params: {
+              combo: true,
+              warehouse: 0,
+            },
+          })
+          this.stores = this.stores.concat(response.data.payload.data)
+        } catch(error) {
+          console.error(error)
+        } finally {
+          this.fetchSizeTypes()
+        }
       }
     },
     async fetchSizeTypes() {

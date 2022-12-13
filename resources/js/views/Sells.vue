@@ -10,7 +10,6 @@
         <v-col
           cols="12"
           sm="6"
-          md="4"
           lg="2"
         >
           <v-menu
@@ -45,7 +44,6 @@
         <v-col
           cols="12"
           sm="6"
-          md="4"
           lg="2"
         >
           <v-menu
@@ -79,11 +77,28 @@
         </v-col>
         <v-col
           cols="12"
-          md="4"
-          lg="3"
-          offset-lg="5"
+          md="6"
+          lg="2"
+          offset-lg="3"
           xl="2"
-          offset-xl="6"
+          offset-xl="4"
+        >
+          <v-btn
+            color="success"
+            block
+            @click="printPdf()"
+          >
+            <v-icon left>
+              mdi-printer
+            </v-icon>
+            IMPRIMIR
+          </v-btn>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+          lg="3"
+          xl="2"
         >
           <add-button
             text="Realizar venta"
@@ -258,6 +273,33 @@ export default {
       this.$router.push({
         path: `/sells/new`,
       })
+    },
+    async printPdf() {
+      try {
+        this.$store.dispatch('loading', true)
+        let response = await axios.get('movement', {
+          params: {
+            store_id: this.$store.getters.store.id,
+            page: this.options.page,
+            per_page: this.options.itemsPerPage,
+            sort_by: this.options.sortBy,
+            sort_desc: this.options.sortDesc,
+            search: this.search,
+            active: 0,
+            date_from: this.dateFrom,
+            date_to: this.dateTo,
+            print: 1,
+          },
+        })
+        // Abrir PDF en nueva ventana
+        let pdfWindow = window.open('')
+        pdfWindow.document.write('<html><head><title>' + response.data.payload.file.name + '</title><style>body{margin: 0px;}iframe{border-width: 0px;}</style></head>')
+        pdfWindow.document.write('<body><iframe width="100%" height="100%" src="data:application/pdf;base64,' + encodeURI(response.data.payload.file.content) + '"></iframe></body></html>')
+      } catch(error) {
+        this.$toast.error(error.response.data.message)
+      } finally {
+        this.$store.dispatch('loading', false)
+      }
     },
     async fetchMovements() {
       try {

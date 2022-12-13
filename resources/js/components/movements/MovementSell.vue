@@ -52,6 +52,7 @@
           <add-button
             text="Seleccionar productos"
             :block="true"
+            :disabled="Object.keys(client).length === 0"
             @click="$refs.productSelection.showDialog(products.map(o => o.products.map(i => i.id)).flat())"
           />
         </v-col>

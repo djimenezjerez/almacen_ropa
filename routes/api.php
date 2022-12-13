@@ -102,6 +102,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::delete('category/{category}', [CategoryController::class, 'destroy']);
     });
 
+    // Reportes
+    Route::get('size_type', [SizeTypeController::class, 'index']);
+    Route::get('product/{product_name}/stock', [ProductController::class, 'stock']);
+    Route::get('product/{product_name}/sells', [ProductController::class, 'sells']);
+
     // Productos
     Route::group(['middleware' => ['can:PRODUCTOS']], function() {
         Route::get('product', [ProductController::class, 'index']);
@@ -129,16 +134,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::patch('size', [SizeController::class, 'update']);
         Route::delete('size/{size}', [SizeController::class, 'destroy']);
         // Tipos de tallas
-        Route::get('size_type', [SizeTypeController::class, 'index']);
         Route::get('size_type/{size_type}', [SizeTypeController::class, 'show']);
         // Colores
         Route::get('color', [ColorController::class, 'index']);
         Route::get('color/{color}', [ColorController::class, 'show']);
         Route::post('color', [ColorController::class, 'store']);
         Route::delete('color/{color}', [ColorController::class, 'destroy']);
-        // Stock
-        Route::get('product/{product_name}/stock', [ProductController::class, 'stock']);
-        Route::get('product/{product_name}/sells', [ProductController::class, 'sells']);
     });
 
     // Tipos de movimiento de stock

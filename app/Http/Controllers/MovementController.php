@@ -12,6 +12,7 @@ use App\Http\Requests\StoreMovementRequest;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreRequest;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MovementController extends Controller
 {
@@ -32,12 +33,47 @@ class MovementController extends Controller
         if (!$active) {
             $query->addSelect('person_client.name as client_name', 'person_client.document as client_document', 'document_types.code as document_type_code')->leftJoin('clients', 'clients.id', '=', 'movements.client_id')->leftJoin('people as person_client', 'person_client.id', '=', 'clients.person_id')->leftJoin('document_types', 'document_types.id', '=', 'person_client.document_type_id');
         }
-        if ($request->has('sort_by') && $request->has('sort_desc')) {
+        if ($request->has('sort_by') && $request->has('sort_desc') && !$request->has('print')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
             }
         } else {
             $query->orderBy('movements.created_at', 'DESC');
+        }
+
+        $user = auth()->user();
+        if (!in_array($user->roles()->where('store_id', (int)$request->store_id)->first()->name, ['ADMINISTRADOR', 'GERENTE'])) {
+            $query->where('movements.user_id', $user->id);
+        }
+
+        if ($request->has('print')) {
+            if ($request->print) {
+                try {
+                    $data = [
+                        'filename' => 'Ventas_' . Carbon::now()->format('d-m-Y_H-i') . '.pdf',
+                        'store' => Store::find($request->store_id)->person->name,
+                        'date_from' => $date_from->startOfMonth()->format('d/m/Y'),
+                        'date_to' => $date_to->format('d/m/Y'),
+                        'sells' => $query->get(),
+                    ];
+                    $data['total'] = $data['sells']->sum('total_price');
+                    $pdf = PDF::loadView('pdf.sells', $data)->output();
+                    return [
+                        'message' => 'PDF generado',
+                        'payload' => [
+                            'file' => [
+                                'content' => base64_encode($pdf),
+                                'name' => $data['filename'],
+                            ],
+                        ],
+                    ];
+                } catch(\Throwable $e) {
+                    logger($e);
+                    return response()->json([
+                        'message' => 'Error al generar el PDF',
+                    ], 500);
+                }
+            }
         }
 
         if ($request->has('search')) {
@@ -60,11 +96,6 @@ class MovementController extends Controller
                 $query->orWhereDate('movements.created_at', '=', $date);
             }
         } catch(\Exception $e) {}
-
-        $user = auth()->user();
-        if (!in_array($user->roles()->where('store_id', (int)$request->store_id)->first()->name, ['ADMINISTRADOR', 'GERENTE'])) {
-            $query->where('movements.user_id', $user->id);
-        }
 
         return [
             'message' => 'Lista de movimientos',
