@@ -27,11 +27,11 @@ class ClientResource extends JsonResource
             'email' => $this->person->email,
             'phone' => $this->person->phone,
             'city_id' => $this->person->city_id,
-            'city_code' => $this->person->city->code,
-            'city_name' => $this->person->city->name,
+            'city_code' => $this->person->city ? $this->person->city->code : null,
+            'city_name' => $this->person->city ? $this->person->city->name : null,
             'document_type_id' => $this->person->document_type_id,
-            'document_name' => $this->person->document_type->name,
-            'document_code' => $this->person->document_type->code,
+            'document_type_name' => $this->person->document_type->name,
+            'document_type_code' => $this->person->document_type->code,
         ];
     }
 }

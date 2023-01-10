@@ -18,9 +18,9 @@ class UserSeeder extends Seeder
     {
         $data = [
             [
-                'name' => 'Pablo Ugarte',
-                'document' => '987654321',
-                'email' => 'pugarte@ropa.com',
+                'name' => 'Super Usuario',
+                'document' => '603631',
+                'email' => 'contacto@almacen1.com',
                 'phone' => 76543210,
                 'city' => 'SC',
                 'document_type' => 'CI',
@@ -28,36 +28,9 @@ class UserSeeder extends Seeder
                 'password' => 'admin',
                 'stores' => [
                     [
-                        'name' => 'Moda Bella',
-                        'role' => 'ADMINISTRADOR',
-                    ], [
                         'name' => 'Casa Moda',
                         'role' => 'ADMINISTRADOR',
-                    ], [
-                        'name' => 'Almacén principal',
-                        'role' => 'ADMINISTRADOR',
-                    ], [
-                        'name' => 'Almacén sucursal',
-                        'role' => 'ADMINISTRADOR',
-                    ]
-                ],
-            ], [
-                'name' => 'Jorge Medina',
-                'document' => '987654321',
-                'email' => 'prios@ropa.com',
-                'phone' => 76543210,
-                'city' => 'SC',
-                'document_type' => 'CI',
-                'username' => 'cajero',
-                'password' => 'cajero',
-                'stores' => [
-                    [
-                        'name' => 'Moda Bella',
-                        'role' => 'CAJERO',
-                    ], [
-                        'name' => 'Casa Moda',
-                        'role' => 'CAJERO',
-                    ]
+                    ],
                 ],
             ],
         ];

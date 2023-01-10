@@ -250,11 +250,12 @@ export default {
           if (this.edit) {
             const response = await axios.patch(`client/${this.clientForm.id}`, this.clientForm)
             this.$toast.success(response.data.message)
+            this.$emit('updateList', response.data.client)
           } else {
             const response = await axios.post('client', this.clientForm)
             this.$toast.success(response.data.message)
+            this.$emit('updateList', response.data.client)
           }
-          this.$emit('updateList')
           this.dialog = false
         }
       } catch(error) {

@@ -37,12 +37,18 @@
           md="6"
           lg="3"
         >
-          <add-button
-            text="Agregar cliente"
+          <v-btn
             color="accent"
-            :block="true"
+            block
             @click="$refs.clientForm.showDialog()"
-          />
+          >
+            <v-icon
+              class="mr-3"
+            >
+              mdi-account
+            </v-icon>
+            <div>Nuevo cliente</div>
+          </v-btn>
         </v-col>
         <v-col
           cols="12"
@@ -229,7 +235,7 @@
         </v-row>
       </v-card-actions>
     </v-card>
-    <client-form ref="clientForm" :documentTypes="documentTypes" :cities="cities" v-on:updateList="fetchClients"/>
+    <client-form ref="clientForm" :documentTypes="documentTypes" :cities="cities" v-on:updateList="clientAdded"/>
     <product-selection ref="productSelection" :movementType="movementType" :available="true" :store="$store.getters.store" v-on:updateList="updateList"/>
   </v-container>
 </template>
@@ -330,6 +336,11 @@ export default {
       } finally {
         this.fetchClients()
       }
+    },
+    clientAdded(client) {
+      console.log(client);
+      this.clients.push(client)
+      this.client = client
     },
     async fetchClients() {
       try {

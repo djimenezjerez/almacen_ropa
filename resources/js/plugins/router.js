@@ -91,7 +91,7 @@ const router = new VueRouter({
           component: () => import('@/components/movements/MovementEntry.vue'),
         }, {
           path: '/movements/ADJUSTMENT',
-          name: 'movementEntry',
+          name: 'movementAdjustment',
           component: () => import('@/components/movements/MovementAdjustment.vue'),
         }, {
           path: '/movements/TRANSFER',
@@ -111,7 +111,7 @@ const router = new VueRouter({
           component: () => import('@/components/movements/MovementSell.vue'),
         }, {
           path: '/sells/:movementId',
-          name: 'newSell',
+          name: 'viewSell',
           component: () => import('@/components/movements/MovementDetails.vue'),
         }, {
           path: '/reports/products',

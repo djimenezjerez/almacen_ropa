@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Models\MovementType;
-use App\Models\Movement;
-use App\Models\MovementDetail;
+use Exception;
+use Carbon\Carbon;
 use App\Models\Store;
+use App\Models\Product;
+use App\Models\Movement;
 use App\Models\Warehouse;
-use App\Http\Requests\StoreMovementRequest;
+use App\Models\MovementType;
+use App\Models\MovementDetail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreRequest;
-use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Http\Requests\StoreMovementRequest;
 
 class MovementController extends Controller
 {

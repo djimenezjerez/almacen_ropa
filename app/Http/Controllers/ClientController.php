@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Client;
 use App\Models\Person;
-use App\Http\Requests\StoreClientRequest;
-use App\Http\Requests\UpdateClientRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\ClientResource;
+use App\Http\Requests\StoreClientRequest;
+use App\Http\Requests\UpdateClientRequest;
 
 class ClientController extends Controller
 {
@@ -53,6 +55,7 @@ class ClientController extends Controller
             DB::commit();
             return [
                 'message' => 'Cliente registrado',
+                'client' => new ClientResource($person->client),
             ];
         } catch(Exception) {
             DB::rollBack();
@@ -86,6 +89,7 @@ class ClientController extends Controller
             DB::rollBack();
             return [
                 'message' => 'Error al actualizar',
+                'client' => new ClientResource($client),
             ];
         }
     }
