@@ -110,6 +110,10 @@ const router = new VueRouter({
           name: 'newSell',
           component: () => import('@/components/movements/MovementSell.vue'),
         }, {
+          path: '/reportSellsUnitary',
+          name: 'reportSellsUnitary',
+          component: () => import('@/components/sells/ReportSellsUnitary.vue'),
+        }, {
           path: '/sells/:movementId',
           name: 'viewSell',
           component: () => import('@/components/movements/MovementDetails.vue'),

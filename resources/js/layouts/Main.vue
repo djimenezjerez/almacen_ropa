@@ -151,12 +151,28 @@
           </v-list-item-icon>
           <v-list-item-content>Movimientos de stock</v-list-item-content>
         </v-list-item>
-        <v-list-item link :to="{ name: 'sells' }" v-if="$store.getters.user.permissions.includes('VENTAS') && !$store.getters.store.warehouse">
-          <v-list-item-icon>
-            <v-icon>mdi-cash-register</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>Ventas</v-list-item-content>
-        </v-list-item>
+        <v-list-group color="white" v-if="$store.getters.user.permissions.includes('VENTAS') && !$store.getters.store.warehouse">
+          <template v-slot:activator>
+            <v-list-item class="px-0">
+              <v-list-item-icon>
+                <v-icon>mdi-cash-register</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>Ventas</v-list-item-content>
+            </v-list-item>
+          </template>
+          <v-list-item link :to="{ name: 'sells' }" :class="drawer ? 'ml-1' : 'ml-4'">
+            <v-list-item-icon>
+              <v-icon>mdi-account-cash</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Reporte de ventas</v-list-item-content>
+          </v-list-item>
+          <v-list-item link :to="{ name: 'reportSellsUnitary' }" :class="drawer ? 'ml-1' : 'ml-4'">
+            <v-list-item-icon>
+              <v-icon>mdi-numeric-1-box-multiple-outline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Ventas detalladas</v-list-item-content>
+          </v-list-item>
+        </v-list-group>
         <v-list-group color="white" v-if="$store.getters.user.permissions.includes('REPORTES')">
           <template v-slot:activator>
             <v-list-item class="px-0">

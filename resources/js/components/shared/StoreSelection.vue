@@ -22,7 +22,7 @@
         </v-btn>
       </v-toolbar>
       <div>
-        <v-list>
+        <v-list v-if="stores.length > 0">
           <v-list-item-group
             color="primary"
           >
@@ -40,13 +40,15 @@
             </v-list-item>
           </v-list-item-group>
         </v-list>
+        <div v-else class="text-center py-3">
+          No tiene asignada otra tienda
+        </div>
       </div>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
-import store from '@/plugins/store'
 export default {
   name: 'StoreSelection',
   data: function() {

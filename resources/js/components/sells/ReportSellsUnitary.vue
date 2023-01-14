@@ -1,0 +1,279 @@
+<template>
+  <v-container>
+    <v-card class="pb-2">
+      <v-toolbar
+        color="secondary"
+      >
+        <tool-bar-title title="Ventas detalladas"/>
+      </v-toolbar>
+      <v-row class="pt-5 px-4">
+        <v-col
+          cols="12"
+          sm="6"
+          lg="2"
+        >
+          <v-menu
+            v-model="menuDateFrom"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="computedDateFrom"
+                label="Fecha inicial"
+                prepend-icon="mdi-calendar"
+                dense
+                hide-details
+                readonly
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="dateFrom"
+              no-title
+              @input="menuDateFrom = false"
+              @change="fetchProducts(0)"
+              :max="$moment().format('YYYY-MM-DD')"
+            ></v-date-picker>
+          </v-menu>
+        </v-col>
+        <v-col
+          cols="12"
+          sm="6"
+          lg="2"
+        >
+          <v-menu
+            v-model="menuDateTo"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="computedDateTo"
+                label="Fecha final"
+                prepend-icon="mdi-calendar"
+                dense
+                hide-details
+                readonly
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="dateTo"
+              no-title
+              @input="menuDateTo = false"
+              @change="fetchProducts(0)"
+              :max="$moment().format('YYYY-MM-DD')"
+            ></v-date-picker>
+          </v-menu>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+          lg="2"
+          offset-lg="5"
+          xl="2"
+          offset-xl="6"
+        >
+          <v-btn
+            color="success"
+            block
+            @click="fetchProducts(1)"
+          >
+            <v-icon left>
+              mdi-printer
+            </v-icon>
+            IMPRIMIR
+          </v-btn>
+        </v-col>
+        <v-col
+          cols="12"
+          sm="8"
+          md="9"
+          lg="10"
+        >
+          <search-input
+            v-model="search"
+            label="Texto o parámetro de búsqueda"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          sm="4"
+          md="3"
+          lg="2"
+        >
+          <v-text-field
+            :value="'Bs. ' + total.toFixed(2)"
+            label="Total"
+            class="right-input"
+            dense
+            hide-details
+            readonly
+            outlined
+          ></v-text-field>
+        </v-col>
+      </v-row>
+    </v-card>
+    <v-row>
+      <v-col cols="12">
+        <v-data-table
+          id="datatable"
+          :headers="headers"
+          :items="products"
+          :options.sync="options"
+          :server-items-length="totalItems"
+          :footer-props="{
+            itemsPerPageOptions: [100, 200, 300]
+          }"
+          :calculate-widths="true"
+        >
+          <template v-slot:[`item.product_id`]="{ index }">
+            {{ $helpers.listIndex(index, options) }}
+          </template>
+          <template v-slot:[`item.created_at`]="{ item }">
+            {{ item.created_at | moment('L') }}
+          </template>
+          <template v-slot:[`item.sell_price`]="{ item }">
+            {{ item.sell_price.toFixed(2) }}
+          </template>
+        </v-data-table>
+      </v-col>
+    </v-row>
+  </v-container>
+</template>
+
+<script>
+export default {
+  name: 'ReportSellsUnitary',
+  data() {
+    return {
+      search: null,
+      menuDateFrom: false,
+      dateFrom: this.$moment().startOf('month').format('YYYY-MM-DD'),
+      menuDateTo: false,
+      dateTo: this.$moment().format('YYYY-MM-DD'),
+      options: {
+        page: 1,
+        itemsPerPage: 100,
+        sortBy: [],
+        sortDesc: []
+      },
+      total: 0,
+      totalItems: 0,
+      products: [],
+      headers: [
+        {
+          text: 'NRO',
+          align: 'center',
+          sortable: false,
+          value: 'product_id',
+          class: this.$headerClass,
+        }, {
+          text: 'FECHA',
+          align: 'center',
+          sortable: false,
+          value: 'created_at',
+          class: this.$headerClass,
+        }, {
+          text: 'NOMBRE',
+          align: 'center',
+          sortable: false,
+          value: 'product_name',
+          class: this.$headerClass,
+        }, {
+          text: 'COLOR',
+          align: 'center',
+          sortable: false,
+          value: 'color_name',
+          class: this.$headerClass,
+        }, {
+          text: 'TALLA',
+          align: 'center',
+          sortable: false,
+          value: 'size_name',
+          class: this.$headerClass,
+        }, {
+          text: 'PRECIO',
+          align: 'center',
+          sortable: false,
+          value: 'sell_price',
+          class: this.$headerClass,
+        },
+      ],
+    }
+  },
+  computed: {
+    computedDateFrom () {
+      return this.$moment(this.dateFrom).format('DD/MM/YYYY')
+    },
+    computedDateTo () {
+      return this.$moment(this.dateTo).format('DD/MM/YYYY')
+    },
+  },
+  mounted() {
+    this.fetchProducts(0)
+  },
+  watch: {
+    options: function(newVal, oldVal) {
+      if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
+        this.fetchProducts(0)
+      }
+    },
+    search: function() {
+      this.options.page = 1
+      this.fetchProducts(0)
+    }
+  },
+  methods: {
+    async fetchProducts(pdf = 0) {
+      try {
+        this.$store.dispatch('loading', true)
+        let response = await axios.get('report/sellsUnitary', {
+          params: {
+            store_id: this.$store.getters.store.id,
+            page: this.options.page,
+            per_page: this.options.itemsPerPage,
+            sort_by: this.options.sortBy,
+            sort_desc: this.options.sortDesc,
+            search: this.search,
+            date_from: this.dateFrom,
+            date_to: this.dateTo,
+            pdf: pdf,
+          },
+        })
+        if (pdf === 1) {
+          let pdfWindow = window.open('')
+          pdfWindow.document.write('<html><head><title>' + response.data.payload.file.name + '</title><style>body{margin: 0px;}iframe{border-width: 0px;}</style></head>')
+          pdfWindow.document.write('<body><iframe width="100%" height="100%" src="data:application/pdf;base64,' + encodeURI(response.data.payload.file.content) + '"></iframe></body></html>')
+        } else {
+          this.total = response.data.payload.total
+          this.products = response.data.payload.products.data
+          this.totalItems = response.data.payload.products.total
+          this.options.page = response.data.payload.products.current_page
+          this.options.itemsPerPage = parseInt(response.data.payload.products.per_page)
+        }
+      } catch(error) {
+        console.error(error)
+      } finally {
+        this.$store.dispatch('loading', false)
+      }
+    }
+  },
+}
+</script>
+
+<style lang="scss">
+.right-input input {
+  text-align: right;
+  font-weight: bold;
+}
+</style>

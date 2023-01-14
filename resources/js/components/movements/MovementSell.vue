@@ -38,7 +38,7 @@
           lg="3"
         >
           <v-btn
-            color="accent"
+            color="success"
             block
             @click="$refs.clientForm.showDialog()"
           >
@@ -338,7 +338,6 @@ export default {
       }
     },
     clientAdded(client) {
-      console.log(client);
       this.clients.push(client)
       this.client = client
     },
