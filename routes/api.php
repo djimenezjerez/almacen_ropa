@@ -1,28 +1,29 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\StoreController;
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CityController;
-use App\Http\Controllers\DocumentTypeController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\GenderController;
-use App\Http\Controllers\ProductNameController;
-use App\Http\Controllers\BrandController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SizeController;
-use App\Http\Controllers\SizeTypeController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ColorController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\MovementTypeController;
-use App\Http\Controllers\MovementController;
-use App\Http\Controllers\ProductSelectionController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\GenderController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\MovementController;
+use App\Http\Controllers\SizeTypeController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductNameController;
+use App\Http\Controllers\ProductTypeController;
+use App\Http\Controllers\DocumentTypeController;
+use App\Http\Controllers\MovementTypeController;
+use App\Http\Controllers\ProductSelectionController;
 
 // Autenticación
 Route::post('auth', [AuthController::class, 'store']);
@@ -30,7 +31,9 @@ Route::post('auth', [AuthController::class, 'store']);
 // Tiendas
 Route::get('store', [StoreController::class, 'index']);
 
-Route::group(['middleware' => ['auth:sanctum']], function() {
+Route::get('product_type', [ProductTypeController::class, 'index']);
+
+Route::group(['middleware' => ['auth:sanctum']], function () {
     // Autenticación
     Route::get('auth', [AuthController::class, 'index']);
     Route::patch('auth', [AuthController::class, 'update']);
@@ -54,13 +57,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::get('user', [UserController::class, 'index']);
     Route::get('user/{user}', [UserController::class, 'show']);
     Route::patch('user/{user}', [UserController::class, 'update']);
-    Route::group(['middleware' => ['can:USUARIOS']], function() {
+    Route::group(['middleware' => ['can:USUARIOS']], function () {
         Route::post('user', [UserController::class, 'store']);
         Route::delete('user/{user}', [UserController::class, 'destroy']);
     });
 
     // Tiendas
-    Route::group(['middleware' => ['can:TIENDAS']], function() {
+    Route::group(['middleware' => ['can:TIENDAS']], function () {
         Route::post('store', [StoreController::class, 'store']);
         Route::get('store/{store}', [StoreController::class, 'show']);
         Route::patch('store/{store}', [StoreController::class, 'update']);
@@ -72,14 +75,14 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     });
 
     // Almacenes
-    Route::group(['middleware' => ['can:ALMACENES']], function() {
+    Route::group(['middleware' => ['can:ALMACENES']], function () {
         Route::post('warehouse', [WarehouseController::class, 'store']);
         Route::patch('warehouse/{warehouse}', [WarehouseController::class, 'update']);
         Route::delete('warehouse/{warehouse}', [WarehouseController::class, 'destroy']);
     });
 
     // Proveedores
-    Route::group(['middleware' => ['can:PROVEEDORES']], function() {
+    Route::group(['middleware' => ['can:PROVEEDORES']], function () {
         Route::get('supplier', [SupplierController::class, 'index']);
         Route::post('supplier', [SupplierController::class, 'store']);
         Route::patch('supplier/{supplier}', [SupplierController::class, 'update']);
@@ -87,7 +90,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     });
 
     // Clientes
-    Route::group(['middleware' => ['can:CLIENTES']], function() {
+    Route::group(['middleware' => ['can:CLIENTES']], function () {
         Route::get('client', [ClientController::class, 'index']);
         Route::post('client', [ClientController::class, 'store']);
         Route::patch('client/{client}', [ClientController::class, 'update']);
@@ -95,7 +98,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     });
 
     // Configuración
-    Route::group(['middleware' => ['can:CONFIGURACION']], function() {
+    Route::group(['middleware' => ['can:CONFIGURACION']], function () {
         Route::get('category', [CategoryController::class, 'index']);
         Route::post('category', [CategoryController::class, 'store']);
         Route::patch('category/{category}', [CategoryController::class, 'update']);
@@ -108,7 +111,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::get('product/{product_name}/sells', [ProductController::class, 'sells']);
 
     // Productos
-    Route::group(['middleware' => ['can:PRODUCTOS']], function() {
+    Route::group(['middleware' => ['can:PRODUCTOS']], function () {
         Route::get('product', [ProductController::class, 'index']);
         Route::get('product/{product_name}', [ProductController::class, 'show']);
         Route::post('product', [ProductController::class, 'store']);
