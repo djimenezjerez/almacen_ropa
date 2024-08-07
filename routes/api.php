@@ -16,11 +16,11 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\MovementController;
+use App\Http\Controllers\ShowcaseController;
 use App\Http\Controllers\SizeTypeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductNameController;
-use App\Http\Controllers\ProductTypeController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\MovementTypeController;
 use App\Http\Controllers\ProductSelectionController;
@@ -31,7 +31,15 @@ Route::post('auth', [AuthController::class, 'store']);
 // Tiendas
 Route::get('store', [StoreController::class, 'index']);
 
-Route::get('product_type', [ProductTypeController::class, 'index']);
+// Showcase
+Route::group(['prefix' => 'showcase'], function () {
+    Route::get('product', [ShowcaseController::class, 'index']);
+    Route::get('category', [ShowcaseController::class, 'categories']);
+    Route::get('product/{product_name}/size', [ShowcaseController::class, 'sizes']);
+    Route::get('product/{product_name}/color', [ShowcaseController::class, 'colors']);
+    Route::get('product/{product_name}/stock', [ShowcaseController::class, 'stock']);
+    Route::get('product/{product_name}', [ShowcaseController::class, 'show']);
+});
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     // Autenticación
@@ -72,13 +80,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('store/{store}/employee', [EmployeeController::class, 'index']);
         Route::post('store/{store}/employee', [EmployeeController::class, 'store']);
         Route::delete('store/{store_id}/employee/{user_id}', [EmployeeController::class, 'destroy']);
-    });
-
-    // Almacenes
-    Route::group(['middleware' => ['can:ALMACENES']], function () {
-        Route::post('warehouse', [WarehouseController::class, 'store']);
-        Route::patch('warehouse/{warehouse}', [WarehouseController::class, 'update']);
-        Route::delete('warehouse/{warehouse}', [WarehouseController::class, 'destroy']);
     });
 
     // Proveedores

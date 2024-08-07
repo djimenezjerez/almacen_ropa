@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Store;
 use App\Models\Person;
 use App\Models\DocumentType;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
+use App\Http\Resources\StoreResource;
 use App\Http\Requests\WarehouseRequest;
 use App\Http\Requests\StoreStoreRequest;
 use App\Http\Requests\UpdateStoreRequest;
-use App\Http\Resources\StoreResource;
-use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\DB;
 
 class StoreController extends Controller
 {
@@ -37,8 +37,8 @@ class StoreController extends Controller
 
         if ($request->has('search')) {
             if ($request->search != '') {
-                $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(people.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(people.document)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(people.email)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('cast(people.phone AS CHAR)'), 'like', '%'.$request->search.'%')->orWhere(DB::raw('upper(cities.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(cities.code)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $query->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(people.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(people.document)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(people.email)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('cast(people.phone AS CHAR)'), 'like', '%' . $request->search . '%')->orWhere(DB::raw('upper(cities.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(cities.code)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
@@ -78,7 +78,7 @@ class StoreController extends Controller
             return [
                 'message' => 'Tienda registrada',
             ];
-        } catch(Exception) {
+        } catch (Exception) {
             DB::rollBack();
             return [
                 'message' => 'Error al registrar tienda',
@@ -106,7 +106,7 @@ class StoreController extends Controller
             return [
                 'message' => 'Datos de tienda actualizados',
             ];
-        } catch(Exception) {
+        } catch (Exception) {
             DB::rollBack();
             return [
                 'message' => 'Error al actualizar',

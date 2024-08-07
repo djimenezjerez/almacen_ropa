@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use App\Models\Store;
 use App\Models\Product;
 use App\Models\Movement;
-use App\Models\Warehouse;
 use App\Models\MovementType;
 use App\Models\MovementDetail;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -28,7 +27,7 @@ class MovementController extends Controller
         }
 
         $active = (int)$request->active ?? 1;
-        $query = DB::table('movements')->select('movements.*', 'movement_types.code as movement_type_code', 'movement_types.name as movement_type_name', 'person_user.name as user_name', 'person_from_store.name as from_store_name', 'person_to_store.name as to_store_name', 'movements.total_price')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->leftJoin('users', 'users.id', '=', 'movements.user_id')->leftJoin('stores as from_store', 'from_store.id', '=', 'movements.from_store_id')->leftJoin('stores as to_store', 'to_store.id', '=', 'movements.to_store_id')->leftJoin('people as person_user', 'person_user.id', '=', 'users.person_id')->leftJoin('people as person_from_store', 'person_from_store.id', '=', 'from_store.person_id')->leftJoin('people as person_to_store', 'person_to_store.id', '=', 'to_store.person_id')->where('movement_types.active', $active)->where(function($q) use ($request) {
+        $query = DB::table('movements')->select('movements.*', 'movement_types.code as movement_type_code', 'movement_types.name as movement_type_name', 'person_user.name as user_name', 'person_from_store.name as from_store_name', 'person_to_store.name as to_store_name', 'movements.total_price')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->leftJoin('users', 'users.id', '=', 'movements.user_id')->leftJoin('stores as from_store', 'from_store.id', '=', 'movements.from_store_id')->leftJoin('stores as to_store', 'to_store.id', '=', 'movements.to_store_id')->leftJoin('people as person_user', 'person_user.id', '=', 'users.person_id')->leftJoin('people as person_from_store', 'person_from_store.id', '=', 'from_store.person_id')->leftJoin('people as person_to_store', 'person_to_store.id', '=', 'to_store.person_id')->where('movement_types.active', $active)->where(function ($q) use ($request) {
             return $q->orWhere('from_store_id', (int)$request->store_id)->orWhere('to_store_id', (int)$request->store_id);
         })->whereDate('movements.created_at', '>=', $date_from->toDateTimeString())->whereDate('movements.created_at', '<=', $date_to->toDateTimeString());
         if (!$active) {
@@ -68,7 +67,7 @@ class MovementController extends Controller
                             ],
                         ],
                     ];
-                } catch(\Throwable $e) {
+                } catch (\Throwable $e) {
                     logger($e);
                     return response()->json([
                         'message' => 'Error al generar el PDF',
@@ -79,12 +78,12 @@ class MovementController extends Controller
 
         if ($request->has('search')) {
             if ($request->search != '') {
-                $query->where(function($q) use ($request, $active) {
-                    $q->orWhere(DB::raw('upper(movements.comment)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_user.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $query->where(function ($q) use ($request, $active) {
+                    $q->orWhere(DB::raw('upper(movements.comment)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(person_user.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                     if ($active) {
-                        $q->orWhere(DB::raw('upper(movement_types.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_from_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_to_store.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                        $q->orWhere(DB::raw('upper(movement_types.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(person_from_store.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(person_to_store.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                     } else {
-                        $q->orWhere(DB::raw('upper(person_client.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(person_client.document)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                        $q->orWhere(DB::raw('upper(person_client.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(person_client.document)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                     }
                     return $q;
                 });
@@ -96,7 +95,8 @@ class MovementController extends Controller
             if ($date != null) {
                 $query->orWhereDate('movements.created_at', '=', $date);
             }
-        } catch(\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         return [
             'message' => 'Lista de movimientos',
@@ -219,7 +219,7 @@ class MovementController extends Controller
                 'message' => 'Movimiento registrado',
                 'errors' => []
             ]);
-        } catch(Exception) {
+        } catch (Exception) {
             DB::rollBack();
             return response()->json([
                 'message' => 'Error al registrar',

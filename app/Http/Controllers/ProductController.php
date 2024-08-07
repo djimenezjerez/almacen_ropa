@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Models\ProductName;
-use App\Models\Category;
+use Exception;
+use App\Models\Size;
 use App\Models\Brand;
 use App\Models\Color;
-use App\Models\Size;
 use App\Models\Gender;
+use App\Models\Product;
+use App\Models\Category;
 use App\Models\SizeType;
+use App\Models\ProductName;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\SizeTypeRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -40,7 +41,7 @@ class ProductController extends Controller
         $query = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name', 'product_names.sell_price');
 
         if ($store) {
-            $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function($join) {
+            $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
@@ -58,8 +59,8 @@ class ProductController extends Controller
 
         if ($request->has('search')) {
             if ($request->search != '') {
-                $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $query->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
@@ -82,7 +83,7 @@ class ProductController extends Controller
         $query = DB::table('products')->select('products.id', 'products.product_name_id', 'products.brand_id', 'brands.name as brand_name', 'products.gender_id', 'genders.name as gender_name', 'products.color_id', 'colors.name as color_name');
 
         if ($store) {
-            $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function($join) {
+            $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
@@ -100,8 +101,8 @@ class ProductController extends Controller
 
         if ($request->has('search')) {
             if ($request->search != '') {
-                $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(brands.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(genders.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(colors.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $query->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(brands.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(genders.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(colors.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
@@ -129,9 +130,9 @@ class ProductController extends Controller
                     'sell_price' => $request->sell_price,
                 ]);
             }
-            foreach($request->brands as $brand) {
-                foreach($request->colors as $color) {
-                    foreach($request->sizes as $size) {
+            foreach ($request->brands as $brand) {
+                foreach ($request->colors as $color) {
+                    foreach ($request->sizes as $size) {
                         Product::firstOrCreate([
                             'product_name_id' => $product_name->id,
                             'gender_id' => $request->gender_id,
@@ -146,7 +147,7 @@ class ProductController extends Controller
             return [
                 'message' => 'Producto registrado',
             ];
-        } catch(Exception) {
+        } catch (Exception) {
             DB::rollBack();
             return response()->json([
                 'message' => 'Error al registrar producto'
@@ -197,17 +198,17 @@ class ProductController extends Controller
         $details = [];
         $colors = DB::table('products')->select('colors.id', 'colors.name')->distinct();
         if ($store) {
-            $colors->joinSub($movements, 'md', function($join) {
+            $colors->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         }
         $colors->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null)->orderBy('colors.name');
         $colors = $colors->get();
 
-        foreach($colors as $color) {
+        foreach ($colors as $color) {
             $sizes = DB::table('products')->select('sizes.id', 'sizes.name');
             if ($store) {
-                $sizes->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function($join) {
+                $sizes->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function ($join) {
                     $join->on('products.id', '=', 'md.product_id');
                 });
             } else {
@@ -252,13 +253,13 @@ class ProductController extends Controller
         $movements->groupBy('movement_details.product_id');
 
         $details = [];
-        $colors = DB::table('products')->select('colors.id', 'colors.name')->distinct()->joinSub($movements, 'md', function($join) {
+        $colors = DB::table('products')->select('colors.id', 'colors.name')->distinct()->joinSub($movements, 'md', function ($join) {
             $join->on('products.id', '=', 'md.product_id');
         })->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null)->orderBy('colors.name');
         $colors = $colors->get();
 
-        foreach($colors as $color) {
-            $sizes = DB::table('products')->select('sizes.id', 'sizes.name')->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function($join) {
+        foreach ($colors as $color) {
+            $sizes = DB::table('products')->select('sizes.id', 'sizes.name')->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             })->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('colors.id', $color->id)->where('products.deleted_at', null)->groupBy('products.size_id')->orderBy('sizes.numeric')->orderBy('sizes.order')->orderBy('sizes.id');
             $sizes = $sizes->get();
@@ -293,7 +294,7 @@ class ProductController extends Controller
         $query = DB::table('products')->select('products.id', 'products.size_id', 'sizes.numeric as size_numeric', 'sizes.name as size_name', 'products.active');
 
         if ($store) {
-            $query->selectRaw('coalesce(md.stock, 0) as stock')->leftJoinSub($movements, 'md', function($join) {
+            $query->selectRaw('coalesce(md.stock, 0) as stock')->leftJoinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
@@ -311,8 +312,8 @@ class ProductController extends Controller
 
         if ($request->has('search')) {
             if ($request->search != '') {
-                $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(sizes.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $query->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(sizes.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
@@ -336,7 +337,7 @@ class ProductController extends Controller
         $query = DB::table('products')->select('products.product_name_id', 'products.brand_id', 'products.gender_id', 'products.color_id', 'product_names.name as product_name', 'categories.name as category_name', 'brands.name as brand_name', 'genders.name as gender_name', 'size_types.name as size_type_name', 'colors.name as color_name');
 
         if ($store) {
-            $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function($join) {
+            $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
@@ -345,7 +346,7 @@ class ProductController extends Controller
 
         return [
             'message' => 'Datos del producto',
-            'payload' => $query->leftJoin('product_names', 'product_names.id' , '=', 'products.product_name_id')->leftJoin('categories', 'categories.id' , '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null)->where('products.product_name_id', $product->product_name_id)->where('products.color_id', $product->color_id)->where('products.gender_id', $product->gender_id)->where('products.brand_id', $product->brand_id)->first(),
+            'payload' => $query->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null)->where('products.product_name_id', $product->product_name_id)->where('products.color_id', $product->color_id)->where('products.gender_id', $product->gender_id)->where('products.brand_id', $product->brand_id)->first(),
         ];
     }
 }
