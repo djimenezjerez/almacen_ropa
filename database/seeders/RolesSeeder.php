@@ -29,7 +29,8 @@ class RolesSeeder extends Seeder
                     'REPORTES',
                     'CONFIGURACION',
                 ],
-            ], [
+            ],
+            [
                 'name' => 'CAJERO',
                 'display_name' => 'Cajero',
                 'warehouse' => 0,
@@ -40,10 +41,17 @@ class RolesSeeder extends Seeder
                     'VENTAS',
                     'REPORTES',
                 ],
-            ]
+            ],
+            [
+                'name' => 'CLIENTE',
+                'display_name' => 'Cliente',
+                'warehouse' => null,
+                'order' => 0,
+                'permissions' => [],
+            ],
         ];
 
-        foreach($roles as $role) {
+        foreach ($roles as $role) {
             $new_role = Role::updateOrCreate([
                 'name' => $role['name'],
             ], [
@@ -52,7 +60,7 @@ class RolesSeeder extends Seeder
                 'order' => $role['order'],
             ]);
 
-            foreach($role['permissions'] as $permission) {
+            foreach ($role['permissions'] as $permission) {
                 $new_permission = Permission::firstOrCreate([
                     'name' => $permission,
                 ]);

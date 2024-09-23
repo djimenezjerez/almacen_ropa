@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\User;
 use App\Models\Person;
 use App\Models\DocumentType;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 
 class UserController extends Controller
 {
@@ -37,8 +38,8 @@ class UserController extends Controller
 
         if ($request->has('search')) {
             if ($request->search != '') {
-                $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(people.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(people.document)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(people.email)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('cast(people.phone AS CHAR)'), 'like', '%'.$request->search.'%')->orWhere('users.username', 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(cities.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(cities.code)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $query->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(people.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(people.document)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(people.email)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('cast(people.phone AS CHAR)'), 'like', '%' . $request->search . '%')->orWhere('users.username', 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(cities.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(cities.code)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
@@ -56,12 +57,12 @@ class UserController extends Controller
             $person = Person::create($request->merge([
                 'document_type_id' => $document_type->id,
             ])->only('name', 'document', 'document_type_id', 'address', 'email', 'phone', 'city_id'));
-            $user = $person->user()->create($request->only('username', 'password'));
+            $person->user()->create($request->only('username', 'password'));
             DB::commit();
             return [
                 'message' => 'Usuario registrado',
             ];
-        } catch(Exception) {
+        } catch (Exception) {
             DB::rollBack();
             abort(500, 'Error al registrar usuario');
         }
@@ -106,7 +107,7 @@ class UserController extends Controller
             return [
                 'message' => 'Datos de usuario actualizados',
             ];
-        } catch(Exception) {
+        } catch (Exception) {
             DB::rollBack();
             abort(500, 'Error al actualizar');
         }

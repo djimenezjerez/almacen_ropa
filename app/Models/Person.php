@@ -11,10 +11,10 @@ class Person extends Model
 
     protected $fillable = [
         'name',
+        'email',
         'document',
         'document_type_id',
         'address',
-        'email',
         'phone',
         'city_id',
     ];
@@ -49,10 +49,5 @@ class Person extends Model
     public function client()
     {
         return $this->hasOne(Client::class);
-    }
-
-    public function setEmailAttribute($value)
-    {
-        $this->attributes['email'] = trim(mb_strtolower($value));
     }
 }

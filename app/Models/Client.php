@@ -11,7 +11,7 @@ class Client extends Model
 
     protected $fillable = [
         'active',
-        'person_id',
+        'user_id',
     ];
 
     protected $casts = [
@@ -20,13 +20,13 @@ class Client extends Model
 
     public $timestamps = true;
 
-    public function person()
-    {
-        return $this->belongsTo(Person::class);
-    }
-
     public function movements()
     {
         return $this->hasMany(Movement::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

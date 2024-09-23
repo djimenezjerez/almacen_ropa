@@ -13,7 +13,7 @@ class AuthRequest extends FormRequest
     public function rules()
     {
         return [
-            'username' => 'required|alpha_dash|min:3',
+            'username' => 'required|min:3',
             'password' => 'required|min:3',
             'store_id' => 'nullable|exists:stores,id',
         ];

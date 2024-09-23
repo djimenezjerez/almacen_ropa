@@ -36,12 +36,22 @@ class AuthController extends Controller
             } else {
                 if (Hash::check($request->password, $user->password)) {
                     if ($request->store_id == null) {
-                        return [
-                            'message' => 'Tiendas relacionadas al usuario',
-                            'payload' => [
-                                'stores' => DB::table('model_has_roles')->select('store_id', 'people.name as store_name', 'role_id', 'roles.name as role_name')->leftJoin('roles', 'roles.id', '=', 'role_id')->leftJoin('stores', 'stores.id', '=', 'store_id')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('model_type', 'App\\Models\\User')->where('model_id', $user->id)->orderBy('stores.warehouse')->orderBy('people.name')->get()
-                            ],
-                        ];
+                        $stores = DB::table('model_has_roles')->select('store_id', 'people.name as store_name', 'role_id', 'roles.name as role_name')->leftJoin('roles', 'roles.id', '=', 'role_id')->leftJoin('stores', 'stores.id', '=', 'store_id')->leftJoin('people', 'people.id', '=', 'stores.person_id')->whereNotNull('store_id')->where('model_type', 'App\\Models\\User')->where('model_id', $user->id)->orderBy('stores.warehouse')->orderBy('people.name')->get();
+                        if ($stores->count() > 0) {
+                            return [
+                                'message' => 'Tiendas relacionadas al usuario',
+                                'payload' => [
+                                    'stores' => $stores,
+                                ],
+                            ];
+                        } else {
+                            return response()->json([
+                                'message' => 'Error de autenticación',
+                                'errors' => [
+                                    'username' => ['El usuario no tiene tiendas relacionadas']
+                                ]
+                            ], 401);
+                        }
                     }
                     $store = $user->stores()->whereActive(true)->wherePivot('store_id', (int)$request->store_id)->first();
                     if ($store != null) {

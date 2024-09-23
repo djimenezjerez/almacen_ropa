@@ -10,15 +10,18 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="readOnly ? 'Datos del cliente' : (edit ? 'Editar cliente' : 'Agregar cliente')"/>
+        <tool-bar-title
+          :title="
+            readOnly
+              ? 'Datos del cliente'
+              : edit
+              ? 'Editar cliente'
+              : 'Agregar cliente'
+          "
+        />
         <v-spacer></v-spacer>
-        <v-btn
-          icon
-          @click.stop="dialog = false"
-        >
-          <v-icon>
-            mdi-close
-          </v-icon>
+        <v-btn icon @click.stop="dialog = false">
+          <v-icon> mdi-close </v-icon>
         </v-btn>
       </v-toolbar>
       <div class="px-5 pb-5">
@@ -30,7 +33,7 @@
                   <validation-provider
                     v-slot="{ errors }"
                     name="name"
-                    rules="required|min:3|alpha_spaces"
+                    rules="required|min:3"
                   >
                     <v-text-field
                       label="Nombre *"
@@ -54,7 +57,9 @@
                       data-vv-name="document"
                       :error-messages="errors"
                       prepend-icon="mdi-card-account-details"
-                      @input="value => clientForm.document = value.toUpperCase()"
+                      @input="
+                        (value) => (clientForm.document = value.toUpperCase())
+                      "
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
@@ -79,6 +84,39 @@
                 <v-col cols="12" md="6">
                   <validation-provider
                     v-slot="{ errors }"
+                    name="email"
+                    rules="email"
+                  >
+                    <v-text-field
+                      label="Email"
+                      v-model="clientForm.email"
+                      data-vv-name="email"
+                      :error-messages="errors"
+                      prepend-icon="mdi-at"
+                    ></v-text-field>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12" md="6" v-if="!readOnly">
+                  <validation-provider
+                    v-slot="{ errors }"
+                    name="password"
+                    :rules="edit ? '' : 'required|min:4'"
+                  >
+                    <v-text-field
+                      label="Contraseña"
+                      v-model="clientForm.password"
+                      data-vv-name="password"
+                      :error-messages="errors"
+                      prepend-icon="mdi-lock"
+                      :append-icon="shadowPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                      @click:append="() => (shadowPassword = !shadowPassword)"
+                      :type="shadowPassword ? 'password' : 'text'"
+                    ></v-text-field>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <validation-provider
+                    v-slot="{ errors }"
                     name="phone"
                     rules="min:7|integer"
                   >
@@ -94,36 +132,6 @@
                 <v-col cols="12" md="6">
                   <validation-provider
                     v-slot="{ errors }"
-                    name="email"
-                    rules="email"
-                  >
-                    <v-text-field
-                      label="Email"
-                      v-model="clientForm.email"
-                      data-vv-name="email"
-                      :error-messages="errors"
-                      prepend-icon="mdi-at"
-                    ></v-text-field>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="address"
-                    rules="min:3"
-                  >
-                    <v-text-field
-                      label="Direcciòn"
-                      v-model="clientForm.address"
-                      data-vv-name="address"
-                      :error-messages="errors"
-                      prepend-icon="mdi-map-marker"
-                    ></v-text-field>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12">
-                  <validation-provider
-                    v-slot="{ errors }"
                     name="city_id"
                     rules="integer"
                   >
@@ -137,6 +145,21 @@
                       :error-messages="errors"
                       prepend-icon="mdi-map"
                     ></v-select>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <validation-provider
+                    v-slot="{ errors }"
+                    name="address"
+                    rules="min:3"
+                  >
+                    <v-text-field
+                      label="Direcciòn"
+                      v-model="clientForm.address"
+                      data-vv-name="address"
+                      :error-messages="errors"
+                      prepend-icon="mdi-map-marker"
+                    ></v-text-field>
                   </validation-provider>
                 </v-col>
                 <v-col cols="3" v-if="edit">
@@ -188,22 +211,23 @@
 
 <script>
 export default {
-  name: 'ClientForm',
+  name: "ClientForm",
   props: {
     documentTypes: {
       type: Array,
-      required: true
+      required: true,
     },
     cities: {
       type: Array,
-      required: true
+      required: true,
     },
   },
-  data: function() {
+  data: function () {
     return {
       dialog: false,
       readOnly: false,
       edit: false,
+      shadowPassword: true,
       clientForm: {
         id: null,
         name: null,
@@ -213,19 +237,21 @@ export default {
         email: null,
         phone: null,
         city_id: null,
+        password: null,
       },
-    }
+    };
   },
   methods: {
     showDialog(client = null, readOnly = false) {
-      this.readOnly = readOnly
+      this.shadowPassword = true;
+      this.readOnly = readOnly;
       if (client) {
-        this.edit = true
+        this.edit = true;
         this.clientForm = {
-          ...client
-        }
+          ...client,
+        };
       } else {
-        this.edit = false
+        this.edit = false;
         this.clientForm = {
           id: null,
           name: null,
@@ -235,38 +261,42 @@ export default {
           email: null,
           phone: null,
           city_id: null,
-        }
+          password: null,
+        };
       }
-      this.dialog = true
+      this.dialog = true;
       this.$nextTick(() => {
-        this.$refs.clientObserver.reset()
-      })
+        this.$refs.clientObserver.reset();
+      });
     },
     async submit() {
       try {
-        let valid = await this.$refs.clientObserver.validate()
+        let valid = await this.$refs.clientObserver.validate();
         if (valid) {
-          this.$store.dispatch('loading', true)
+          this.$store.dispatch("loading", true);
           if (this.edit) {
-            const response = await axios.patch(`client/${this.clientForm.id}`, this.clientForm)
-            this.$toast.success(response.data.message)
-            this.$emit('updateList', response.data.client)
+            const response = await axios.patch(
+              `client/${this.clientForm.id}`,
+              this.clientForm
+            );
+            this.$toast.success(response.data.message);
+            this.$emit("updateList", response.data.client);
           } else {
-            const response = await axios.post('client', this.clientForm)
-            this.$toast.success(response.data.message)
-            this.$emit('updateList', response.data.client)
+            const response = await axios.post("client", this.clientForm);
+            this.$toast.success(response.data.message);
+            this.$emit("updateList", response.data.client);
           }
-          this.dialog = false
+          this.dialog = false;
         }
-      } catch(error) {
-        this.$refs.clientObserver.reset()
-        if ('errors' in error.response.data) {
-          this.$refs.clientObserver.setErrors(error.response.data.errors)
+      } catch (error) {
+        this.$refs.clientObserver.reset();
+        if ("errors" in error.response.data) {
+          this.$refs.clientObserver.setErrors(error.response.data.errors);
         }
       } finally {
-        this.$store.dispatch('loading', false)
+        this.$store.dispatch("loading", false);
       }
-    }
+    },
   },
-}
+};
 </script>

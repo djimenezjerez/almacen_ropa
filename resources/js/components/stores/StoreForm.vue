@@ -10,15 +10,15 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="(readOnly ? 'Datos de ' : (edit ? 'Editar ' : 'Agregar ')) + (warehouse ? 'almacén' : 'tienda')"/>
+        <tool-bar-title
+          :title="
+            (readOnly ? 'Datos de ' : edit ? 'Editar ' : 'Agregar ') +
+            (warehouse ? 'almacén' : 'tienda')
+          "
+        />
         <v-spacer></v-spacer>
-        <v-btn
-          icon
-          @click.stop="dialog = false"
-        >
-          <v-icon>
-            mdi-close
-          </v-icon>
+        <v-btn icon @click.stop="dialog = false">
+          <v-icon> mdi-close </v-icon>
         </v-btn>
       </v-toolbar>
       <div class="px-5 pb-5">
@@ -30,7 +30,7 @@
                   <validation-provider
                     v-slot="{ errors }"
                     name="name"
-                    rules="required|min:3|alpha_spaces"
+                    rules="required|min:3"
                   >
                     <v-text-field
                       label="Nombre *"
@@ -69,7 +69,9 @@
                       data-vv-name="document"
                       :error-messages="errors"
                       prepend-icon="mdi-card-account-details"
-                      @input="value => storeForm.document = value.toUpperCase()"
+                      @input="
+                        (value) => (storeForm.document = value.toUpperCase())
+                      "
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
@@ -170,18 +172,18 @@
 
 <script>
 export default {
-  name: 'StoreForm',
+  name: "StoreForm",
   props: {
     cities: {
       type: Array,
-      required: true
+      required: true,
     },
     warehouse: {
       type: Boolean,
-      required: true
+      required: true,
     },
   },
-  data: function() {
+  data: function () {
     return {
       dialog: false,
       readOnly: false,
@@ -197,18 +199,18 @@ export default {
         city_id: null,
         warehouse: Number(this.warehouse),
       },
-    }
+    };
   },
   methods: {
     showDialog(store = null, readOnly = false) {
-      this.readOnly = readOnly
+      this.readOnly = readOnly;
       if (store) {
-        this.edit = true
+        this.edit = true;
         this.storeForm = {
-          ...store
-        }
+          ...store,
+        };
       } else {
-        this.edit = false
+        this.edit = false;
         this.storeForm = {
           id: null,
           name: null,
@@ -219,37 +221,40 @@ export default {
           phone: null,
           city_id: null,
           warehouse: Number(this.warehouse),
-        }
+        };
       }
-      this.dialog = true
+      this.dialog = true;
       this.$nextTick(() => {
-        this.$refs.storeObserver.reset()
-      })
+        this.$refs.storeObserver.reset();
+      });
     },
     async submit() {
       try {
-        let valid = await this.$refs.storeObserver.validate()
+        let valid = await this.$refs.storeObserver.validate();
         if (valid) {
-          this.$store.dispatch('loading', true)
+          this.$store.dispatch("loading", true);
           if (this.edit) {
-            const response = await axios.patch(`store/${this.storeForm.id}`, this.storeForm)
-            this.$toast.success(response.data.message)
+            const response = await axios.patch(
+              `store/${this.storeForm.id}`,
+              this.storeForm
+            );
+            this.$toast.success(response.data.message);
           } else {
-            const response = await axios.post('store', this.storeForm)
-            this.$toast.success(response.data.message)
+            const response = await axios.post("store", this.storeForm);
+            this.$toast.success(response.data.message);
           }
-          this.$emit('updateList')
-          this.dialog = false
+          this.$emit("updateList");
+          this.dialog = false;
         }
-      } catch(error) {
-        this.$refs.storeObserver.reset()
-        if ('errors' in error.response.data) {
-          this.$refs.storeObserver.setErrors(error.response.data.errors)
+      } catch (error) {
+        this.$refs.storeObserver.reset();
+        if ("errors" in error.response.data) {
+          this.$refs.storeObserver.setErrors(error.response.data.errors);
         }
       } finally {
-        this.$store.dispatch('loading', false)
+        this.$store.dispatch("loading", false);
       }
-    }
+    },
   },
-}
+};
 </script>

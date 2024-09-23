@@ -10,15 +10,18 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="readOnly ? 'Datos de usuario' : (edit ? 'Editar usuario' : 'Agregar usuario')"/>
+        <tool-bar-title
+          :title="
+            readOnly
+              ? 'Datos de usuario'
+              : edit
+              ? 'Editar usuario'
+              : 'Agregar usuario'
+          "
+        />
         <v-spacer></v-spacer>
-        <v-btn
-          icon
-          @click.stop="dialog = false"
-        >
-          <v-icon>
-            mdi-close
-          </v-icon>
+        <v-btn icon @click.stop="dialog = false">
+          <v-icon> mdi-close </v-icon>
         </v-btn>
       </v-toolbar>
       <div class="px-5 pb-5">
@@ -30,7 +33,7 @@
                   <validation-provider
                     v-slot="{ errors }"
                     name="name"
-                    rules="required|min:3|alpha_spaces"
+                    rules="required|min:3"
                   >
                     <v-text-field
                       label="Nombre *"
@@ -54,7 +57,9 @@
                       data-vv-name="document"
                       :error-messages="errors"
                       prepend-icon="mdi-card-account-details"
-                      @input="value => userForm.document = value.toUpperCase()"
+                      @input="
+                        (value) => (userForm.document = value.toUpperCase())
+                      "
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
@@ -203,14 +208,14 @@
 
 <script>
 export default {
-  name: 'UserForm',
+  name: "UserForm",
   props: {
     cities: {
       type: Array,
-      required: true
+      required: true,
     },
   },
-  data: function() {
+  data: function () {
     return {
       dialog: false,
       readOnly: false,
@@ -228,19 +233,19 @@ export default {
         username: null,
         password: null,
       },
-    }
+    };
   },
   methods: {
     showDialog(user = null, readOnly = false) {
-      this.shadowPassword = true
-      this.readOnly = readOnly
+      this.shadowPassword = true;
+      this.readOnly = readOnly;
       if (user) {
-        this.edit = true
+        this.edit = true;
         this.userForm = {
-          ...user
-        }
+          ...user,
+        };
       } else {
-        this.edit = false
+        this.edit = false;
         this.userForm = {
           id: null,
           name: null,
@@ -252,37 +257,40 @@ export default {
           city_id: null,
           username: null,
           password: null,
-        }
+        };
       }
-      this.dialog = true
+      this.dialog = true;
       this.$nextTick(() => {
-        this.$refs.userObserver.reset()
-      })
+        this.$refs.userObserver.reset();
+      });
     },
     async submit() {
       try {
-        let valid = await this.$refs.userObserver.validate()
+        let valid = await this.$refs.userObserver.validate();
         if (valid) {
-          this.$store.dispatch('loading', true)
+          this.$store.dispatch("loading", true);
           if (this.edit) {
-            const response = await axios.patch(`user/${this.userForm.id}`, this.userForm)
-            this.$toast.success(response.data.message)
+            const response = await axios.patch(
+              `user/${this.userForm.id}`,
+              this.userForm
+            );
+            this.$toast.success(response.data.message);
           } else {
-            const response = await axios.post('user', this.userForm)
-            this.$toast.success(response.data.message)
+            const response = await axios.post("user", this.userForm);
+            this.$toast.success(response.data.message);
           }
-          this.$emit('updateList')
-          this.dialog = false
+          this.$emit("updateList");
+          this.dialog = false;
         }
-      } catch(error) {
-        this.$refs.userObserver.reset()
-        if ('errors' in error.response.data) {
-          this.$refs.userObserver.setErrors(error.response.data.errors)
+      } catch (error) {
+        this.$refs.userObserver.reset();
+        if ("errors" in error.response.data) {
+          this.$refs.userObserver.setErrors(error.response.data.errors);
         }
       } finally {
-        this.$store.dispatch('loading', false)
+        this.$store.dispatch("loading", false);
       }
-    }
+    },
   },
-}
+};
 </script>

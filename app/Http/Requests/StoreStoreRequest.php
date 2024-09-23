@@ -14,7 +14,7 @@ class StoreStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|alpha_spaces|min:3',
+            'name' => 'required|string|min:3',
             'warehouse' => 'required|boolean',
             'document' => 'nullable|min:3',
             'address' => 'nullable|min:3',

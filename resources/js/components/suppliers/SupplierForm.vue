@@ -10,15 +10,18 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="readOnly ? 'Datos del proveedor' : (edit ? 'Editar proveedor' : 'Agregar proveedor')"/>
+        <tool-bar-title
+          :title="
+            readOnly
+              ? 'Datos del proveedor'
+              : edit
+              ? 'Editar proveedor'
+              : 'Agregar proveedor'
+          "
+        />
         <v-spacer></v-spacer>
-        <v-btn
-          icon
-          @click.stop="dialog = false"
-        >
-          <v-icon>
-            mdi-close
-          </v-icon>
+        <v-btn icon @click.stop="dialog = false">
+          <v-icon> mdi-close </v-icon>
         </v-btn>
       </v-toolbar>
       <div class="px-5 pb-5">
@@ -30,7 +33,7 @@
                   <validation-provider
                     v-slot="{ errors }"
                     name="name"
-                    rules="required|min:3|alpha_spaces"
+                    rules="required|min:3"
                   >
                     <v-text-field
                       label="Nombre *"
@@ -54,7 +57,9 @@
                       data-vv-name="document"
                       :error-messages="errors"
                       prepend-icon="mdi-card-account-details"
-                      @input="value => supplierForm.document = value.toUpperCase()"
+                      @input="
+                        (value) => (supplierForm.document = value.toUpperCase())
+                      "
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
@@ -188,18 +193,18 @@
 
 <script>
 export default {
-  name: 'SupplierForm',
+  name: "SupplierForm",
   props: {
     documentTypes: {
       type: Array,
-      required: true
+      required: true,
     },
     cities: {
       type: Array,
-      required: true
+      required: true,
     },
   },
-  data: function() {
+  data: function () {
     return {
       dialog: false,
       readOnly: false,
@@ -214,18 +219,18 @@ export default {
         phone: null,
         city_id: null,
       },
-    }
+    };
   },
   methods: {
     showDialog(supplier = null, readOnly = false) {
-      this.readOnly = readOnly
+      this.readOnly = readOnly;
       if (supplier) {
-        this.edit = true
+        this.edit = true;
         this.supplierForm = {
-          ...supplier
-        }
+          ...supplier,
+        };
       } else {
-        this.edit = false
+        this.edit = false;
         this.supplierForm = {
           id: null,
           name: null,
@@ -235,37 +240,40 @@ export default {
           email: null,
           phone: null,
           city_id: null,
-        }
+        };
       }
-      this.dialog = true
+      this.dialog = true;
       this.$nextTick(() => {
-        this.$refs.supplierObserver.reset()
-      })
+        this.$refs.supplierObserver.reset();
+      });
     },
     async submit() {
       try {
-        let valid = await this.$refs.supplierObserver.validate()
+        let valid = await this.$refs.supplierObserver.validate();
         if (valid) {
-          this.$store.dispatch('loading', true)
+          this.$store.dispatch("loading", true);
           if (this.edit) {
-            const response = await axios.patch(`supplier/${this.supplierForm.id}`, this.supplierForm)
-            this.$toast.success(response.data.message)
+            const response = await axios.patch(
+              `supplier/${this.supplierForm.id}`,
+              this.supplierForm
+            );
+            this.$toast.success(response.data.message);
           } else {
-            const response = await axios.post('supplier', this.supplierForm)
-            this.$toast.success(response.data.message)
+            const response = await axios.post("supplier", this.supplierForm);
+            this.$toast.success(response.data.message);
           }
-          this.$emit('updateList')
-          this.dialog = false
+          this.$emit("updateList");
+          this.dialog = false;
         }
-      } catch(error) {
-        this.$refs.supplierObserver.reset()
-        if ('errors' in error.response.data) {
-          this.$refs.supplierObserver.setErrors(error.response.data.errors)
+      } catch (error) {
+        this.$refs.supplierObserver.reset();
+        if ("errors" in error.response.data) {
+          this.$refs.supplierObserver.setErrors(error.response.data.errors);
         }
       } finally {
-        this.$store.dispatch('loading', false)
+        this.$store.dispatch("loading", false);
       }
-    }
+    },
   },
-}
+};
 </script>

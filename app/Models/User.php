@@ -43,6 +43,11 @@ class User extends Authenticatable
         return $this->belongsTo(Person::class);
     }
 
+    public function client()
+    {
+        return $this->hasOne(Client::class);
+    }
+
     public function stores()
     {
         return $this->belongsToMany(Store::class, 'model_has_roles', 'model_id', 'store_id')->wherePivot('model_type', 'App\Models\User')->withPivot('role_id');
@@ -60,7 +65,7 @@ class User extends Authenticatable
 
     public function movements()
     {
-        return $this->hasMany(Movements::class);
+        return $this->hasMany(Movement::class);
     }
 
     public function setPasswordAttribute($value)

@@ -14,14 +14,14 @@ class UpdateUserRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'name' => 'sometimes|required|alpha_spaces|min:3',
+            'name' => 'sometimes|required|string|min:3',
             'active' => 'sometimes|required|boolean',
             'document' => 'sometimes|required|min:3',
             'address' => 'sometimes|nullable|min:3',
             'email' => 'sometimes|nullable|email:rfc',
             'phone' => 'sometimes|nullable|numeric',
             'city_id' => 'sometimes|nullable|exists:cities,id',
-            'username' => 'sometimes|required|alpha_dash|min:3|unique:users,username,'.$this->id,
+            'username' => 'sometimes|required|alpha_dash|min:3|unique:users,username,' . $this->id,
             'password' => 'sometimes|string|min:3|required_with:old_password',
             'access_attempts' => 'sometimes|numeric|min:0',
         ];
