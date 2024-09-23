@@ -152,15 +152,26 @@ export default {
             });
           } else {
             let response = await axios.post(`auth`, this.loginForm);
-            this.loginForm.store_id = response.data.payload.stores[0].store_id;
-            if (response.data.payload.stores.length == 1) {
-              this.submit();
+            if (
+              response.data.payload.hasOwnProperty("stores") ||
+              response.data.payload.hasOwnProperty("store")
+            ) {
+              this.loginForm.store_id =
+                response.data.payload.stores[0].store_id;
+              if (response.data.payload.stores.length == 1) {
+                this.submit();
+              } else {
+                this.shadowPassword = true;
+                this.stores = response.data.payload.stores;
+                this.$nextTick(() => {
+                  const input =
+                    this.$refs.storeSelect.$el.querySelector("input");
+                  input.focus();
+                });
+              }
             } else {
-              this.shadowPassword = true;
-              this.stores = response.data.payload.stores;
-              this.$nextTick(() => {
-                const input = this.$refs.storeSelect.$el.querySelector("input");
-                input.focus();
+              this.$refs.loginObserver.setErrors({
+                username: "Permisos insuficientes",
               });
             }
           }

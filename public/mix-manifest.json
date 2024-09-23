@@ -1,9 +1,9 @@
 {
-    "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css",
-    "/img/favicon-16x16.png": "/img/favicon-16x16.png",
-    "/img/favicon-32x32.png": "/img/favicon-32x32.png",
-    "/img/favicon.ico": "/img/favicon.ico",
-    "/img/logo.png": "/img/logo.png",
-    "/css/app.min.css": "/css/app.min.css"
+    "/js/app.js": "/js/app.js?id=d134bc9ece0fcc6a1405c6b7185c36e0",
+    "/css/app.css": "/css/app.css?id=940c3af9b81589a65dc870c08a3a4b79",
+    "/img/favicon-16x16.png": "/img/favicon-16x16.png?id=28eff8097d1eb696356cd11d056204d3",
+    "/img/favicon-32x32.png": "/img/favicon-32x32.png?id=104c67f9a30afe6f0dc826097c5b2dfe",
+    "/img/favicon.ico": "/img/favicon.ico?id=5b263190040801b410938002b65693fe",
+    "/img/logo.png": "/img/logo.png?id=25369c6a72a6743d46de585d5a2927ce",
+    "/css/app.min.css": "/css/app.min.css?id=940c3af9b81589a65dc870c08a3a4b79"
 }

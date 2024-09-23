@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
-use App\Http\Resources\UserResource;
-use App\Http\Resources\StoreResource;
 use App\Http\Requests\AuthRequest;
-use App\Http\Requests\StoreRequest;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StoreRequest;
+use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\StoreResource;
 
 class AuthController extends Controller
 {
@@ -35,23 +36,30 @@ class AuthController extends Controller
                 ], 401);
             } else {
                 if (Hash::check($request->password, $user->password)) {
-                    if ($request->store_id == null) {
-                        $stores = DB::table('model_has_roles')->select('store_id', 'people.name as store_name', 'role_id', 'roles.name as role_name')->leftJoin('roles', 'roles.id', '=', 'role_id')->leftJoin('stores', 'stores.id', '=', 'store_id')->leftJoin('people', 'people.id', '=', 'stores.person_id')->whereNotNull('store_id')->where('model_type', 'App\\Models\\User')->where('model_id', $user->id)->orderBy('stores.warehouse')->orderBy('people.name')->get();
-                        if ($stores->count() > 0) {
-                            return [
-                                'message' => 'Tiendas relacionadas al usuario',
-                                'payload' => [
-                                    'stores' => $stores,
+                    if ($user->hasRole('CLIENTE')) {
+                        $role = Role::where('name', 'CLIENTE')->first();
+                        return [
+                            'message' => 'Sesión iniciada',
+                            'payload' => [
+                                'access_token' => $user->remember_token,
+                                'token_type' => 'Bearer',
+                                'user' => new UserResource($user),
+                                'role' => [
+                                    'id' => $role->id,
+                                    'name' => $role->name,
+                                    'display_name' => $role->display_name,
                                 ],
-                            ];
-                        } else {
-                            return response()->json([
-                                'message' => 'Error de autenticación',
-                                'errors' => [
-                                    'username' => ['El usuario no tiene tiendas relacionadas']
-                                ]
-                            ], 401);
-                        }
+                                'permissions' => $role->permissions->pluck('name'),
+                            ],
+                        ];
+                    }
+                    if ($request->store_id == null) {
+                        return [
+                            'message' => 'Tiendas relacionadas al usuario',
+                            'payload' => [
+                                'stores' => DB::table('model_has_roles')->select('store_id', 'people.name as store_name', 'role_id', 'roles.name as role_name')->leftJoin('roles', 'roles.id', '=', 'role_id')->leftJoin('stores', 'stores.id', '=', 'store_id')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('model_type', 'App\\Models\\User')->where('model_id', $user->id)->orderBy('stores.warehouse')->orderBy('people.name')->get()
+                            ],
+                        ];
                     }
                     $store = $user->stores()->whereActive(true)->wherePivot('store_id', (int)$request->store_id)->first();
                     if ($store != null) {
