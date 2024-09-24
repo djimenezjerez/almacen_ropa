@@ -12,7 +12,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->unique()->comment('Usuario asociado al cliente');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->dropForeign(['person_id']);
-            $table->dropColumn('person_id');
+            $table->dropColumn(['person_id']);
         });
     }
 
@@ -20,7 +20,7 @@ return new class extends Migration
     {
         Schema::table('clients', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-            $table->dropColumn('user_id');
+            $table->dropColumn(['user_id']);
             $table->unsignedBigInteger('person_id')->unique()->comment('Referencia a los datos de persona');
             $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
         });

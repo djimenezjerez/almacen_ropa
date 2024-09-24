@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreColorRequest extends FormRequest
+class StoreProductImageRequest extends FormRequest
 {
     public function authorize()
     {
@@ -14,8 +14,8 @@ class StoreColorRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:1',
-            'hex' => 'required|string|min:1',
+            'id' => 'required|integer|exists:products,id',
+            'file' => 'required|image|max:4096',
         ];
     }
 }

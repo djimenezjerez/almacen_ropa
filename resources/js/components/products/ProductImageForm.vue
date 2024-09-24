@@ -10,7 +10,7 @@
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title :title="`Nuevo color`" />
+        <tool-bar-title title="Cargar imagen" />
         <v-spacer></v-spacer>
         <v-btn icon @click.stop="dialog = false">
           <v-icon> mdi-close </v-icon>
@@ -24,31 +24,17 @@
                 <v-col cols="12">
                   <validation-provider
                     v-slot="{ errors }"
-                    name="name"
-                    rules="required|min:1"
-                  >
-                    <v-text-field
-                      label="Color"
-                      v-model="form.name"
-                      data-vv-name="name"
-                      :error-messages="errors"
-                      prepend-icon="mdi-tshirt-crew-outline"
-                    ></v-text-field>
-                  </validation-provider>
-                </v-col>
-                <v-col cols="12">
-                  <validation-provider
-                    v-slot="{ errors }"
-                    name="hex"
+                    name="file"
                     rules="required"
                   >
-                    <v-color-picker
-                      label="Selección"
-                      v-model="form.hex"
-                      data-vv-name="hex"
+                    <v-file-input
+                      accept="image/*"
+                      label="Imagen"
+                      v-model="form.file"
+                      data-vv-name="file"
                       :error-messages="errors"
-                      prepend-icon="mdi-invert-colors"
-                    ></v-color-picker>
+                      prepend-icon="mdi-image"
+                    ></v-file-input>
                   </validation-provider>
                 </v-col>
               </v-row>
@@ -76,30 +62,20 @@
 
 <script>
 export default {
-  name: "ColorForm",
+  name: "ProductImageForm",
   data: function () {
     return {
       dialog: false,
-      edit: false,
       form: {
         id: null,
-        name: null,
-        hex: "#FFFFFF",
+        file: null,
       },
     };
   },
   methods: {
-    showDialog(edit = false, color = null) {
-      this.edit = edit;
-      if (edit) {
-        this.form = color;
-      } else {
-        this.form = {
-          id: null,
-          name: null,
-          hex: "#FFFFFF",
-        };
-      }
+    showDialog(product) {
+      this.form.id = product.id;
+      this.form.file = null;
       this.dialog = true;
       this.$nextTick(() => {
         this.$refs.formObserver.reset();
@@ -109,19 +85,19 @@ export default {
       try {
         let valid = await this.$refs.formObserver.validate();
         if (valid) {
+          let formData = new FormData();
+          formData.append("id", this.form.id);
+          formData.append("file", this.form.file);
           this.$store.dispatch("loading", true);
-          if (this.edit) {
-            const response = await axios.patch(
-              `color/${this.form.id}`,
-              this.form
-            );
-            this.$toast.success(response.data.message);
-            this.$emit("updateColors", response.data.color);
-          } else {
-            const response = await axios.post("color", this.form);
-            this.$toast.success(response.data.message);
-            this.$emit("updateColors", response.data.color);
-          }
+          const response = await axios.post(
+            `product/${this.form.id}/image`,
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+          this.$toast.success(response.data.message);
+          this.$emit("updateImage", response.data.color);
           this.dialog = false;
         }
       } catch (error) {

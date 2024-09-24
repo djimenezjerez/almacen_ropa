@@ -3,19 +3,16 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\Size;
-use App\Models\Brand;
-use App\Models\Color;
-use App\Models\Gender;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\SizeType;
 use App\Models\ProductName;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\SizeTypeRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Requests\StoreProductImageRequest;
+use App\Models\ProductImage;
 
 class ProductController extends Controller
 {
@@ -80,7 +77,7 @@ class ProductController extends Controller
             }
         }
 
-        $query = DB::table('products')->select('products.id', 'products.product_name_id', 'products.brand_id', 'brands.name as brand_name', 'products.gender_id', 'genders.name as gender_name', 'products.color_id', 'colors.name as color_name');
+        $query = DB::table('products')->select('products.id', 'products.product_name_id', 'products.brand_id', 'brands.name as brand_name', 'products.gender_id', 'genders.name as gender_name', 'products.color_id', 'colors.name as color_name', 'colors.hex as color_hex');
 
         if ($store) {
             $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function ($join) {
@@ -163,11 +160,30 @@ class ProductController extends Controller
         ];
     }
 
-    public function destroy(Product $product, Request $request)
+    public function destroy(Product $product)
     {
         Product::leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.product_name_id', $product->product_name_id)->where('products.brand_id', $product->brand_id)->where('products.gender_id', $product->gender_id)->where('products.color_id', $product->color_id)->where('size_types.id', $product->size->size_type_id)->delete();
         return [
             'message' => 'Producto eliminado',
+        ];
+    }
+
+    public function image(StoreProductImageRequest $request)
+    {
+        $product = Product::find($request->id);
+        $file = str($product->product_name_id) . '_' . str($product->color_id) . '.' . $request->file->getClientOriginalExtension();
+        $file = $request->file->storeAs('products', $file, 'public');
+        ProductImage::updateOrCreate(
+            [
+                'product_name_id' => $product->product_name_id,
+                'color_id' => $product->color_id,
+            ],
+            [
+                'path' => 'storage/' . $file,
+            ],
+        );
+        return [
+            'message' => 'Imagen cargada',
         ];
     }
 
@@ -334,7 +350,7 @@ class ProductController extends Controller
             }
         }
 
-        $query = DB::table('products')->select('products.product_name_id', 'products.brand_id', 'products.gender_id', 'products.color_id', 'product_names.name as product_name', 'categories.name as category_name', 'brands.name as brand_name', 'genders.name as gender_name', 'size_types.name as size_type_name', 'colors.name as color_name');
+        $query = DB::table('products')->select('products.product_name_id', 'products.brand_id', 'products.gender_id', 'products.color_id', 'product_names.name as product_name', 'categories.name as category_name', 'brands.name as brand_name', 'genders.name as gender_name', 'size_types.name as size_type_name', 'colors.name as color_name', 'colors.hex as color_hex');
 
         if ($store) {
             $query->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function ($join) {

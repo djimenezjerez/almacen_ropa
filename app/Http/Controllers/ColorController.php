@@ -15,7 +15,7 @@ class ColorController extends Controller
             return [
                 'message' => 'Lista de colores',
                 'payload' => [
-                    'data' => DB::table('colors')->select('id', 'name')->orderBy('name')->get(),
+                    'data' => DB::table('colors')->select('id', 'name', 'hex')->orderBy('name')->get(),
                 ],
             ];
         }
@@ -31,8 +31,8 @@ class ColorController extends Controller
 
         if ($request->has('search')) {
             if ($request->search != '') {
-                $query->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $query->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
@@ -69,6 +69,14 @@ class ColorController extends Controller
                 'color' => $color,
             ];
         }
+    }
+
+    public function update(StoreColorRequest $request, Color $color)
+    {
+        $color->update($request->all());
+        return [
+            'message' => 'Datos de color actualizados',
+        ];
     }
 
     public function destroy(Color $color)
