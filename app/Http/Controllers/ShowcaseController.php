@@ -15,8 +15,10 @@ class ShowcaseController extends Controller
      */
     public function index(Request $request)
     {
-        // TODO: agregar imagen de cada color de producto a la base de datos
-        $query = DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name',  'products.brand_id', 'brands.name as brand_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'products.gender_id', 'genders.name as gender_name', 'product_names.sell_price')->selectRaw('cast(sum(movement_details.stock) as INTEGER) as total_stock, "https://cdn.pixabay.com/photo/2024/02/25/13/30/shoes-8595773_1280.jpg" as image')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->where('products.deleted_at', null)->where('movement_details.store_id', $request->store_id)->where('sizes.size_type_id', $request->size_type_id)->where('product_names.category_id', $request->category_id)->groupBy('products.product_name_id')->groupBy('products.brand_id')->groupBy('sizes.size_type_id')->groupBy('product_names.category_id')->groupBy('products.gender_id');
+        $images = DB::table('product_images')->select('product_name_id', 'path')->groupBy('product_name_id');
+        $query = DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name',  'products.brand_id', 'brands.name as brand_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'products.gender_id', 'genders.name as gender_name', 'product_names.sell_price', 'images.path as image')->selectRaw('cast(sum(movement_details.stock) as INTEGER) as total_stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->joinSub($images, 'images', function ($join) {
+            $join->on('images.product_name_id', '=', 'product_names.id');
+        })->where('products.deleted_at', null)->where('movement_details.store_id', $request->store_id)->where('sizes.size_type_id', $request->size_type_id)->where('product_names.category_id', $request->category_id)->groupBy('products.product_name_id')->groupBy('products.brand_id')->groupBy('sizes.size_type_id')->groupBy('product_names.category_id')->groupBy('products.gender_id');
 
         if ($request->has('gender_id')) {
             if ((int)$request->gender_id > 0) {
@@ -78,10 +80,12 @@ class ShowcaseController extends Controller
      */
     public function show(ProductName $product_name, Request $request)
     {
-        // TODO: agregar imagen de cada color de producto a la base de datos
+        $images = DB::table('product_images')->select('product_name_id', 'path')->groupBy('product_name_id');
         return [
             'message' => 'Detalle de producto',
-            'payload' => DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name',  'products.brand_id', 'brands.name as brand_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'products.gender_id', 'genders.name as gender_name', 'product_names.sell_price')->selectRaw('"https://cdn.pixabay.com/photo/2024/02/25/13/30/shoes-8595773_1280.jpg" as image')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('sizes.size_type_id', $request->size_type_id)->where('products.gender_id', $request->gender_id)->first(),
+            'payload' => DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name',  'products.brand_id', 'brands.name as brand_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'products.gender_id', 'genders.name as gender_name', 'product_names.sell_price', 'images.path as image')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->joinSub($images, 'images', function ($join) {
+                $join->on('images.product_name_id', '=', 'product_names.id');
+            })->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('sizes.size_type_id', $request->size_type_id)->where('products.gender_id', $request->gender_id)->first(),
         ];
     }
 
@@ -131,11 +135,13 @@ class ShowcaseController extends Controller
 
     public function colors(ProductName $product_name, Request $request)
     {
-        // TODO: agregar imagen de cada color de producto a la base de datos
         return [
             'message' => 'Colores de producto',
             'payload' => [
-                'data' => DB::table('movement_details')->distinct()->select('colors.id', 'colors.name')->selectRaw('"https://cdn.pixabay.com/photo/2024/02/25/13/30/shoes-8595773_1280.jpg" as image')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('sizes.size_type_id', $request->size_type_id)->where('products.gender_id', $request->gender_id)->get(),
+                'data' => DB::table('movement_details')->distinct()->select('colors.id', 'colors.name', 'colors.hex', 'product_images.path as image')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('product_images', function ($join) {
+                    $join->on('product_images.product_name_id', '=', 'product_names.id');
+                    $join->on('product_images.color_id', '=', 'colors.id');
+                })->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('sizes.size_type_id', $request->size_type_id)->where('products.gender_id', $request->gender_id)->get(),
             ],
         ];
     }
