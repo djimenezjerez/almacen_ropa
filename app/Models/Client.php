@@ -29,4 +29,9 @@ class Client extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function shopping_carts()
+    {
+        return $this->hasMany(ShoppingCart::class);
+    }
 }

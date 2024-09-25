@@ -54,4 +54,9 @@ class Product extends Model
     {
         return $this->hasMany(MovementDetail::class);
     }
+
+    public function shopping_cart_products()
+    {
+        return $this->hasMany(ShoppingCartProduct::class);
+    }
 }

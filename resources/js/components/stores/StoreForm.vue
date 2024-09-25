@@ -123,7 +123,7 @@
                     ></v-text-field>
                   </validation-provider>
                 </v-col>
-                <v-col cols="3" v-if="edit">
+                <v-col cols="6" v-if="edit">
                   <validation-provider
                     v-slot="{ errors }"
                     name="active"
@@ -137,6 +137,25 @@
                       prepend-icon="mdi-check-all"
                     ></v-checkbox>
                   </validation-provider>
+                </v-col>
+                <v-col cols="6" v-if="!readOnly">
+                  <validation-provider
+                    v-slot="{ errors }"
+                    name="file"
+                    rules="required"
+                  >
+                    <v-file-input
+                      accept="image/*"
+                      label="Imagen"
+                      v-model="storeForm.file"
+                      data-vv-name="file"
+                      :error-messages="errors"
+                      prepend-icon="mdi-image"
+                    ></v-file-input>
+                  </validation-provider>
+                </v-col>
+                <v-col cols="6" v-else>
+                  <v-img cover :src="storeForm.logo"></v-img>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -190,6 +209,7 @@ export default {
       edit: false,
       storeForm: {
         id: null,
+        file: null,
         name: null,
         active: true,
         document: null,
@@ -208,11 +228,13 @@ export default {
         this.edit = true;
         this.storeForm = {
           ...store,
+          file: null,
         };
       } else {
         this.edit = false;
         this.storeForm = {
           id: null,
+          file: null,
           name: null,
           active: true,
           document: null,
@@ -238,9 +260,29 @@ export default {
               `store/${this.storeForm.id}`,
               this.storeForm
             );
+            if (this.storeForm.file != null) {
+              let formData = new FormData();
+              formData.append("id", this.storeForm.id);
+              formData.append("file", this.storeForm.file);
+              await axios.post(`store/${this.storeForm.id}/logo`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+              });
+            }
             this.$toast.success(response.data.message);
           } else {
             const response = await axios.post("store", this.storeForm);
+            if (this.storeForm.file != null) {
+              let formData = new FormData();
+              formData.append("id", response.data.payload.store.id);
+              formData.append("file", this.storeForm.file);
+              await axios.post(
+                `store/${response.data.payload.store.id}/logo`,
+                formData,
+                {
+                  headers: { "Content-Type": "multipart/form-data" },
+                }
+              );
+            }
             this.$toast.success(response.data.message);
           }
           this.$emit("updateList");

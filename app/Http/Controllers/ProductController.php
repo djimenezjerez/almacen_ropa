@@ -6,7 +6,6 @@ use Exception;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductName;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\SizeTypeRequest;
 use App\Http\Requests\StoreProductRequest;

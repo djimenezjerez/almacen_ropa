@@ -76,6 +76,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('store/{store}', [StoreController::class, 'show']);
         Route::patch('store/{store}', [StoreController::class, 'update']);
         Route::delete('store/{store}', [StoreController::class, 'destroy']);
+        Route::post('store/{store}/logo', [StoreController::class, 'logo']);
         // Empleados
         Route::get('store/{store}/employee', [EmployeeController::class, 'index']);
         Route::post('store/{store}/employee', [EmployeeController::class, 'store']);

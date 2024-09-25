@@ -8,10 +8,12 @@ use App\Models\Person;
 use App\Models\DocumentType;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\StoreResource;
 use App\Http\Requests\WarehouseRequest;
 use App\Http\Requests\StoreStoreRequest;
 use App\Http\Requests\UpdateStoreRequest;
+use App\Http\Requests\StoreStoreImageRequest;
 
 class StoreController extends Controller
 {
@@ -26,7 +28,7 @@ class StoreController extends Controller
             ];
         }
 
-        $query = DB::table('stores')->select('stores.id', 'stores.active', 'stores.warehouse', 'stores.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'stores.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('warehouse', $request->warehouse)->where('stores.deleted_at', null);
+        $query = DB::table('stores')->select('stores.id', 'stores.logo', 'stores.active', 'stores.warehouse', 'stores.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'stores.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('warehouse', $request->warehouse)->where('stores.deleted_at', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
@@ -59,7 +61,7 @@ class StoreController extends Controller
             ])->only('name', 'document', 'document_type_id', 'address', 'email', 'phone', 'city_id'));
             $store = $person->store()->create($request->only('warehouse'));
             $role = Role::where('name', 'ADMINISTRADOR')->first();
-            $user = auth()->user();
+            $user = Auth::user();
             $query = DB::table('model_has_roles')->where('model_type', '=', 'App\Models\User')->where('model_id', $user->id)->where('store_id', $store->id);
             $count = $query->where('role_id', $role->id)->count();
             if ($count == 0) {
@@ -77,6 +79,9 @@ class StoreController extends Controller
             DB::commit();
             return [
                 'message' => 'Tienda registrada',
+                'payload' => [
+                    'store' => new StoreResource($store),
+                ]
             ];
         } catch (Exception) {
             DB::rollBack();
@@ -118,9 +123,23 @@ class StoreController extends Controller
     {
         $store->person->delete();
         $store->delete();
-        $query = DB::table('model_has_roles')->where('store_id', $store->id)->delete();
+        DB::table('model_has_roles')->where('store_id', $store->id)->delete();
         return [
             'message' => 'Registro eliminado',
+        ];
+    }
+
+    public function logo(StoreStoreImageRequest $request)
+    {
+        $store = Store::find($request->id);
+        $file = str($store->id) . '.' . $request->file->getClientOriginalExtension();
+        $file = $request->file->storeAs('stores', $file, 'public');
+        $store->update([
+            'logo' =>
+            'storage/' . $file,
+        ]);
+        return [
+            'message' => 'Imagen cargada',
         ];
     }
 }
