@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class ShowcaseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $images = DB::table('product_images')->select('product_name_id', 'path')->groupBy('product_name_id');
@@ -51,33 +46,11 @@ class ShowcaseController extends Controller
         ];
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(ProductName $product_name, Request $request)
     {
         $images = DB::table('product_images')->select('product_name_id', 'path')->groupBy('product_name_id');
@@ -89,35 +62,11 @@ class ShowcaseController extends Controller
         ];
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         //
@@ -148,19 +97,24 @@ class ShowcaseController extends Controller
 
     public function stock(ProductName $product_name, Request $request)
     {
-        $stock = DB::table('movement_details')->selectRaw('cast(sum(movement_details.stock) as INTEGER) as stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('products.gender_id', $request->gender_id)->where('products.size_id', $request->size_id)->where('products.color_id', $request->color_id)->first();
+        $stock = DB::table('movement_details')->select('product_id')->selectRaw('cast(sum(movement_details.stock) as INTEGER) as stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('products.gender_id', $request->gender_id)->where('products.size_id', $request->size_id)->where('products.color_id', $request->color_id)->first();
         if ($stock) {
-            $stock = $stock->stock;
+            return [
+                'message' => 'Stock de producto',
+                'payload' => [
+                    'product_id' => $stock->product_id,
+                    'stock' => $stock->stock,
+                ],
+            ];
         } else {
-            $stock = 0;
+            return response()->json([
+                'message' => 'Stock de producto',
+                'payload' => [
+                    'product_id' => null,
+                    'stock' => 0,
+                ],
+            ], 404);
         }
-
-        return [
-            'message' => 'Stock de producto',
-            'payload' => [
-                'data' => $stock,
-            ],
-        ];
     }
 
     public function categories(Request $request)

@@ -24,6 +24,7 @@ use App\Http\Controllers\ProductNameController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\MovementTypeController;
 use App\Http\Controllers\ProductSelectionController;
+use App\Http\Controllers\ShoppingCartController;
 
 // Autenticación
 Route::post('auth', [AuthController::class, 'store']);
@@ -170,4 +171,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('report/products', [ReportController::class, 'products']);
     Route::get('report/sells', [ReportController::class, 'sells']);
     Route::get('report/sellsUnitary', [ReportController::class, 'sellsUnitary']);
+
+    // Carrito de compras
+    Route::get('client/{client}/shopping_cart', [ShoppingCartController::class, 'current']);
+    Route::post('client/{client}/shopping_cart', [ShoppingCartController::class, 'store']);
+    Route::post('client/{client}/shopping_cart/{shopping_cart}', [ShoppingCartController::class, 'pay']);
+    Route::delete('client/{client}/shopping_cart/{shopping_cart}', [ShoppingCartController::class, 'destroy']);
 });

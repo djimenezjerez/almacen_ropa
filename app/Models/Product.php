@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Product extends Model
 {
@@ -58,5 +59,13 @@ class Product extends Model
     public function shopping_cart_products()
     {
         return $this->hasMany(ShoppingCartProduct::class);
+    }
+
+    protected function image(): Attribute
+    {
+        $image = ProductImage::where('color_id', $this->color->id)->where('product_name_id', $this->name->id)->first();
+        return Attribute::make(
+            get: fn() => $image ? $image->path : null,
+        );
     }
 }

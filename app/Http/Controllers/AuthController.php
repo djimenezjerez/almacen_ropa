@@ -38,6 +38,10 @@ class AuthController extends Controller
                 if (Hash::check($request->password, $user->password)) {
                     if ($user->hasRole('CLIENTE')) {
                         $role = Role::where('name', 'CLIENTE')->first();
+                        if (!$user->remember_token) {
+                            $user->remember_token = $user->createToken('api')->plainTextToken;
+                        }
+                        $user->remember_role_id = $role->id;
                         return [
                             'message' => 'Sesión iniciada',
                             'payload' => [
@@ -50,6 +54,7 @@ class AuthController extends Controller
                                     'display_name' => $role->display_name,
                                 ],
                                 'permissions' => $role->permissions->pluck('name'),
+                                'client_id' => $user->client->id,
                             ],
                         ];
                     }

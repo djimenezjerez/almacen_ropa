@@ -21,4 +21,9 @@ class Color extends Model
     {
         return $this->hasMany(ProductImage::class);
     }
+
+    public function image(ProductName $productName)
+    {
+        return $this->images()->where('product_name_id', $productName->id)->first();
+    }
 }

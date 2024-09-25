@@ -9,7 +9,7 @@ class ShoppingCartProduct extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'shopping_carts_id',
+        'shopping_cart_id',
         'product_id',
         'quantity',
         'sell_price',
@@ -28,6 +28,6 @@ class ShoppingCartProduct extends Model
 
     public function product()
     {
-        return $this->belongsTo(ShoppingCart::class);
+        return $this->belongsTo(Product::class);
     }
 }

@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('shopping_cart_products', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('shopping_carts_id')->comment('Carrito de compra');
-            $table->foreign('shopping_carts_id')->references('id')->on('shopping_carts')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('shopping_cart_id')->comment('Carrito de compra');
+            $table->foreign('shopping_cart_id')->references('id')->on('shopping_carts')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('product_id')->comment('Producto');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedInteger('quantity')->default(0)->comment('Cantidad');
