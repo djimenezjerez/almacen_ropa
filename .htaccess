@@ -2,6 +2,13 @@
     Options +FollowSymLinks
     RewriteEngine On
 
+    <IfModule mod_headers.c>
+      Header set Access-Control-Allow-Origin "*"
+      Header set Access-Control-Allow-Methods "*"
+      Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+      Header set Access-Control-Allow-Credentials true
+    </IfModule>
+
     RewriteCond %{REQUEST_URI} !^/public/
 
     RewriteCond %{REQUEST_FILENAME} !-d

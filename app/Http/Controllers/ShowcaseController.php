@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Store;
 use App\Models\ProductName;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -10,10 +11,24 @@ class ShowcaseController extends Controller
 {
     public function index(Request $request)
     {
+        if (!$request->has('store_id')) {
+            $request->merge([
+                'store_id' => Store::inRandomOrder()->first(),
+            ]);
+        }
         $images = DB::table('product_images')->select('product_name_id', 'path')->groupBy('product_name_id');
         $query = DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name',  'products.brand_id', 'brands.name as brand_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'products.gender_id', 'genders.name as gender_name', 'product_names.sell_price', 'images.path as image')->selectRaw('cast(sum(movement_details.stock) as INTEGER) as total_stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->joinSub($images, 'images', function ($join) {
             $join->on('images.product_name_id', '=', 'product_names.id');
-        })->where('products.deleted_at', null)->where('movement_details.store_id', $request->store_id)->where('sizes.size_type_id', $request->size_type_id)->where('product_names.category_id', $request->category_id)->groupBy('products.product_name_id')->groupBy('products.brand_id')->groupBy('sizes.size_type_id')->groupBy('product_names.category_id')->groupBy('products.gender_id');
+        })->where('products.deleted_at', null)->where('movement_details.store_id', $request->store_id);
+
+        if ($request->has('size_type_id')) {
+            $query->where('sizes.size_type_id', $request->size_type_id);
+        }
+        if ($request->has('category_id')) {
+            $query->where('product_names.category_id', $request->category_id);
+        }
+
+        $query->groupBy('products.product_name_id')->groupBy('products.brand_id')->groupBy('sizes.size_type_id')->groupBy('product_names.category_id')->groupBy('products.gender_id');
 
         if ($request->has('gender_id')) {
             if ((int)$request->gender_id > 0) {
@@ -46,11 +61,6 @@ class ShowcaseController extends Controller
         ];
     }
 
-    public function store(Request $request)
-    {
-        //
-    }
-
     public function show(ProductName $product_name, Request $request)
     {
         $images = DB::table('product_images')->select('product_name_id', 'path')->groupBy('product_name_id');
@@ -60,16 +70,6 @@ class ShowcaseController extends Controller
                 $join->on('images.product_name_id', '=', 'product_names.id');
             })->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('sizes.size_type_id', $request->size_type_id)->where('products.gender_id', $request->gender_id)->first(),
         ];
-    }
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    public function destroy($id)
-    {
-        //
     }
 
     public function sizes(ProductName $product_name, Request $request)
