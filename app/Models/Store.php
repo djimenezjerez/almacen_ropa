@@ -14,11 +14,20 @@ class Store extends Model
         'person_id',
         'warehouse',
         'logo',
+        'whatsapp',
+        'facebook',
+        'youtube',
+        'instagram',
+        'tiktok',
+        'pinterest',
+        'qr',
+        'qr_due_date',
     ];
 
     protected $casts = [
         'active' => 'boolean',
         'warehouse' => 'boolean',
+        'qr_due_date' => 'date',
     ];
 
     public $timestamps = true;

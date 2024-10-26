@@ -23,12 +23,12 @@ class StoreController extends Controller
             return [
                 'message' => 'Lista de tiendas',
                 'payload' => [
-                    'data' => DB::table('stores')->select('stores.id', 'stores.logo', 'people.name', 'stores.warehouse')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('stores.active', '=', true)->where('stores.deleted_at', null)->orderBy('people.name')->get(),
+                    'data' => DB::table('stores')->select('stores.id', 'stores.logo', 'stores.qr', 'stores.qr_due_date', 'people.name', 'stores.warehouse', 'stores.whatsapp', 'stores.facebook', 'stores.youtube', 'stores.instagram', 'stores.tiktok', 'stores.pinterest')->leftJoin('people', 'people.id', '=', 'stores.person_id')->where('stores.active', '=', true)->where('stores.deleted_at', null)->orderBy('people.name')->get(),
                 ],
             ];
         }
 
-        $query = DB::table('stores')->select('stores.id', 'stores.logo', 'stores.active', 'stores.warehouse', 'stores.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'stores.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('warehouse', $request->warehouse)->where('stores.deleted_at', null);
+        $query = DB::table('stores')->select('stores.id', 'stores.logo', 'stores.qr', 'stores.qr_due_date', 'people.name', 'stores.warehouse', 'stores.whatsapp', 'stores.facebook', 'stores.youtube', 'stores.instagram', 'stores.tiktok', 'stores.pinterest', 'stores.active', 'stores.warehouse', 'stores.person_id', 'people.name', 'people.document', 'people.document_type_id', 'people.address', 'people.email', 'people.phone', 'people.city_id', 'cities.name as city_name', 'cities.code as city_code')->leftJoin('people', 'people.id', '=', 'stores.person_id')->leftJoin('cities', 'people.city_id', '=', 'cities.id')->where('warehouse', $request->warehouse)->where('stores.deleted_at', null);
         if ($request->has('sort_by') && $request->has('sort_desc')) {
             foreach ($request->sort_by as $i => $sort) {
                 $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
@@ -59,7 +59,7 @@ class StoreController extends Controller
             $person = Person::create($request->merge([
                 'document_type_id' => $document_type->id,
             ])->only('name', 'document', 'document_type_id', 'address', 'email', 'phone', 'city_id'));
-            $store = $person->store()->create($request->only('warehouse'));
+            $store = $person->store()->create($request->only('warehouse', 'whatsapp', 'facebook', 'youtube', 'instagram', 'tiktok', 'pinterest'));
             $role = Role::where('name', 'ADMINISTRADOR')->first();
             $user = Auth::user();
             $query = DB::table('model_has_roles')->where('model_type', '=', 'App\Models\User')->where('model_id', $user->id)->where('store_id', $store->id);
@@ -83,7 +83,8 @@ class StoreController extends Controller
                     'store' => new StoreResource($store),
                 ]
             ];
-        } catch (Exception) {
+        } catch (Exception $e) {
+            logger($e);
             DB::rollBack();
             return [
                 'message' => 'Error al registrar tienda',
@@ -106,7 +107,7 @@ class StoreController extends Controller
         try {
             DB::beginTransaction();
             $store->person()->update($request->only('name', 'document', 'address', 'email', 'phone', 'city_id'));
-            $store->update($request->only('active'));
+            $store->update($request->only('active', 'whatsapp', 'facebook', 'youtube', 'instagram', 'tiktok', 'pinterest'));
             DB::commit();
             return [
                 'message' => 'Datos de tienda actualizados',
@@ -137,6 +138,21 @@ class StoreController extends Controller
         $store->update([
             'logo' =>
             'storage/' . $file,
+        ]);
+        return [
+            'message' => 'Imagen cargada',
+        ];
+    }
+
+    public function qr(StoreStoreImageRequest $request)
+    {
+        $store = Store::find($request->id);
+        $file = str($store->id) . '.' . $request->file->getClientOriginalExtension();
+        $file = $request->file->storeAs('qr', $file, 'public');
+        $store->update([
+            'qr' =>
+            'storage/' . $file,
+            'qr_due_date' => $request->qr_due_date,
         ]);
         return [
             'message' => 'Imagen cargada',

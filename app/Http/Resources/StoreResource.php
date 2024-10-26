@@ -12,10 +12,18 @@ class StoreResource extends JsonResource
             // Store
             'id' => $this->id,
             'logo' => $this->logo,
+            'qr' => $this->qr,
+            'qr_due_date' => $this->qr_due_date,
             'active' => $this->active,
             'warehouse' => $this->warehouse,
             'person_id' => $this->person_id,
             'created_at' => $this->created_at,
+            'whatsapp' => $this->whatsapp,
+            'facebook' => $this->facebook,
+            'youtube' => $this->youtube,
+            'instagram' => $this->instagram,
+            'tiktok' => $this->tiktok,
+            'pinterest' => $this->pinterest,
             // Person
             'name' => $this->person->name,
             'document' => $this->person->document,

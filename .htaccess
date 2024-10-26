@@ -17,4 +17,8 @@
     RewriteRule ^(.*)$ /public/$1
     #RewriteRule ^ index.php [L]
     RewriteRule ^(/)?$ public/index.php [L]
+    RewriteCond %{SERVER_PORT} 80
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [L,R]
 </IfModule>

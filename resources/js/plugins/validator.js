@@ -65,6 +65,7 @@ localize({
       search: 'Texto o parámetro de búsqueda',
       date_from: 'fecha de inicio',
       date_to: 'fecha de caducidad',
+      qr_due_date: 'fecha límite QR',
     }
   },
 })
@@ -77,7 +78,7 @@ Object.keys(rules).forEach(rule => {
 
 extend('strong_password', {
   validate: value => {
-      var strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})")
-      return strongRegex.test(value)
+    var strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})")
+    return strongRegex.test(value)
   }
 })
