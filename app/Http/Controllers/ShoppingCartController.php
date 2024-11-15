@@ -7,9 +7,10 @@ use App\Models\Client;
 use App\Models\Product;
 use App\Models\ShoppingCart;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\ShoppingCartResource;
 use App\Http\Requests\PayShoppingCartRequest;
 use App\Http\Requests\StoreShoppingCartRequest;
-use App\Http\Resources\ShoppingCartResource;
 
 class ShoppingCartController extends Controller
 {
@@ -60,7 +61,7 @@ class ShoppingCartController extends Controller
 
     public function destroy(Client $client, ShoppingCart $shopping_cart)
     {
-        $shopping_cart->delete();
+        $shopping_cart->update(['state' => 'closed']);
         return [
             'message' => 'Registro eliminado',
         ];
@@ -72,21 +73,71 @@ class ShoppingCartController extends Controller
         return response()->json([
             'message' => 'Pedido activo',
             'payload' => [
-                'shopping_cart' => $shopping_cart ? new ShoppingCartResource($shopping_cart) : null,
+                'shopping_cart' => $shopping_cart ? new ShoppingCartResource($shopping_cart) : (object)[],
             ],
         ]);
     }
 
     public function pay(PayShoppingCartRequest $request, Client $client, ShoppingCart $shopping_cart)
     {
-        $file = 'pedido_' . str($shopping_cart->id) . '_cliente_' . str($client->id) . '.' . $request->file->getClientOriginalExtension();
-        $file = $request->file->storeAs('shopping_carts', $file, 'public');
+        @list($type, $file_data) = explode(';', $request->content);
+        @list(, $file_data) = explode(',', $file_data);
+        switch ($request->type) {
+            case 'image/bmp':
+                $type = 'bmp';
+                break;
+            case 'application/msword':
+                $type = 'doc';
+                break;
+            case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                $type = 'docx';
+                break;
+            case 'text/html':
+                $type = 'html';
+                break;
+            case 'image/jpeg':
+                $type = 'jpg';
+                break;
+            case 'application/vnd.oasis.opendocument.text':
+                $type = 'odt';
+                break;
+            case 'image/png':
+                $type = 'png';
+                break;
+            case 'application/pdf':
+                $type = 'pdf';
+                break;
+            case 'application/vnd.rar':
+                $type = 'rar';
+                break;
+            case 'image/svg+xml':
+                $type = 'svg';
+                break;
+            case 'application/x-tar':
+                $type = 'tar';
+                break;
+            case 'image/tiff':
+                $type = 'tiff';
+                break;
+            case 'application/xhtml+xml':
+                $type = 'xhtml';
+                break;
+            case 'application/zip':
+                $type = 'zip';
+                break;
+            case 'application/x-7z-compressed':
+                $type = '7z';
+                break;
+        }
+        $file_name = 'shopping_carts/' . 'pedido_' . str($shopping_cart->id) . '_cliente_' . str($client->id) . '.' . $type;
+        Storage::disk('local')->put($file_name, base64_decode($file_data));
         $shopping_cart->update([
             'state' => 'paid',
-            'voucher' => 'storage/' . $file,
+            'attachment_file' => 'storage/' . $file_name,
+            'attachment_type' => $type,
         ]);
-        return [
+        return response()->json([
             'message' => 'Pedido en proceso',
-        ];
+        ]);
     }
 }

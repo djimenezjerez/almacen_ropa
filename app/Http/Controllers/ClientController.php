@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\Person;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ClientResource;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
@@ -92,6 +93,10 @@ class ClientController extends Controller
 
     public function update(UpdateClientRequest $request, Client $client)
     {
+        $auth = Auth::user();
+        if ($auth->client->id != $client->id && !$auth->can('CLIENTES')) {
+            return abort(401, 'This action is unauthorized');
+        }
         $user = DB::table('users')->where(DB::raw('upper(username)'), trim(mb_strtoupper($request->email)))->first();
         if ($user) {
             if ($client->user_id != $user->id) {
@@ -103,7 +108,6 @@ class ClientController extends Controller
                 ], 403);
             }
         }
-
         try {
             DB::beginTransaction();
             $client->user->person->update($request->only('name', 'email', 'document', 'document_type_id', 'address', 'phone', 'city_id'));

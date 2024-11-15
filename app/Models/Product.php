@@ -46,6 +46,13 @@ class Product extends Model
         return $this->belongsTo(Size::class);
     }
 
+    public function sizeType(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->size->size_type,
+        );
+    }
+
     public function color()
     {
         return $this->belongsTo(Color::class);

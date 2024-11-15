@@ -94,10 +94,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     // Clientes
+    Route::patch('client/{client}', [ClientController::class, 'update']);
     Route::group(['middleware' => ['can:CLIENTES']], function () {
         Route::get('client', [ClientController::class, 'index']);
         Route::post('client', [ClientController::class, 'store']);
-        Route::patch('client/{client}', [ClientController::class, 'update']);
         Route::delete('client/{client}', [ClientController::class, 'destroy']);
     });
 

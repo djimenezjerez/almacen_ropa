@@ -13,7 +13,8 @@ class ShoppingCartResource extends JsonResource
             'client_id' => $this->client_id,
             'total' => $this->total,
             'state' => $this->state,
-            'voucher' => $this->voucher,
+            'attachmentFile' => $this->attachment_file,
+            'attachmentType' => $this->attachment_type,
             'comment' => $this->comment,
             'products' => ShoppingCartProductResource::collection($this->products),
         ];

@@ -10,7 +10,8 @@ class ShoppingCart extends Model
         'client_id',
         'total',
         'state',
-        'voucher',
+        'attachment_file',
+        'attachment_type',
         'comment',
     ];
 
