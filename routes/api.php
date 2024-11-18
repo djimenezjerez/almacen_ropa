@@ -174,7 +174,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('report/sellsUnitary', [ReportController::class, 'sellsUnitary']);
 
     // Carrito de compras
-    Route::get('client/{client}/shopping_cart', [ShoppingCartController::class, 'current']);
+    Route::get('client/{client}/shopping_cart', [ShoppingCartController::class, 'index']);
+    Route::get('client/{client}/shopping_cart/current', [ShoppingCartController::class, 'current']);
     Route::post('client/{client}/shopping_cart', [ShoppingCartController::class, 'store']);
     Route::post('client/{client}/shopping_cart/{shopping_cart}', [ShoppingCartController::class, 'pay']);
     Route::delete('client/{client}/shopping_cart/{shopping_cart}', [ShoppingCartController::class, 'destroy']);

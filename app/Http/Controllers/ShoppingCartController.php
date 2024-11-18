@@ -6,6 +6,7 @@ use Exception;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\ShoppingCart;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ShoppingCartResource;
@@ -14,9 +15,20 @@ use App\Http\Requests\StoreShoppingCartRequest;
 
 class ShoppingCartController extends Controller
 {
-    public function index()
+    public function index(Request $request, Client $client)
     {
-        //
+        $query = $client->shopping_carts();
+        if ($request->has('sort_by') && $request->has('sort_desc')) {
+            foreach ($request->sort_by as $i => $sort) {
+                $query->orderBy($sort, filter_var($request->sort_desc[$i], FILTER_VALIDATE_BOOLEAN) ? 'DESC' : 'ASC');
+            }
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+        return [
+            'message' => 'Lista de pedidor',
+            'payload' => ShoppingCartResource::collection($query->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1)),
+        ];
     }
 
     public function store(StoreShoppingCartRequest $request, Client $client)
