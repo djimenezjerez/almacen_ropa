@@ -27,7 +27,7 @@ class ShoppingCartController extends Controller
         }
         return [
             'message' => 'Lista de pedidor',
-            'payload' => ShoppingCartResource::collection($query->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1)),
+            'payload' => ShoppingCartResource::collection($query->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1))->response()->getData(true),
         ];
     }
 

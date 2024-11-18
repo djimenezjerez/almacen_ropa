@@ -42,6 +42,9 @@ Route::group(['prefix' => 'showcase'], function () {
     Route::get('product/{product_name}', [ShowcaseController::class, 'show']);
 });
 
+// Registro cliente
+Route::post('client', [ClientController::class, 'store']);
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
     // Autenticación
     Route::get('auth', [AuthController::class, 'index']);
@@ -97,7 +100,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::patch('client/{client}', [ClientController::class, 'update']);
     Route::group(['middleware' => ['can:CLIENTES']], function () {
         Route::get('client', [ClientController::class, 'index']);
-        Route::post('client', [ClientController::class, 'store']);
         Route::delete('client/{client}', [ClientController::class, 'destroy']);
     });
 

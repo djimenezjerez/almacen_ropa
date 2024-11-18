@@ -10,6 +10,7 @@ class ShoppingCartResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'created_at' => $this->created_at,
             'client_id' => $this->client_id,
             'total' => $this->total,
             'state' => $this->state,
