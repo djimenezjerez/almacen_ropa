@@ -32,6 +32,12 @@ Route::post('auth', [AuthController::class, 'store']);
 // Tiendas
 Route::get('store', [StoreController::class, 'index']);
 
+// Ciudades
+Route::get('city', [CityController::class, 'index']);
+
+// Documentos de identidad
+Route::get('document_type', [DocumentTypeController::class, 'index']);
+
 // Showcase
 Route::group(['prefix' => 'showcase'], function () {
     Route::get('product', [ShowcaseController::class, 'index']);
@@ -55,12 +61,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // Cerrar sesión
     Route::post('logout', [AuthController::class, 'destroy']);
-
-    // Ciudades
-    Route::get('city', [CityController::class, 'index']);
-
-    // Documentos de identidad
-    Route::get('document_type', [DocumentTypeController::class, 'index']);
 
     // Roles
     Route::get('role', [RoleController::class, 'index'])->middleware('can:USUARIOS');

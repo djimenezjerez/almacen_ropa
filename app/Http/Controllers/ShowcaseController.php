@@ -142,7 +142,7 @@ class ShowcaseController extends Controller
                 $gender->categories = $categories;
                 $size_type->groups[] = $gender;
             }
-            $brands = $query->clone()->select('brands.id as brand_id', 'brands.name')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->where('sizes.size_type_id', $size_type->id)->orderBy('brands.name')->get();
+            $brands = $query->clone()->select('brands.id as brand_id', 'brands.name')->selectRaw($size_type->id . ' as size_type_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->where('sizes.size_type_id', $size_type->id)->orderBy('brands.name')->get();
             $size_type->groups[] = (object)[
                 'id' => -1,
                 'name' => 'Marcas',
