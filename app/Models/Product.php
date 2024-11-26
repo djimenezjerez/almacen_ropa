@@ -71,8 +71,18 @@ class Product extends Model
     protected function image(): Attribute
     {
         $image = ProductImage::where('color_id', $this->color->id)->where('product_name_id', $this->name->id)->first();
+        $url = null;
+        if ($image) {
+            if ($image->url) {
+                $url = $image->url;
+            } else {
+                if ($image->path) {
+                    $url = asset($image->path);
+                }
+            }
+        }
         return Attribute::make(
-            get: fn() => $image ? $image->path : null,
+            get: fn() => $url,
         );
     }
 }

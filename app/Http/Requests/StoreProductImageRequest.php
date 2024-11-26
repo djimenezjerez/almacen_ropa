@@ -15,7 +15,8 @@ class StoreProductImageRequest extends FormRequest
     {
         return [
             'id' => 'required|integer|exists:products,id',
-            'file' => 'required|image|max:4096',
+            'file' => 'required_without:url|image|max:4096',
+            'url' => 'required_without:file|url:http,https|max:255',
         ];
     }
 }

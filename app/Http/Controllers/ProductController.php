@@ -169,7 +169,24 @@ class ProductController extends Controller
 
     public function image(StoreProductImageRequest $request)
     {
-        $product = Product::find($request->id);
+        $product = Product::findOrFail($request->id);
+        if ($request->has('url')) {
+            if (!is_null($request->url) && $request->url != '') {
+                ProductImage::updateOrCreate(
+                    [
+                        'product_name_id' => $product->product_name_id,
+                        'color_id' => $product->color_id,
+                    ],
+                    [
+                        'url' => $request->url,
+                        'path' => null,
+                    ],
+                );
+                return [
+                    'message' => 'Imagen cargada',
+                ];
+            }
+        }
         $file = str($product->product_name_id) . '_' . str($product->color_id) . '.' . $request->file->getClientOriginalExtension();
         $file = $request->file->storeAs('products', $file, 'public');
         ProductImage::updateOrCreate(
@@ -179,6 +196,7 @@ class ProductController extends Controller
             ],
             [
                 'path' => 'storage/' . $file,
+                'url' => asset('storage/' . $file),
             ],
         );
         return [

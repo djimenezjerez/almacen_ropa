@@ -10,6 +10,7 @@ class ProductImage extends Model
         'path',
         'product_name_id',
         'color_id',
+        'url',
     ];
 
     public function name()

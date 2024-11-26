@@ -24,12 +24,21 @@
                 <v-col cols="12">
                   <validation-provider
                     v-slot="{ errors }"
-                    name="file"
-                    rules="required"
+                    name="url"
+                    rules="min:0|max:255"
                   >
+                    <v-text-field
+                      label="URL de imagen"
+                      v-model.number="form.url"
+                      data-vv-name="url"
+                      :error-messages="errors"
+                      prepend-icon="mdi-web"
+                    ></v-text-field>
+                  </validation-provider>
+                  <validation-provider v-slot="{ errors }" name="file" rules="">
                     <v-file-input
                       accept="image/*"
-                      label="Imagen"
+                      label="Cargar imagen"
                       v-model="form.file"
                       data-vv-name="file"
                       :error-messages="errors"
@@ -69,6 +78,7 @@ export default {
       form: {
         id: null,
         file: null,
+        url: null,
       },
     };
   },
@@ -76,6 +86,7 @@ export default {
     showDialog(product) {
       this.form.id = product.id;
       this.form.file = null;
+      this.form.url = null;
       this.dialog = true;
       this.$nextTick(() => {
         this.$refs.formObserver.reset();
@@ -87,7 +98,11 @@ export default {
         if (valid) {
           let formData = new FormData();
           formData.append("id", this.form.id);
-          formData.append("file", this.form.file);
+          if (this.form.url != null && this.form.url != "") {
+            formData.append("url", this.form.url);
+          } else {
+            formData.append("file", this.form.file);
+          }
           this.$store.dispatch("loading", true);
           const response = await axios.post(
             `product/${this.form.id}/image`,
