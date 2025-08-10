@@ -6,11 +6,7 @@
           <v-col cols="10" md="4">
             <v-card class="white rounded-lg" elevation="15">
               <template slot="progress">
-                <v-progress-linear
-                  color="tertiary"
-                  height="10"
-                  indeterminate
-                ></v-progress-linear>
+                <v-progress-linear color="tertiary" height="10" indeterminate></v-progress-linear>
               </template>
               <div class="py-5">
                 <v-img height="200" contain src="/img/logo.png"></v-img>
@@ -18,70 +14,31 @@
               <v-container class="secondary">
                 <v-row class="mx-auto" justify="center" align="center">
                   <v-col cols="12" class="white--text text-center">
-                    <div
-                      class="white--text text-center text-h5 font-weight-normal"
-                    >
+                    <div class="white--text text-center text-h5 font-weight-normal">
                       Gestión de Almacén de Ropa
                     </div>
                   </v-col>
                 </v-row>
               </v-container>
               <validation-observer ref="loginObserver" v-slot="{ invalid }">
-                <form v-on:submit.prevent="submit">
+                <form @submit.prevent="submit">
                   <v-card-text class="grey lighten-4">
-                    <validation-provider
-                      v-slot="{ errors }"
-                      name="username"
-                      rules="required|min:3"
-                    >
-                      <v-text-field
-                        label="Usuario"
-                        v-model="loginForm.username"
-                        data-vv-name="username"
-                        :error-messages="errors"
-                        prepend-icon="mdi-account"
-                        autofocus
-                        :disabled="stores.length > 0"
-                      ></v-text-field>
+                    <validation-provider v-slot="{ errors }" name="username" rules="required|min:3">
+                      <v-text-field label="Usuario" v-model="loginForm.username" data-vv-name="username"
+                        :error-messages="errors" prepend-icon="mdi-account" autofocus
+                        :disabled="stores.length > 0"></v-text-field>
                     </validation-provider>
-                    <validation-provider
-                      v-slot="{ errors }"
-                      name="password"
-                      rules="required|min:3"
-                    >
-                      <v-text-field
-                        label="Contraseña"
-                        v-model="loginForm.password"
-                        data-vv-name="password"
-                        :error-messages="errors"
-                        prepend-icon="mdi-lock"
-                        :append-icon="
-                          shadowPassword ? 'mdi-eye' : 'mdi-eye-off'
-                        "
-                        @click:append="() => (shadowPassword = !shadowPassword)"
-                        :type="shadowPassword ? 'password' : 'text'"
-                        :disabled="stores.length > 0"
-                      ></v-text-field>
+                    <validation-provider v-slot="{ errors }" name="password" rules="required|min:3">
+                      <v-text-field label="Contraseña" v-model="loginForm.password" data-vv-name="password"
+                        :error-messages="errors" prepend-icon="mdi-lock" :append-icon="shadowPassword ? 'mdi-eye' : 'mdi-eye-off'
+                          " @click:append="() => (shadowPassword = !shadowPassword)"
+                        :type="shadowPassword ? 'password' : 'text'" :disabled="stores.length > 0"></v-text-field>
                     </validation-provider>
-                    <validation-provider
-                      v-if="stores.length > 0"
-                      v-slot="{ errors }"
-                      name="store_id"
-                      rules="required|integer"
-                    >
-                      <v-select
-                        :items="stores"
-                        item-text="store_name"
-                        item-value="store_id"
-                        label="Tienda"
-                        v-model="loginForm.store_id"
-                        data-vv-name="store_id"
-                        :error-messages="errors"
-                        prepend-icon="mdi-store"
-                        persistent-hint
-                        :hint="roleName"
-                        ref="storeSelect"
-                      ></v-select>
+                    <validation-provider v-if="stores.length > 0" v-slot="{ errors }" name="store_id"
+                      rules="required|integer">
+                      <v-select :items="stores" item-text="store_name" item-value="store_id" label="Tienda"
+                        v-model="loginForm.store_id" data-vv-name="store_id" :error-messages="errors"
+                        prepend-icon="mdi-store" persistent-hint :hint="roleName" ref="storeSelect"></v-select>
                     </validation-provider>
                   </v-card-text>
                   <v-divider></v-divider>
@@ -117,10 +74,9 @@ export default {
   computed: {
     roleName: function () {
       if (this.loginForm.store_id != null) {
-        return `ROL: ${
-          this.stores.find((o) => o.store_id == this.loginForm.store_id)
+        return `ROL: ${this.stores.find((o) => o.store_id == this.loginForm.store_id)
             .role_name
-        }`;
+          }`;
       } else {
         return "";
       }

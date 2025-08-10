@@ -11,6 +11,12 @@ class ProductImage extends Model
         'product_name_id',
         'color_id',
         'url',
+        'video',
+        'order',
+    ];
+
+    protected $casts = [
+        'video' => 'boolean',
     ];
 
     public function name()

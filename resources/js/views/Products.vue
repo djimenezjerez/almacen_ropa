@@ -1,85 +1,41 @@
 <template>
   <v-container>
     <v-card class="pb-2">
-      <v-toolbar
-        color="secondary"
-      >
+      <v-toolbar color="secondary">
         <div v-if="isBuilding">
-          <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="breadcrumbs[0].to">{{ breadcrumbs[0].text }}</router-link>
+          <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light"
+            :to="breadcrumbs[0].to">{{ breadcrumbs[0].text }}</router-link>
           <span class="white--text px-3">/</span>
-          <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular" :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
+          <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-regular"
+            :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
         </div>
-        <tool-bar-title title="Productos" v-else/>
+        <tool-bar-title title="Productos" v-else />
       </v-toolbar>
-      <building-details v-if="isBuilding" :building="store"/>
-      <v-row
-        class="pt-5 px-4"
-        align="center"
-        justify="start"
-      >
-        <v-col
-          cols="12"
-          sm="12"
-          :md="isBuilding ? 9 : 12"
-          :xl="isBuilding ? 10 : 8"
-        >
-          <search-input
-            v-model="search"
-            label="Texto o parámetro de búsqueda"
-          />
+      <building-details v-if="isBuilding" :building="store" />
+      <v-row class="pt-5 px-4" align="center" justify="start">
+        <v-col cols="12" sm="12" :md="isBuilding ? 9 : 12" :xl="isBuilding ? 10 : 8">
+          <search-input v-model="search" label="Texto o parámetro de búsqueda" />
         </v-col>
-        <v-col
-          cols="12"
-          :sm="isBuilding ? 12 : 5"
-          md="3"
-          xl="2"
-          :class="{
-            'text-right': $vuetify.breakpoint.smAndUp,
-          }"
-        >
-          <v-select
-            label="Tipo de talla"
-            v-model="sizeType"
-            item-text="name"
-            :items="sizeTypes"
-            prepend-icon="mdi-human-male-boy"
-            return-object
-            dense
-            hide-details
-            @change="fetchProducts"
-          ></v-select>
+        <v-col cols="12" :sm="isBuilding ? 12 : 5" md="3" xl="2" :class="{
+          'text-right': $vuetify.breakpoint.smAndUp,
+        }">
+          <v-select label="Tipo de talla" v-model="sizeType" item-text="name" :items="sizeTypes"
+            prepend-icon="mdi-human-male-boy" return-object dense hide-details @change="fetchProducts"></v-select>
         </v-col>
-        <v-col
-          cols="12"
-          sm="7"
-          md="9"
-          xl="2"
-          :class="{
-            'text-right': $vuetify.breakpoint.smAndUp,
-          }"
-          v-if="!isBuilding"
-        >
-          <add-button
-            text="Agregar producto"
-            :block="$vuetify.breakpoint.xs"
-            @click="$refs.productForm.showDialog(sizeType)"
-          />
+        <v-col cols="12" sm="7" md="9" xl="2" :class="{
+          'text-right': $vuetify.breakpoint.smAndUp,
+        }" v-if="!isBuilding">
+          <add-button text="Agregar producto" :block="$vuetify.breakpoint.xs"
+            @click="$refs.productForm.showDialog(sizeType)" />
         </v-col>
       </v-row>
     </v-card>
     <v-row>
       <v-col cols="12">
-        <v-data-table
-          id="datatable"
-          :headers="headers"
-          :items="products"
-          :options.sync="options"
-          :server-items-length="totalItems"
-          :footer-props="{
+        <v-data-table id="datatable" :headers="headers" :items="products" :options.sync="options"
+          :server-items-length="totalItems" :footer-props="{
             itemsPerPageOptions: [8, 15, 30]
-          }"
-          :calculate-widths="true"
-        >
+          }" :calculate-widths="true">
           <template v-slot:[`item.product_name_id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
@@ -91,16 +47,9 @@
               <v-col cols="12">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="warning"
-                      @click="gotoProductDetails(item.product_name_id)"
-                    >
-                      <v-icon
-                        dense
-                      >
+                    <v-btn icon v-bind="attrs" v-on="on" color="warning"
+                      @click="gotoProductDetails(item.product_name_id)">
+                      <v-icon dense>
                         mdi-eye
                       </v-icon>
                     </v-btn>
@@ -113,7 +62,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <product-form ref="productForm" :sizeTypes="sizeTypes" v-on:updateList="fetchProducts"/>
+    <product-form ref="productForm" :sizeTypes="sizeTypes" @updateList="fetchProducts" />
   </v-container>
 </template>
 
@@ -206,12 +155,12 @@ export default {
     },
   },
   watch: {
-    options: function(newVal, oldVal) {
+    options: function (newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
         this.fetchProducts()
       }
     },
-    search: function() {
+    search: function () {
       this.options.page = 1
       this.fetchProducts()
     }
@@ -237,7 +186,7 @@ export default {
           this.sizeType = this.sizeTypes[0]
           this.fetchProducts()
         }
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         if (this.isBuilding) {
@@ -249,7 +198,7 @@ export default {
       try {
         let response = await axios.get(`store/${this.$route.params.storeId}`)
         this.store = response.data.payload.store
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       }
     },
@@ -271,7 +220,7 @@ export default {
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.$store.dispatch('loading', false)

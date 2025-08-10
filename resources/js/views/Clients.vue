@@ -1,57 +1,27 @@
 <template>
   <v-container>
     <v-card class="pb-2">
-      <v-toolbar
-        color="secondary"
-      >
-        <tool-bar-title title="Clientes"/>
+      <v-toolbar color="secondary">
+        <tool-bar-title title="Clientes" />
       </v-toolbar>
-      <v-row
-        class="pt-5 px-4"
-        align="center"
-        justify="start"
-      >
-        <v-col
-          cols="12"
-          md="8"
-          order="last"
-          order-md="first"
-        >
-          <search-input
-            v-model="search"
-            label="Texto o parámetro de búsqueda"
-          />
+      <v-row class="pt-5 px-4" align="center" justify="start">
+        <v-col cols="12" md="8" order="last" order-md="first">
+          <search-input v-model="search" label="Texto o parámetro de búsqueda" />
         </v-col>
-        <v-col
-          cols="12"
-          md="4"
-          :class="{
-            'text-right': $vuetify.breakpoint.mdAndUp,
-          }"
-          order="first"
-          order-md="last"
-        >
-          <add-button
-            text="Agregar cliente"
-            :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.clientForm.showDialog()"
-          />
+        <v-col cols="12" md="4" :class="{
+          'text-right': $vuetify.breakpoint.mdAndUp,
+        }" order="first" order-md="last">
+          <add-button text="Agregar cliente" :block="$vuetify.breakpoint.smAndDown"
+            @click="$refs.clientForm.showDialog()" />
         </v-col>
       </v-row>
     </v-card>
     <v-row>
       <v-col cols="12">
-        <v-data-table
-          id="datatable"
-          :headers="headers"
-          :items="clients"
-          :options.sync="options"
-          :server-items-length="totalItems"
-          :footer-props="{
+        <v-data-table id="datatable" :headers="headers" :items="clients" :options.sync="options"
+          :server-items-length="totalItems" :footer-props="{
             itemsPerPageOptions: [8, 15, 30]
-          }"
-          :calculate-widths="true"
-        >
+          }" :calculate-widths="true">
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
@@ -65,11 +35,7 @@
             {{ item.city_name || '-' }}
           </template>
           <template v-slot:[`item.active`]="{ item }">
-            <v-chip
-              :color="isActive(item.active) ? 'success' : 'error'"
-              dark
-              small
-            >
+            <v-chip :color="isActive(item.active) ? 'success' : 'error'" dark small>
               {{ isActive(item.active) ? 'ACTIVO' : 'INACTIVO' }}
             </v-chip>
           </template>
@@ -78,16 +44,9 @@
               <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="warning"
-                      @click="$refs.clientForm.showDialog(item, true)"
-                    >
-                      <v-icon
-                        dense
-                      >
+                    <v-btn icon v-bind="attrs" v-on="on" color="warning"
+                      @click="$refs.clientForm.showDialog(item, true)">
+                      <v-icon dense>
                         mdi-eye
                       </v-icon>
                     </v-btn>
@@ -98,16 +57,8 @@
               <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="info"
-                      @click="$refs.clientForm.showDialog(item)"
-                    >
-                      <v-icon
-                        dense
-                      >
+                    <v-btn icon v-bind="attrs" v-on="on" color="info" @click="$refs.clientForm.showDialog(item)">
+                      <v-icon dense>
                         mdi-pencil
                       </v-icon>
                     </v-btn>
@@ -118,16 +69,8 @@
               <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="error"
-                      @click="$refs.dialogRemove.showDialog(item)"
-                    >
-                      <v-icon
-                        dense
-                      >
+                    <v-btn icon v-bind="attrs" v-on="on" color="error" @click="$refs.dialogRemove.showDialog(item)">
+                      <v-icon dense>
                         mdi-close-circle
                       </v-icon>
                     </v-btn>
@@ -140,8 +83,8 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <client-form ref="clientForm" :documentTypes="documentTypes" :cities="cities" v-on:updateList="fetchClients"/>
-    <dialog-remove ref="dialogRemove" type="cliente" url="client" v-on:updateList="fetchClients"/>
+    <client-form ref="clientForm" :documentTypes="documentTypes" :cities="cities" @updateList="fetchClients" />
+    <dialog-remove ref="dialogRemove" type="cliente" url="client" @updateList="fetchClients" />
   </v-container>
 </template>
 
@@ -228,12 +171,12 @@ export default {
     this.fetchDocumentTypes()
   },
   watch: {
-    options: function(newVal, oldVal) {
+    options: function (newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
         this.fetchClients()
       }
     },
-    search: function() {
+    search: function () {
       this.options.page = 1
       this.fetchClients()
     }
@@ -251,7 +194,7 @@ export default {
           }
         })
         this.documentTypes = response.data.payload.data
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.fetchCities()
@@ -265,7 +208,7 @@ export default {
           }
         })
         this.cities = response.data.payload.data
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.fetchClients()
@@ -287,7 +230,7 @@ export default {
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.$store.dispatch('loading', false)

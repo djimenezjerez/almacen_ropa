@@ -1,39 +1,21 @@
 <template>
   <v-container>
     <v-card class="pb-2">
-      <v-toolbar
-        color="secondary"
-      >
-        <tool-bar-title title="Configuración de Marcas"/>
+      <v-toolbar color="secondary">
+        <tool-bar-title title="Configuración de Marcas" />
       </v-toolbar>
-      <v-row
-        class="pt-5 px-4"
-        align="center"
-        justify="start"
-      >
-        <v-col
-          cols="12"
-        >
-          <search-input
-            v-model="search"
-            label="Texto o parámetro de búsqueda"
-          />
+      <v-row class="pt-5 px-4" align="center" justify="start">
+        <v-col cols="12">
+          <search-input v-model="search" label="Texto o parámetro de búsqueda" />
         </v-col>
       </v-row>
     </v-card>
     <v-row>
       <v-col cols="12">
-        <v-data-table
-          id="datatable"
-          :headers="headers"
-          :items="brands"
-          :options.sync="options"
-          :server-items-length="totalItems"
-          :footer-props="{
+        <v-data-table id="datatable" :headers="headers" :items="brands" :options.sync="options"
+          :server-items-length="totalItems" :footer-props="{
             itemsPerPageOptions: [8, 15, 30]
-          }"
-          :calculate-widths="true"
-        >
+          }" :calculate-widths="true">
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
@@ -42,16 +24,8 @@
               <v-col cols="12">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="error"
-                      @click="$refs.dialogRemove.showDialog(item)"
-                    >
-                      <v-icon
-                        dense
-                      >
+                    <v-btn icon v-bind="attrs" v-on="on" color="error" @click="$refs.dialogRemove.showDialog(item)">
+                      <v-icon dense>
                         mdi-close-circle
                       </v-icon>
                     </v-btn>
@@ -64,7 +38,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <dialog-remove ref="dialogRemove" type="marca" url="brand" v-on:updateList="fetchBrands"/>
+    <dialog-remove ref="dialogRemove" type="marca" url="brand" @updateList="fetchBrands" />
   </v-container>
 </template>
 
@@ -110,12 +84,12 @@ export default {
     this.fetchBrands()
   },
   watch: {
-    options: function(newVal, oldVal) {
+    options: function (newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
         this.fetchBrands()
       }
     },
-    search: function() {
+    search: function () {
       this.options.page = 1
       this.fetchBrands()
     }
@@ -140,7 +114,7 @@ export default {
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.$store.dispatch('loading', false)

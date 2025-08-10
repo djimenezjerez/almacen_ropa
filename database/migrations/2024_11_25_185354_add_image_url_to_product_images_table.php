@@ -14,7 +14,6 @@ return new class extends Migration
         });
         $rows = DB::table('product_images')->whereNotNull('path')->whereNull('url')->get();
         foreach ($rows as $row) {
-            logger($row->path . ' --- ' . asset($row->path));
             DB::table('product_images')->where('id', $row->id)->update(['url' => asset($row->path)]);
         }
     }

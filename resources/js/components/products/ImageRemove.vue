@@ -7,7 +7,7 @@
       <div class="px-5 pb-5">
         <v-card-text>
           <div class="text-center text-lg-h6 text-md-subtitle-1 text-sm-subtitle-2 text-body-1">
-            ¿Seguro que desea eliminar la talla {{ item.size_name }}?
+            ¿Seguro que desea eliminar la imagen?
           </div>
         </v-card-text>
         <v-card-actions>
@@ -37,7 +37,7 @@
 
 <script>
 export default {
-  name: 'SizeRemove',
+  name: 'ImageRemove',
   data: function () {
     return {
       dialog: false,
@@ -52,7 +52,7 @@ export default {
     async removeItem() {
       try {
         this.$store.dispatch('loading', true)
-        const response = await axios.delete(`product/${this.item.id}/sizes`)
+        const response = await axios.delete(`product/${this.item.product_name_id}/color/${this.item.color_id}/images/${this.item.id}`)
         this.$toast.success(response.data.message)
         this.$emit('updateList')
         this.dialog = false

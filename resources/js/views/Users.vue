@@ -1,57 +1,27 @@
 <template>
   <v-container>
     <v-card class="pb-2">
-      <v-toolbar
-        color="secondary"
-      >
-        <tool-bar-title title="Usuarios"/>
+      <v-toolbar color="secondary">
+        <tool-bar-title title="Usuarios" />
       </v-toolbar>
-      <v-row
-        class="pt-5 px-4"
-        align="center"
-        justify="start"
-      >
-        <v-col
-          cols="12"
-          md="8"
-          order="last"
-          order-md="first"
-        >
-          <search-input
-            v-model="search"
-            label="Texto o parámetro de búsqueda"
-          />
+      <v-row class="pt-5 px-4" align="center" justify="start">
+        <v-col cols="12" md="8" order="last" order-md="first">
+          <search-input v-model="search" label="Texto o parámetro de búsqueda" />
         </v-col>
-        <v-col
-          cols="12"
-          md="4"
-          :class="{
-            'text-right': $vuetify.breakpoint.mdAndUp,
-          }"
-          order="first"
-          order-md="last"
-        >
-          <add-button
-            text="Agregar usuario"
-            :block="$vuetify.breakpoint.smAndDown"
-            @click="$refs.userForm.showDialog()"
-          />
+        <v-col cols="12" md="4" :class="{
+          'text-right': $vuetify.breakpoint.mdAndUp,
+        }" order="first" order-md="last">
+          <add-button text="Agregar usuario" :block="$vuetify.breakpoint.smAndDown"
+            @click="$refs.userForm.showDialog()" />
         </v-col>
       </v-row>
     </v-card>
     <v-row>
       <v-col cols="12">
-        <v-data-table
-          id="datatable"
-          :headers="headers"
-          :items="users"
-          :options.sync="options"
-          :server-items-length="totalItems"
-          :footer-props="{
+        <v-data-table id="datatable" :headers="headers" :items="users" :options.sync="options"
+          :server-items-length="totalItems" :footer-props="{
             itemsPerPageOptions: [8, 15, 30]
-          }"
-          :calculate-widths="true"
-        >
+          }" :calculate-widths="true">
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
@@ -65,11 +35,7 @@
             {{ item.city_code || '-' }}
           </template>
           <template v-slot:[`item.active`]="{ item }">
-            <v-chip
-              :color="isActive(item.active) ? 'success' : 'error'"
-              dark
-              small
-            >
+            <v-chip :color="isActive(item.active) ? 'success' : 'error'" dark small>
               {{ isActive(item.active) ? 'ACTIVO' : 'INACTIVO' }}
             </v-chip>
           </template>
@@ -78,16 +44,8 @@
               <v-col cols="3">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="warning"
-                      @click="$refs.userForm.showDialog(item, true)"
-                    >
-                      <v-icon
-                        dense
-                      >
+                    <v-btn icon v-bind="attrs" v-on="on" color="warning" @click="$refs.userForm.showDialog(item, true)">
+                      <v-icon dense>
                         mdi-eye
                       </v-icon>
                     </v-btn>
@@ -98,16 +56,8 @@
               <v-col cols="3">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="info"
-                      @click="$refs.userForm.showDialog(item)"
-                    >
-                      <v-icon
-                        dense
-                      >
+                    <v-btn icon v-bind="attrs" v-on="on" color="info" @click="$refs.userForm.showDialog(item)">
+                      <v-icon dense>
                         mdi-pencil
                       </v-icon>
                     </v-btn>
@@ -118,17 +68,9 @@
               <v-col cols="3">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="success"
-                      @click="$refs.userSwitch.showDialog(item)"
-                      :disabled="item.access_attempts < 5"
-                    >
-                      <v-icon
-                        dense
-                      >
+                    <v-btn icon v-bind="attrs" v-on="on" color="success" @click="$refs.userSwitch.showDialog(item)"
+                      :disabled="item.access_attempts < 5">
+                      <v-icon dense>
                         mdi-restore
                       </v-icon>
                     </v-btn>
@@ -139,16 +81,8 @@
               <v-col cols="3">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="error"
-                      @click="$refs.dialogRemove.showDialog(item)"
-                    >
-                      <v-icon
-                        dense
-                      >
+                    <v-btn icon v-bind="attrs" v-on="on" color="error" @click="$refs.dialogRemove.showDialog(item)">
+                      <v-icon dense>
                         mdi-close-circle
                       </v-icon>
                     </v-btn>
@@ -161,9 +95,9 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <user-form ref="userForm" :cities="cities" v-on:updateList="fetchUsers"/>
-    <user-switch ref="userSwitch" v-on:updateList="fetchUsers"/>
-    <dialog-remove ref="dialogRemove" type="usuario" url="user" v-on:updateList="fetchUsers"/>
+    <user-form ref="userForm" :cities="cities" @updateList="fetchUsers" />
+    <user-switch ref="userSwitch" @updateList="fetchUsers" />
+    <dialog-remove ref="dialogRemove" type="usuario" url="user" @updateList="fetchUsers" />
   </v-container>
 </template>
 
@@ -250,12 +184,12 @@ export default {
     this.fetchCities()
   },
   watch: {
-    options: function(newVal, oldVal) {
+    options: function (newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
         this.fetchUsers()
       }
     },
-    search: function() {
+    search: function () {
       this.options.page = 1
       this.fetchUsers()
     }
@@ -273,7 +207,7 @@ export default {
           }
         })
         this.cities = response.data.payload.data
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.fetchUsers()
@@ -295,7 +229,7 @@ export default {
         this.totalItems = response.data.payload.total
         this.options.page = response.data.payload.current_page
         this.options.itemsPerPage = parseInt(response.data.payload.per_page)
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.$store.dispatch('loading', false)

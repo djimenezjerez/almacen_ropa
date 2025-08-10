@@ -6,49 +6,28 @@
       </v-toolbar>
       <v-row class="pt-5 px-4" align="center" justify="start">
         <v-col cols="12">
-          <search-input
-            v-model="search"
-            label="Texto o parámetro de búsqueda"
-          />
+          <search-input v-model="search" label="Texto o parámetro de búsqueda" />
         </v-col>
       </v-row>
     </v-card>
     <v-row>
       <v-col cols="12">
-        <v-data-table
-          id="datatable"
-          :headers="headers"
-          :items="colors"
-          :options.sync="options"
-          :server-items-length="totalItems"
-          :footer-props="{
+        <v-data-table id="datatable" :headers="headers" :items="colors" :options.sync="options"
+          :server-items-length="totalItems" :footer-props="{
             itemsPerPageOptions: [8, 15, 30],
-          }"
-          :calculate-widths="true"
-        >
+          }" :calculate-widths="true">
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
           <template v-slot:[`item.hex`]="{ item }">
-            <v-avatar
-              :color="item.hex"
-              size="20"
-              tile
-              style="border: 1px solid black"
-            ></v-avatar>
+            <v-avatar :color="item.hex" size="20" tile style="border: 1px solid black"></v-avatar>
           </template>
           <template v-slot:[`item.actions`]="{ item }">
             <v-row dense no-gutters justify="space-around" align="center">
               <v-col cols="6">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="info"
-                      @click="$refs.colorForm.showDialog(true, item)"
-                    >
+                    <v-btn icon v-bind="attrs" v-on="on" color="info" @click="$refs.colorForm.showDialog(true, item)">
                       <v-icon dense> mdi-pencil </v-icon>
                     </v-btn>
                   </template>
@@ -58,13 +37,7 @@
               <v-col cols="6">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="error"
-                      @click="$refs.dialogRemove.showDialog(item)"
-                    >
+                    <v-btn icon v-bind="attrs" v-on="on" color="error" @click="$refs.dialogRemove.showDialog(item)">
                       <v-icon dense> mdi-close-circle </v-icon>
                     </v-btn>
                   </template>
@@ -76,12 +49,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <dialog-remove
-      ref="dialogRemove"
-      type="color"
-      url="color"
-      v-on:updateList="fetchColors"
-    />
+    <dialog-remove ref="dialogRemove" type="color" url="color" @updateList="fetchColors" />
     <color-form ref="colorForm" />
   </v-container>
 </template>

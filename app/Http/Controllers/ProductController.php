@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Color;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductName;
+use App\Models\ProductImage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use App\Http\Requests\SizeTypeRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Requests\StoreProductImageRequest;
-use App\Models\ProductImage;
+use App\Http\Requests\UpdateProductImageRequest;
 
 class ProductController extends Controller
 {
@@ -167,40 +171,89 @@ class ProductController extends Controller
         ];
     }
 
-    public function image(StoreProductImageRequest $request)
+    public function images(Product $product, Color $color, Request $request)
     {
-        $product = Product::findOrFail($request->id);
-        if ($request->has('url')) {
-            if (!is_null($request->url) && $request->url != '') {
-                ProductImage::updateOrCreate(
-                    [
-                        'product_name_id' => $product->product_name_id,
-                        'color_id' => $product->color_id,
-                    ],
-                    [
-                        'url' => $request->url,
-                        'path' => null,
-                    ],
-                );
-                return [
-                    'message' => 'Imagen cargada',
-                ];
+        $query = DB::table('product_images')->select('id', 'product_name_id', 'color_id', 'path', 'url', 'order', 'video')->orderBy('order');
+        $video = false;
+        if ($request->has('video')) {
+            $video = $request->boolean('video');
+        }
+        $query = $query->where('video', $video)->where('product_name_id', $product->product_name_id)->where('color_id', $color->id)->get();
+        foreach ($query as $item) {
+            $item->video = boolval($item->video);
+        }
+        return [
+            'message' => 'Lista de imágenes',
+            'payload' => [
+                'data' => $query,
+            ],
+        ];
+    }
+
+    public function update_image(ProductName $product, Color $color, ProductImage $image, UpdateProductImageRequest $request)
+    {
+        $image->product_name_id = $product->id;
+        $image->color_id = $color->id;
+        $image->video = $request->video;
+        $image->order = $request->order ?? 0;
+        if (is_null($image->url)) {
+            try {
+                if (File::exists(public_path($image->path))) {
+                    File::delete(public_path($image->path));
+                }
+            } catch (Exception) {
             }
         }
-        $file = str($product->product_name_id) . '_' . str($product->color_id) . '.' . $request->file->getClientOriginalExtension();
-        $file = $request->file->storeAs('products', $file, 'public');
-        ProductImage::updateOrCreate(
-            [
-                'product_name_id' => $product->product_name_id,
-                'color_id' => $product->color_id,
-            ],
-            [
-                'path' => 'storage/' . $file,
-                'url' => asset('storage/' . $file),
-            ],
-        );
+        if (!is_null($request->url) && $request->url != '') {
+            $image->path = null;
+            $image->url = $request->url;
+        } else {
+            $file = str($product->id) . '_' . str($color->id) . '.' . $request->file->getClientOriginalExtension();
+            $file = $request->file->storeAs('products', $file, 'public');
+            $image->path = 'storage/' . $file;
+            $image->url = asset('storage/' . $file);
+        }
+        $image->save();
         return [
             'message' => 'Imagen cargada',
+        ];
+    }
+
+    public function store_image(ProductName $product, Color $color, StoreProductImageRequest $request)
+    {
+        $image = new ProductImage();
+        $image->product_name_id = $product->id;
+        $image->color_id = $color->id;
+        $image->video = $request->video;
+        $image->order = $request->order ?? 0;
+        if (!is_null($request->url) && $request->url != '') {
+            $image->path = null;
+            $image->url = $request->url;
+        } else {
+            $file = str($product->id) . '_' . str($color->id) . '.' . $request->file->getClientOriginalExtension();
+            $file = $request->file->storeAs('products', $file, 'public');
+            $image->path = 'storage/' . $file;
+            $image->url = asset('storage/' . $file);
+        }
+        $image->save();
+        return [
+            'message' => 'Imagen cargada',
+        ];
+    }
+
+    public function destroy_image(Product $product, Color $color, ProductImage $image)
+    {
+        if (is_null($image->url)) {
+            try {
+                if (File::exists(public_path($image->path))) {
+                    File::delete(public_path($image->path));
+                }
+            } catch (Exception) {
+            }
+        }
+        $image->delete();
+        return [
+            'message' => 'Imagen eliminada',
         ];
     }
 

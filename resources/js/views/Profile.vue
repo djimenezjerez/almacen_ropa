@@ -2,19 +2,13 @@
   <div>
     <v-container>
       <v-row>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-card >
+        <v-col cols="12" md="6">
+          <v-card>
             <template slot="progress">
               <progress-bar />
             </template>
-            <v-toolbar
-              color="secondary"
-              dark
-            >
-              <tool-bar-title title="Datos del usuario"/>
+            <v-toolbar color="secondary" dark>
+              <tool-bar-title title="Datos del usuario" />
             </v-toolbar>
             <v-card-text>
               <v-simple-table>
@@ -58,62 +52,33 @@
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-card >
+        <v-col cols="12" md="6">
+          <v-card>
             <template slot="progress">
               <progress-bar />
             </template>
-            <v-toolbar
-              color="secondary"
-              dark
-            >
-              <tool-bar-title title="Cambiar contraseña"/>
+            <v-toolbar color="secondary" dark>
+              <tool-bar-title title="Cambiar contraseña" />
             </v-toolbar>
             <div class="px-5 pb-5">
               <validation-observer ref="passwordObserver" v-slot="{ invalid }">
-                <v-form @submit="changePassword" v-on:submit.prevent>
+                <v-form @submit="changePassword" @submit.prevent>
                   <v-card-text>
-                    <validation-provider
-                      v-slot="{ errors }"
-                      name="old_password"
-                      rules="required|min:3"
-                    >
-                      <v-text-field
-                        label="Contraseña actual"
-                        v-model="passwordForm.old_password"
-                        data-vv-name="old_password"
-                        :error-messages="errors"
-                        prepend-icon="mdi-lock"
-                        type="password"
-                      ></v-text-field>
+                    <validation-provider v-slot="{ errors }" name="old_password" rules="required|min:3">
+                      <v-text-field label="Contraseña actual" v-model="passwordForm.old_password"
+                        data-vv-name="old_password" :error-messages="errors" prepend-icon="mdi-lock"
+                        type="password"></v-text-field>
                     </validation-provider>
-                    <validation-provider
-                      v-slot="{ errors }"
-                      name="password"
-                      rules="required|min:3"
-                    >
-                      <v-text-field
-                        label="Contraseña nueva"
-                        v-model="passwordForm.password"
-                        data-vv-name="password"
-                        :error-messages="errors"
-                        prepend-icon="mdi-lock"
+                    <validation-provider v-slot="{ errors }" name="password" rules="required|min:3">
+                      <v-text-field label="Contraseña nueva" v-model="passwordForm.password" data-vv-name="password"
+                        :error-messages="errors" prepend-icon="mdi-lock"
                         :append-icon="shadowPassword ? 'mdi-eye' : 'mdi-eye-off'"
                         @click:append="() => (shadowPassword = !shadowPassword)"
-                        :type="shadowPassword ? 'password' : 'text'"
-                      ></v-text-field>
+                        :type="shadowPassword ? 'password' : 'text'"></v-text-field>
                     </validation-provider>
                   </v-card-text>
                   <v-card-actions>
-                    <v-btn
-                      block
-                      type="submit"
-                      color="info"
-                      :disabled="invalid"
-                    >Enviar</v-btn>
+                    <v-btn block type="submit" color="info" :disabled="invalid">Enviar</v-btn>
                   </v-card-actions>
                 </v-form>
               </validation-observer>
@@ -128,7 +93,7 @@
 <script>
 export default {
   name: 'Profile',
-  data: function() {
+  data: function () {
     return {
       shadowPassword: true,
       passwordForm: {
@@ -151,7 +116,7 @@ export default {
         this.user = response.data.payload.user
         this.role = response.data.payload.role
         this.store = response.data.payload.store
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.$store.dispatch('loading', false)
@@ -177,7 +142,7 @@ export default {
             })
           }
         }
-      } catch(error) {
+      } catch (error) {
         this.passwordForm.password = ''
         this.$refs.passwordObserver.reset()
         if ('errors' in error.response.data) {

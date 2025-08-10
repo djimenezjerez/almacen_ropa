@@ -62,6 +62,10 @@ const router = new VueRouter({
           name: 'inventoryDetails',
           component: () => import('@/components/products/ProductDetails.vue'),
         }, {
+          path: '/:storeType/:storeId/products/:productNameId/color/:colorId/images/:productId',
+          name: 'inventoryImages',
+          component: () => import('@/components/products/ProductImages.vue'),
+        }, {
           path: '/:storeType/:storeId/products/:productNameId/sizes/:productId',
           name: 'inventorySizes',
           component: () => import('@/components/products/ProductSizes.vue'),
@@ -73,6 +77,10 @@ const router = new VueRouter({
           path: '/products/:productNameId',
           name: 'productDetails',
           component: () => import('@/components/products/ProductDetails.vue'),
+        }, {
+          path: '/products/:productNameId/color/:colorId/images/:productId',
+          name: 'productImages',
+          component: () => import('@/components/products/ProductImages.vue'),
         }, {
           path: '/products/:productNameId/sizes/:productId',
           name: 'productSizes',

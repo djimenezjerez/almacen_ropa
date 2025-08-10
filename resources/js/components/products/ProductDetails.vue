@@ -2,36 +2,17 @@
   <v-container>
     <v-card class="pb-2">
       <v-toolbar color="secondary">
-        <router-link
-          style="text-decoration: none"
-          class="white--text text-h6 font-weight-light"
-          :to="breadcrumbs[0].to"
-          >{{ breadcrumbs[0].text }}</router-link
-        >
+        <router-link style="text-decoration: none" class="white--text text-h6 font-weight-light"
+          :to="breadcrumbs[0].to">{{ breadcrumbs[0].text }}</router-link>
         <span class="white--text px-3">/</span>
-        <router-link
-          style="text-decoration: none"
-          class="white--text text-h6 font-weight-regular"
-          :to="breadcrumbs[1].to"
-          >{{ breadcrumbs[1].text }}</router-link
-        >
+        <router-link style="text-decoration: none" class="white--text text-h6 font-weight-regular"
+          :to="breadcrumbs[1].to">{{ breadcrumbs[1].text }}</router-link>
         <span class="white--text px-3" v-if="isBuilding">/</span>
-        <router-link
-          style="text-decoration: none"
-          class="white--text text-h6 font-weight-regular"
-          :to="breadcrumbs[2].to"
-          v-if="isBuilding"
-          >{{ breadcrumbs[2].text }}</router-link
-        >
+        <router-link style="text-decoration: none" class="white--text text-h6 font-weight-regular"
+          :to="breadcrumbs[2].to" v-if="isBuilding">{{ breadcrumbs[2].text }}</router-link>
       </v-toolbar>
       <building-details v-if="isBuilding" :building="store" />
-      <v-row
-        class="background pb-0 px-4 mx-0"
-        align="center"
-        justify="start"
-        dense
-        :class="isBuilding ? '' : 'pt-2'"
-      >
+      <v-row class="background pb-0 px-4 mx-0" align="center" justify="start" dense :class="isBuilding ? '' : 'pt-2'">
         <v-col cols="4" md="2">
           <div class="text-right">Producto:</div>
         </v-col>
@@ -59,26 +40,16 @@
       </v-row>
       <v-row class="px-4" align="center" justify="start" dense>
         <v-col cols="12">
-          <search-input
-            v-model="search"
-            label="Texto o parámetro de búsqueda"
-          />
+          <search-input v-model="search" label="Texto o parámetro de búsqueda" />
         </v-col>
       </v-row>
     </v-card>
     <v-row>
       <v-col cols="12">
-        <v-data-table
-          id="datatable"
-          :headers="headers"
-          :items="products"
-          :options.sync="options"
-          :server-items-length="totalItems"
-          :footer-props="{
+        <v-data-table id="datatable" :headers="headers" :items="products" :options.sync="options"
+          :server-items-length="totalItems" :footer-props="{
             itemsPerPageOptions: [8, 15, 30],
-          }"
-          :calculate-widths="true"
-        >
+          }" :calculate-widths="true">
           <template v-slot:[`item.id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
@@ -86,15 +57,12 @@
             <v-chip :color="item.color_hex" label>{{ item.color_name }}</v-chip>
           </template>
           <template v-slot:[`item.gender_name`]="{ item }">
-            <div
-              :class="
-                item.gender_name == 'Mujer'
-                  ? 'font-italic'
-                  : item.gender_name == 'Unisex'
-                  ? ''
-                  : 'font-weight-bold'
-              "
-            >
+            <div :class="item.gender_name == 'Mujer'
+              ? 'font-italic'
+              : item.gender_name == 'Unisex'
+                ? ''
+                : 'font-weight-bold'
+              ">
               {{ item.gender_name }}
             </div>
           </template>
@@ -103,13 +71,7 @@
               <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="warning"
-                      @click="gotoProductSizes(item.id)"
-                    >
+                    <v-btn icon v-bind="attrs" v-on="on" color="warning" @click="gotoProductSizes(item.id)">
                       <v-icon dense> mdi-eye </v-icon>
                     </v-btn>
                   </template>
@@ -119,29 +81,26 @@
               <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="info"
-                      @click="$refs.dialogImage.showDialog(item)"
-                    >
+                    <v-btn icon v-bind="attrs" v-on="on" color="info"
+                      @click="gotoProductImages(item.id, item.color_id)">
+                      <v-icon dense> mdi-image </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Imágenes</span>
+                </v-tooltip>
+                <!-- <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn icon v-bind="attrs" v-on="on" color="info" @click="$refs.dialogImage.showDialog(item)">
                       <v-icon dense> mdi-image </v-icon>
                     </v-btn>
                   </template>
                   <span>Cargar imagen</span>
-                </v-tooltip>
+                </v-tooltip> -->
               </v-col>
               <v-col cols="4">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      v-bind="attrs"
-                      v-on="on"
-                      color="error"
-                      @click="$refs.dialogRemove.showDialog(item)"
-                    >
+                    <v-btn icon v-bind="attrs" v-on="on" color="error" @click="$refs.dialogRemove.showDialog(item)">
                       <v-icon dense> mdi-close-circle </v-icon>
                     </v-btn>
                   </template>
@@ -153,13 +112,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <dialog-remove
-      ref="dialogRemove"
-      :female="true"
-      type="variante"
-      url="product"
-      v-on:updateList="fetchProducts"
-    />
+    <dialog-remove ref="dialogRemove" :female="true" type="variante" url="product" @updateList="fetchProducts" />
     <product-image ref="dialogImage" />
   </v-container>
 </template>
@@ -309,6 +262,16 @@ export default {
     },
   },
   methods: {
+    gotoProductImages(productId, colorId) {
+      this.$router.push({
+        path: this.isBuilding
+          ? `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}/color/${colorId}/images/${productId}`
+          : `/products/${this.$route.params.productNameId}/color/${colorId}/images/${productId}`,
+        query: {
+          size_type_id: this.sizeType.id,
+        },
+      });
+    },
     gotoProductSizes(productId) {
       this.$router.push({
         path: this.isBuilding

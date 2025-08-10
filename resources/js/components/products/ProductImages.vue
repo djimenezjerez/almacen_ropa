@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card class="pb-2">
+    <v-card>
       <v-toolbar color="secondary">
         <router-link style="text-decoration: none" class="white--text text-h6 font-weight-light"
           :to="breadcrumbs[0].to">{{ breadcrumbs[0].text }}</router-link>
@@ -61,122 +61,68 @@
           <div class="font-weight-bold">{{ product.gender_name }}</div>
         </v-col>
       </v-row>
-      <v-row class="px-4" align="center" justify="start" dense>
-        <v-col cols="12">
-          <search-input v-model="search" label="Texto o parámetro de búsqueda" :inputLength="1" />
+      <v-row class="px-4 py-0 my-0" align="center" justify="start">
+        <v-col cols="12" sm="7" offset-sm="5" md="9" offset-md="3" xl="2" offset-xl="10" :class="{
+          'text-right': $vuetify.breakpoint.smAndUp,
+        }">
+          <add-button text="Agregar imagen" :block="$vuetify.breakpoint.xs" @click="$refs.dialogImage.showDialog({
+            id: null,
+            productNameId: product.product_name_id,
+            colorId: product.color_id,
+            file: null,
+            url: null,
+            video: false,
+            order: 0,
+          })" />
+        </v-col>
+      </v-row>
+      <v-row class="pb-1 pt-2 px-2 mx-0" align="center" justify="start" dense>
+        <v-col cols="12" sm="6" md="4" lg="3" xl="2" v-for="item in images" :key="item.id">
+          <v-img :src="item.url" :alt="item.url">
+            <template v-slot:placeholder>
+              <v-row class="fill-height ma-0" align="center" justify="center">
+                <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+              </v-row>
+            </template>
+            <div class="d-flex justify-end align-end fill-height">
+              <v-btn x-small fab icon color="warning" class="mr-1 mb-1">
+                <v-icon>mdi-cursor-move</v-icon>
+              </v-btn>
+              <v-btn x-small fab icon color="error" class="mr-1 mb-1" @click="$refs.imageRemove.showDialog(item)">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+              <v-btn x-small fab icon color="info" class="mr-1 mb-1" @click="$refs.dialogImage.showDialog({
+                ...item,
+                productNameId: item.product_name_id,
+                colorId: item.color_id,
+                path: null,
+                url: item.path ? null : item.url,
+              })">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+            </div>
+          </v-img>
         </v-col>
       </v-row>
     </v-card>
-    <v-row>
-      <v-col cols="12">
-        <v-data-table id="datatable" :headers="headers" :items="sizes" :options.sync="options"
-          :server-items-length="totalItems" :footer-props="{
-            itemsPerPageOptions: [8, 15, 30],
-          }" :calculate-widths="true">
-          <template v-slot:[`item.id`]="{ index }">
-            {{ $helpers.listIndex(index, options) }}
-          </template>
-          <template v-slot:[`item.active`]="{ item }">
-            <v-chip :color="isActive(item.active) ? 'success' : 'error'" dark small>
-              {{ isActive(item.active) ? "ACTIVO" : "INACTIVO" }}
-            </v-chip>
-          </template>
-          <template v-slot:[`item.size_name`]="{ item }">
-            <div :class="item.size_numeric ? 'font-weight-bold' : 'font-italic'">
-              {{ item.size_name }}
-            </div>
-          </template>
-          <template v-slot:[`item.actions`]="{ item }">
-            <v-row dense no-gutters justify="space-around" align="center">
-              <v-col cols="6">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn icon v-bind="attrs" v-on="on" :color="item.active ? 'error' : 'success'"
-                      @click="$refs.productSwitch.showDialog(item)">
-                      <v-icon dense> mdi-list-status </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>{{ item.active ? "Desactivar" : "Activar" }}</span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="6">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn icon v-bind="attrs" v-on="on" color="error" @click="$refs.sizeRemove.showDialog(item)">
-                      <v-icon dense> mdi-close-circle </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Remover</span>
-                </v-tooltip>
-              </v-col>
-            </v-row>
-          </template>
-        </v-data-table>
-      </v-col>
-    </v-row>
-    <size-remove ref="sizeRemove" @updateList="fetchSizes" />
-    <product-switch ref="productSwitch" @updateList="fetchSizes" />
+    <image-remove ref="imageRemove" @updateList="fetchImages" />
+    <product-image ref="dialogImage" @updateImage="fetchImages" />
   </v-container>
 </template>
 
 <script>
 export default {
-  name: "ProductSizes",
+  name: "ProductImages",
   components: {
-    "size-remove": () => import("@/components/products/SizeRemove.vue"),
-    "product-switch": () => import("@/components/products/ProductSwitch.vue"),
+    "image-remove": () => import("@/components/products/ImageRemove.vue"),
     "building-details": () => import("@/components/shared/BuildingDetails.vue"),
+    "product-image": () => import("@/components/products/ProductImageForm.vue"),
   },
   data() {
     return {
-      search: null,
-      options: {
-        page: 1,
-        itemsPerPage: 8,
-        sortDesc: [],
-      },
-      totalItems: 0,
       store: {},
       product: {},
-      sizes: [],
-      headers: [
-        {
-          text: "NRO",
-          align: "center",
-          sortable: false,
-          value: "id",
-          class: this.$headerClass,
-        },
-        {
-          text: "TALLA",
-          align: "center",
-          sortable: true,
-          value: "size_name",
-          class: this.$headerClass,
-        },
-        {
-          text: "STOCK",
-          align: "center",
-          sortable: false,
-          value: "stock",
-          class: this.$headerClass,
-        },
-        {
-          text: "ESTADO",
-          align: "center",
-          sortable: true,
-          value: "active",
-          class: this.$headerClass,
-        },
-        {
-          text: "ACCIONES",
-          align: "center",
-          value: "actions",
-          sortable: false,
-          width: "80px",
-          class: this.$headerClass,
-        },
-      ],
+      images: [],
     };
   },
   computed: {
@@ -214,10 +160,10 @@ export default {
             },
           },
           {
-            text: "Tallas",
+            text: "Imágenes",
             disabled: true,
             to: {
-              path: `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}/sizes/${this.$route.params.productId}`,
+              path: `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}/images/${this.$route.params.productId}`,
               query: {
                 size_type_id: this.$route.query.size_type_id,
               },
@@ -244,10 +190,10 @@ export default {
             },
           },
           {
-            text: "Tallas",
+            text: "Imágenes",
             disabled: true,
             to: {
-              path: `/products/${this.$route.params.productNameId}/sizes/${this.$route.params.productId}`,
+              path: `/products/${this.$route.params.productNameId}/images/${this.$route.params.productId}`,
               query: {
                 size_type_id: this.$route.query.size_type_id,
               },
@@ -259,22 +205,6 @@ export default {
   },
   mounted() {
     this.fetchProduct();
-  },
-  watch: {
-    options: function (newVal, oldVal) {
-      if (
-        newVal.page != oldVal.page ||
-        newVal.itemsPerPage != oldVal.itemsPerPage ||
-        newVal.sortBy != oldVal.sortBy ||
-        newVal.sortDesc != oldVal.sortDesc
-      ) {
-        this.fetchSizes();
-      }
-    },
-    search: function () {
-      this.options.page = 1;
-      this.fetchSizes();
-    },
   },
   methods: {
     isActive(active) {
@@ -292,7 +222,7 @@ export default {
           }
         );
         this.product = response.data.payload;
-        this.fetchSizes();
+        this.fetchImages();
       } catch (error) {
         console.error(error);
       } finally {
@@ -309,27 +239,13 @@ export default {
         console.error(error);
       }
     },
-    async fetchSizes() {
+    async fetchImages() {
       try {
         this.$store.dispatch("loading", true);
         let response = await axios.get(
-          `product/${this.$route.params.productId}/sizes`,
-          {
-            params: {
-              page: this.options.page,
-              per_page: this.options.itemsPerPage,
-              sort_by: this.options.sortBy,
-              sort_desc: this.options.sortDesc,
-              search: this.search,
-              size_type_id: this.$route.query.size_type_id,
-              store_id: this.$route.params.storeId,
-            },
-          }
+          `product/${this.$route.params.productId}/color/${this.$route.params.colorId}/images`,
         );
-        this.sizes = response.data.payload.data;
-        this.totalItems = response.data.payload.total;
-        this.options.page = response.data.payload.current_page;
-        this.options.itemsPerPage = parseInt(response.data.payload.per_page);
+        this.images = response.data.payload.data;
       } catch (error) {
         console.error(error);
       } finally {
