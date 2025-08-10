@@ -16,6 +16,7 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Requests\StoreProductImageRequest;
 use App\Http\Requests\UpdateProductImageRequest;
+use App\Http\Requests\UpdateProductImageOrderRequest;
 
 class ProductController extends Controller
 {
@@ -188,6 +189,31 @@ class ProductController extends Controller
                 'data' => $query,
             ],
         ];
+    }
+
+    public function image_order(Product $product, Color $color, UpdateProductImageOrderRequest $request)
+    {
+        DB::beginTransaction();
+        try {
+            $items = collect($request->images);
+            $images = ProductImage::whereIn('id', $items->pluck('id'))->get();
+            foreach ($items as $item) {
+                $image = $images->where('id', '=', $item['id'])->first();
+                if ($image) {
+                    $image->order = $item['order'];
+                    $image->save();
+                }
+            }
+            DB::commit();
+            return [
+                'message' => 'Secuencia actualizada',
+            ];
+        } catch (Exception) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error al actualizar la secuencia'
+            ], 500);
+        }
     }
 
     public function update_image(ProductName $product, Color $color, ProductImage $image, UpdateProductImageRequest $request)

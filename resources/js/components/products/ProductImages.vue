@@ -76,8 +76,8 @@
           })" />
         </v-col>
       </v-row>
-      <v-row class="pb-1 pt-2 px-2 mx-0" align="center" justify="start" dense>
-        <v-col cols="12" sm="6" md="4" lg="3" xl="2" v-for="item in images" :key="item.id">
+      <draggable v-model="images" group="images" tag="v-row" v-bind="dragOptions" @start="drag = true" @end="endDrag">
+        <v-col v-for="item in images" :key="item.id" cols="12" sm="6" md="4" lg="3" xl="2">
           <v-img :src="item.url" :alt="item.url">
             <template v-slot:placeholder>
               <v-row class="fill-height ma-0" align="center" justify="center">
@@ -103,7 +103,7 @@
             </div>
           </v-img>
         </v-col>
-      </v-row>
+      </draggable>
     </v-card>
     <image-remove ref="imageRemove" @updateList="fetchImages" />
     <product-image ref="dialogImage" @updateImage="fetchImages" />
@@ -111,21 +111,33 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
+
 export default {
   name: "ProductImages",
   components: {
+    draggable,
     "image-remove": () => import("@/components/products/ImageRemove.vue"),
     "building-details": () => import("@/components/shared/BuildingDetails.vue"),
     "product-image": () => import("@/components/products/ProductImageForm.vue"),
   },
   data() {
     return {
+      drag: false,
       store: {},
       product: {},
       images: [],
     };
   },
   computed: {
+    dragOptions() {
+      return {
+        animation: 200,
+        group: 'images',
+        disabled: false,
+        ghostClass: 'ghost',
+      };
+    },
     isBuilding() {
       return this.$route.params.storeId != undefined;
     },
@@ -207,6 +219,26 @@ export default {
     this.fetchProduct();
   },
   methods: {
+    async endDrag(event) {
+      this.drag = false;
+      try {
+        this.$store.dispatch("loading", true);
+        for (let i = 0; i < this.images.length; i++) {
+          this.images[i].order = i + 1
+        }
+        await axios.post(
+          `product/${this.$route.params.productId}/color/${this.$route.params.colorId}/images/order`,
+          {
+            images: this.images,
+          },
+        );
+      } catch (error) {
+        this.fetchImages();
+        console.error(error);
+      } finally {
+        this.$store.dispatch("loading", false);
+      }
+    },
     isActive(active) {
       return active == true;
     },
@@ -255,3 +287,10 @@ export default {
   },
 };
 </script>
+
+<style>
+.ghost {
+  opacity: 0.5;
+  background: #37474F;
+}
+</style>

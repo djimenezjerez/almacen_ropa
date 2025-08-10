@@ -128,6 +128,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('product/{product}/details', [ProductController::class, 'details']);
         Route::get('product/{product}/color/{color}/images', [ProductController::class, 'images']);
         Route::post('product/{product}/color/{color}/images', [ProductController::class, 'store_image']);
+        Route::post('product/{product}/color/{color}/images/order', [ProductController::class, 'image_order']);
         Route::patch('product/{product}/color/{color}/images/{image}', [ProductController::class, 'update_image']);
         Route::delete('product/{product}/color/{color}/images/{image}', [ProductController::class, 'destroy_image']);
         // Nombres de productos
