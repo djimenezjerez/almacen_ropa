@@ -11,11 +11,24 @@ class StoreProductImageRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'video' => $this->boolean('video', false),
+            'order' => $this->get('order', 0),
+        ]);
+        if ($this->has('url')) {
+            $this->merge([
+                'url' => $this->get('url', null) ? trim($this->get('url')) : null,
+            ]);
+        }
+    }
+
     public function rules()
     {
         $rules = [
             'url' => 'required_without:file|url:http,https|max:255',
-            'video' => 'required|nullable',
+            'video' => 'required|boolean',
             'order' => 'nullable|integer|min:0',
         ];
         if ($this->boolean('video')) {

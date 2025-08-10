@@ -20,18 +20,20 @@
                   <validation-provider v-slot="{ errors }" name="video" rules="required">
                     <v-select :items="types" item-text="text" item-value="value" label="Tipo de medio"
                       v-model="form.video" data-vv-name="video" :error-messages="errors"
-                      :prepend-icon="form.video ? 'mdi-image' : 'mdi-video'"></v-select>
+                      :prepend-icon="form.video ? 'mdi-image' : 'mdi-video'"
+                      @change="form.url = null; form.file = null;"></v-select>
                   </validation-provider>
                 </v-col>
                 <v-col cols="12">
                   <validation-provider v-slot="{ errors }" name="url" rules="min:0|max:255">
-                    <v-text-field label="URL de imagen" v-model.number="form.url" data-vv-name="url"
-                      :error-messages="errors" prepend-icon="mdi-web"></v-text-field>
+                    <v-text-field :label="form.video ? 'URL de video' : 'URL de imagen'" v-model.number="form.url"
+                      data-vv-name="url" :error-messages="errors" prepend-icon="mdi-web"></v-text-field>
                   </validation-provider>
                 </v-col>
                 <v-col cols="12">
                   <validation-provider v-slot="{ errors }" name="file" rules="">
-                    <v-file-input accept="image/*" label="Cargar imagen" v-model="form.file" data-vv-name="file"
+                    <v-file-input :accept="form.video ? 'video/*' : 'image/*'"
+                      :label="form.video ? 'Cargar video' : 'Cargar imagen'" v-model="form.file" data-vv-name="file"
                       :error-messages="errors" prepend-icon="mdi-paperclip" @change="form.url = null"></v-file-input>
                   </validation-provider>
                 </v-col>
@@ -66,11 +68,11 @@ export default {
       dialog: false,
       types: [
         {
-          value: true,
-          text: 'Video',
-        }, {
           value: false,
           text: 'Imagen',
+        }, {
+          value: true,
+          text: 'Video',
         },
       ],
       form: {

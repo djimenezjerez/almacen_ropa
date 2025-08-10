@@ -175,11 +175,7 @@ class ProductController extends Controller
     public function images(Product $product, Color $color, Request $request)
     {
         $query = DB::table('product_images')->select('id', 'product_name_id', 'color_id', 'path', 'url', 'order', 'video')->orderBy('order');
-        $video = false;
-        if ($request->has('video')) {
-            $video = $request->boolean('video');
-        }
-        $query = $query->where('video', $video)->where('product_name_id', $product->product_name_id)->where('color_id', $color->id)->get();
+        $query = $query->where('product_name_id', $product->product_name_id)->where('color_id', $color->id)->get();
         foreach ($query as $item) {
             $item->video = boolval($item->video);
         }
@@ -220,9 +216,9 @@ class ProductController extends Controller
     {
         $image->product_name_id = $product->id;
         $image->color_id = $color->id;
-        $image->video = $request->video;
+        $image->video = $request->boolean('video');
         $image->order = $request->order ?? 0;
-        if (is_null($image->url)) {
+        if (is_null($request->url)) {
             try {
                 if (File::exists(public_path($image->path))) {
                     File::delete(public_path($image->path));
@@ -234,7 +230,7 @@ class ProductController extends Controller
             $image->path = null;
             $image->url = $request->url;
         } else {
-            $file = str($product->id) . '_' . str($color->id) . '.' . $request->file->getClientOriginalExtension();
+            $file = str($product->id) . '_' . str($color->id) . '_' . uniqid() . '.' . $request->file->getClientOriginalExtension();
             $file = $request->file->storeAs('products', $file, 'public');
             $image->path = 'storage/' . $file;
             $image->url = asset('storage/' . $file);
@@ -250,13 +246,13 @@ class ProductController extends Controller
         $image = new ProductImage();
         $image->product_name_id = $product->id;
         $image->color_id = $color->id;
-        $image->video = $request->video;
+        $image->video = $request->boolean('video');
         $image->order = $request->order ?? 0;
         if (!is_null($request->url) && $request->url != '') {
             $image->path = null;
             $image->url = $request->url;
         } else {
-            $file = str($product->id) . '_' . str($color->id) . '.' . $request->file->getClientOriginalExtension();
+            $file = str($product->id) . '_' . str($color->id) . '_' . uniqid() . '.' . $request->file->getClientOriginalExtension();
             $file = $request->file->storeAs('products', $file, 'public');
             $image->path = 'storage/' . $file;
             $image->url = asset('storage/' . $file);

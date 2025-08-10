@@ -78,7 +78,28 @@
       </v-row>
       <draggable v-model="images" group="images" tag="v-row" v-bind="dragOptions" @start="drag = true" @end="endDrag">
         <v-col v-for="item in images" :key="item.id" cols="12" sm="6" md="4" lg="3" xl="2">
-          <v-img :src="item.url" :alt="item.url">
+          <div style="width: 100%; position: relative;" v-if="item.video">
+            <video controls style="top: 0; left: 0; width: 100%; object-fit: cover; border: 1px solid #37474F;"
+              :src="item.url" />
+            <div class="d-flex justify-end align-end fill-height">
+              <v-btn x-small fab icon color="warning" class="mr-1 mb-1">
+                <v-icon>mdi-cursor-move</v-icon>
+              </v-btn>
+              <v-btn x-small fab icon color="error" class="mr-1 mb-1" @click="$refs.imageRemove.showDialog(item)">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+              <v-btn x-small fab icon color="info" class="mr-1 mb-1" @click="$refs.dialogImage.showDialog({
+                ...item,
+                productNameId: item.product_name_id,
+                colorId: item.color_id,
+                path: null,
+                url: item.path ? null : item.url,
+              })">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+            </div>
+          </div>
+          <v-img :src="item.url" :alt="item.url" v-else>
             <template v-slot:placeholder>
               <v-row class="fill-height ma-0" align="center" justify="center">
                 <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
@@ -111,7 +132,7 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable'
+import draggable from 'vuedraggable';
 
 export default {
   name: "ProductImages",
