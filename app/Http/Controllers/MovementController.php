@@ -170,9 +170,9 @@ class MovementController extends Controller
             $movement->save();
             foreach ($request->details as $detail) {
                 $product = Product::with('name:id,sell_price')->find((int)$detail['id']);
-                $movement->total_price += $product->name->sell_price * (int)$detail['stock'];
                 $movement_detail = new MovementDetail();
                 $movement_detail->product()->associate($product);
+                $movement_detail->discount = 0;
                 switch ($movement_type->code) {
                     case 'ENTRY':
                     case 'CANCEL_SELL':
@@ -185,6 +185,9 @@ class MovementController extends Controller
                         break;
                     case 'ADJUSTMENT':
                     case 'SELL':
+                        if ($movement_type->code == 'SELL') {
+                            $movement_detail->discount = (float)$detail['discount'];
+                        }
                         $movement_detail->stock = -1 * (int)$detail['stock'];
                         $movement_detail->store_id = $movement->from_store_id;
                         $movement_detail->movement()->associate($movement);
@@ -212,6 +215,7 @@ class MovementController extends Controller
                             ]
                         ], 422);
                 }
+                $movement->total_price += ($product->name->sell_price - $movement_detail->discount) * (int)$detail['stock'];
             }
             $movement->save();
             DB::commit();
@@ -240,6 +244,8 @@ class MovementController extends Controller
             $query = DB::table('movement_details')->select('movement_details.id', 'sizes.name as size_name')->selectRaw('ABS(movement_details.stock) as stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('movement_details.movement_id', $movement->id)->where('products.product_name_id', $product->product_name_id)->where('products.brand_id', $product->brand_id)->where('products.gender_id', $product->gender_id)->where('products.color_id', $product->color_id)->where('product_names.category_id', $product->category_id)->where('sizes.size_type_id', $product->size_type_id);
             if ($data->movement_type_code === 'TRANSFER') {
                 $query->where('movement_details.stock', '>', 0);
+            } else if ($data->movement_type_code === 'SELL') {
+                $query->selectRaw('movement_details.discount as discount');
             }
             $products[$i]->products = $query->get();
         }

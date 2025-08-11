@@ -9,11 +9,16 @@ class MovementDetail extends Model
     protected $fillable = [
         'movement_id',
         'product_id',
+        'discount',
         'stock',
         'store_id',
     ];
 
     public $timestamps = true;
+
+    protected $casts = [
+        'discount' => 'float',
+    ];
 
     public function movement()
     {

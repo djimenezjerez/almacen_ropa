@@ -27,7 +27,7 @@ class ProductSelectionController extends Controller
         $query = DB::table('products')->select('size_types.id', 'size_types.name');
 
         if ($store) {
-            $query->joinSub($movements, 'md', function($join) {
+            $query->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         }
@@ -69,7 +69,7 @@ class ProductSelectionController extends Controller
         $query = DB::table('products')->select('product_names.id as product_name_id', 'product_names.name as product_name', 'categories.id as category_id', 'categories.name as category_name');
 
         if ($store) {
-            $query->joinSub($movements, 'md', function($join) {
+            $query->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         }
@@ -112,7 +112,7 @@ class ProductSelectionController extends Controller
         $query = DB::table('products')->select('genders.id', 'genders.name');
 
         if ($store) {
-            $query->joinSub($movements, 'md', function($join) {
+            $query->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         }
@@ -156,7 +156,7 @@ class ProductSelectionController extends Controller
         $query = DB::table('products')->select('brands.id', 'brands.name');
 
         if ($store) {
-            $query->joinSub($movements, 'md', function($join) {
+            $query->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         }
@@ -201,7 +201,7 @@ class ProductSelectionController extends Controller
         $query = DB::table('products')->select('colors.id', 'colors.name');
 
         if ($store) {
-            $query->joinSub($movements, 'md', function($join) {
+            $query->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         }
@@ -254,14 +254,14 @@ class ProductSelectionController extends Controller
         $query = DB::table('products')->select('products.id', 'sizes.id as size_id', 'sizes.name as size_name', 'product_names.sell_price');
 
         if ($store) {
-            $query->selectRaw('coalesce(md.stock, 0) as total_stock')->selectRaw('1 as stock')->joinSub($movements, 'md', function($join) {
+            $query->selectRaw('coalesce(md.stock, 0) as total_stock')->selectRaw('1 as stock')->selectRaw('0 as discount')->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
             if ($request->available) {
                 $query->where('md.stock', '>', 0);
             }
         } else {
-            $query->selectRaw('coalesce(products.stock, 0) as total_stock')->selectRaw('1 as stock');
+            $query->selectRaw('coalesce(products.stock, 0) as total_stock')->selectRaw('1 as stock')->selectRaw('0 as discount');
             if ($request->available) {
                 $query->where('products.stock', '>', 0);
             }

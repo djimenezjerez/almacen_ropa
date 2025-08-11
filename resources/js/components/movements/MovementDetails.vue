@@ -1,19 +1,15 @@
 <template>
   <v-container>
     <v-card>
-      <v-toolbar
-        color="secondary"
-      >
-        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/${$route.query.type}` }">{{ $route.query.type == 'movements' ? 'Movimientos de stock' : 'Ventas' }}</router-link>
+      <v-toolbar color="secondary">
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light"
+          :to="{ path: `/${$route.query.type}` }">{{ $route.query.type == 'movements' ? 'Movimientos de stock' :
+            'Ventas' }}</router-link>
         <span class="white--text px-3">/</span>
-        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light" :to="{ path: `/${$route.query.type}/${$route.params.movementId}` }">Detalle</router-link>
+        <router-link style="text-decoration: none;" class="white--text text-h6 font-weight-light"
+          :to="{ path: `/${$route.query.type}/${$route.params.movementId}` }">Detalle</router-link>
       </v-toolbar>
-      <v-row
-        class="backgroundContrast pb-0 pt-2 px-4 mx-0"
-        align="center"
-        justify="start"
-        dense
-      >
+      <v-row class="backgroundContrast pb-0 pt-2 px-4 mx-0" align="center" justify="start" dense>
         <v-col cols="4" md="2">
           <div class="text-right">Movimiento: </div>
         </v-col>
@@ -67,15 +63,10 @@
         <v-col cols="12">
           <div class="text-h5 font-weight-bold text-center">Productos</div>
         </v-col>
-        <v-row dense v-for="(item, index) in products" :key="index" class="mb-2" style="border: thin solid black; border-radius: 15px;">
+        <v-row dense v-for="(item, index) in products" :key="index" class="mb-2"
+          style="border: thin solid black; border-radius: 15px;">
           <v-col cols="12">
-            <v-row
-              class="background"
-              align="center"
-              justify="start"
-              dense
-              style="border-radius: 15px 20px 0px 0px;"
-            >
+            <v-row class="background" align="center" justify="start" dense style="border-radius: 15px 20px 0px 0px;">
               <v-col cols="4" md="2">
                 <div class="text-right">Producto: </div>
               </v-col>
@@ -125,27 +116,29 @@
                     <th class="text-center" :width="isSell ? '30%' : '45%'">
                       TALLA
                     </th>
-                    <th class="text-right" width="20%" v-if="isSell">
+                    <th class="text-right" :width="isSell ? '15%' : '20%'" v-if="isSell">
                       PRECIO UNITARIO
                     </th>
-                    <th class="text-center" :width="isSell ? '20%' : '45%'">
+                    <th class="text-right" width="15%" v-if="isSell">
+                      DESCUENTO
+                    </th>
+                    <th class="text-center" :width="isSell ? '15%' : '45%'">
                       CANTIDAD
                     </th>
-                    <th class="text-right" width="20%" v-if="isSell">
+                    <th class="text-right" :width="isSell ? '15%' : '20%'" v-if="isSell">
                       SUBTOTAL
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    v-for="(product, i) in item.products"
-                    :key="product.id"
-                  >
-                    <td class="text-center">{{ i+1 }}</td>
+                  <tr v-for="(product, i) in item.products" :key="product.id">
+                    <td class="text-center">{{ i + 1 }}</td>
                     <td class="text-center">{{ product.size_name }}</td>
                     <td class="text-right" v-if="isSell">{{ item.sell_price.toFixed(2) }}</td>
+                    <td class="text-right" v-if="isSell">{{ product.discount.toFixed(2) }}</td>
                     <td class="text-center">{{ product.stock }}</td>
-                    <td class="text-right" v-if="isSell">{{ (item.sell_price * product.stock).toFixed(2) }}</td>
+                    <td class="text-right" v-if="isSell">{{ ((item.sell_price - product.discount) *
+                      product.stock).toFixed(2) }}</td>
                   </tr>
                 </tbody>
               </template>
@@ -174,11 +167,7 @@
       <v-card-actions v-show="products.length > 0">
         <v-row dense justify="end">
           <v-col cols="12" md="4">
-            <v-btn
-              block
-              color="info"
-              @click.stop="gotoMovements()"
-            >
+            <v-btn block color="info" @click.stop="gotoMovements()">
               Volver
             </v-btn>
           </v-col>
@@ -217,7 +206,7 @@ export default {
         let response = await axios.get(`movement/${this.$route.params.movementId}`)
         this.movement = response.data.payload.movement
         this.products = response.data.payload.products
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.$store.dispatch('loading', false)

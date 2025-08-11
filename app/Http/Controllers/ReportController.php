@@ -26,7 +26,7 @@ class ReportController extends Controller
 
         $products = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name');
         if ($store) {
-            $products->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function($join) {
+            $products->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
@@ -35,8 +35,8 @@ class ReportController extends Controller
         $products->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.deleted_at', null)->where('size_types.id', (int)$request->size_type_id)->groupBy('products.product_name_id');
         if ($request->has('search')) {
             if ($request->search != '') {
-                $products->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $products->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
@@ -44,7 +44,7 @@ class ReportController extends Controller
 
         $details = DB::table('products')->select('products.product_name_id', 'products.size_id');
         if ($store) {
-            $details->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function($join) {
+            $details->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function ($join) {
                 $join->on('products.id', '=', 'md.product_id');
             });
         } else {
@@ -53,8 +53,8 @@ class ReportController extends Controller
         $details->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.deleted_at', null);
         if ($request->has('search')) {
             if ($request->search != '') {
-                $details->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $details->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
@@ -65,7 +65,7 @@ class ReportController extends Controller
             $stock = [];
             $product_details = $details->where('product_name_id', $product->product_name_id);
             foreach ($sizes as $size) {
-                $detail = $product_details->filter(function($item) use ($size) {
+                $detail = $product_details->filter(function ($item) use ($size) {
                     return $item->size_id == $size->id;
                 })->first();
                 if ($detail) {
@@ -128,25 +128,25 @@ class ReportController extends Controller
         $movements->groupBy('movement_details.product_id');
         $sizes = DB::table('sizes')->select('sizes.id', 'sizes.name', 'sizes.numeric')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('size_types.id', (int)$request->size_type_id)->orderBy('sizes.numeric')->orderBy('sizes.order')->orderBy('sizes.name')->get();
 
-        $products = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name')->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function($join) {
+        $products = DB::table('products')->select('products.product_name_id', 'categories.name as category_name', 'product_names.name as product_name')->selectRaw('cast(sum(md.stock) as INTEGER) as total_stock')->joinSub($movements, 'md', function ($join) {
             $join->on('products.id', '=', 'md.product_id');
         })->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.deleted_at', null)->where('size_types.id', (int)$request->size_type_id)->groupBy('products.product_name_id');
         if ($request->has('search')) {
             if ($request->search != '') {
-                $products->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $products->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
         $products = $products->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1)->toArray();
 
-        $details = DB::table('products')->select('products.product_name_id', 'products.size_id')->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function($join) {
+        $details = DB::table('products')->select('products.product_name_id', 'products.size_id')->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function ($join) {
             $join->on('products.id', '=', 'md.product_id');
         })->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->where('products.deleted_at', null);
         if ($request->has('search')) {
             if ($request->search != '') {
-                $details->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->where(function($q) use ($request) {
-                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $details->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->where(function ($q) use ($request) {
+                    return $q->orWhere(DB::raw('upper(product_names.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(categories.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
                 });
             }
         }
@@ -157,7 +157,7 @@ class ReportController extends Controller
             $stock = [];
             $product_details = $details->where('product_name_id', $product->product_name_id);
             foreach ($sizes as $size) {
-                $detail = $product_details->filter(function($item) use ($size) {
+                $detail = $product_details->filter(function ($item) use ($size) {
                     return $item->size_id == $size->id;
                 })->first();
                 if ($detail) {
@@ -221,13 +221,13 @@ class ReportController extends Controller
             $counter->limit($request->per_page ?? 100);
         }
 
-        $query = DB::table('movements')->select('movement_details.product_id', 'movements.created_at', 'product_names.name as product_name', 'product_names.sell_price', 'colors.name as color_name', 'sizes.name as size_name')->leftJoin('movement_details', 'movement_details.movement_id', '=', 'movements.id')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->joinSub($counter, 'counter', function ($join) {
+        $query = DB::table('movements')->select('movement_details.product_id', 'movements.created_at', 'product_names.name as product_name', 'colors.name as color_name', 'sizes.name as size_name')->selectRaw('product_names.sell_price - movement_details.discount AS sell_price')->leftJoin('movement_details', 'movement_details.movement_id', '=', 'movements.id')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->joinSub($counter, 'counter', function ($join) {
             $join->on(DB::raw('abs(movement_details.stock)'), '>=', 'counter.count');
         });
 
         if ($request->has('search') && (int)$request->pdf == 0) {
             if ($request->search != '') {
-                $query->where(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $query->where(DB::raw('upper(product_names.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
             }
         }
 
@@ -253,7 +253,7 @@ class ReportController extends Controller
                         ],
                     ],
                 ];
-            } catch(\Throwable $e) {
+            } catch (\Throwable $e) {
                 logger($e);
                 return response()->json([
                     'message' => 'Error al generar el PDF',
@@ -261,11 +261,11 @@ class ReportController extends Controller
             }
         }
 
-        $details = DB::table('movements')->selectRaw('product_names.sell_price * abs(movement_details.stock) as subtotal')->leftJoin('movement_details', 'movement_details.movement_id', '=', 'movements.id')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id');
+        $details = DB::table('movements')->selectRaw('(product_names.sell_price - movement_details.discount) * abs(movement_details.stock) as subtotal')->leftJoin('movement_details', 'movement_details.movement_id', '=', 'movements.id')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id');
 
         if ($request->has('search') && (int)$request->pdf == 0) {
             if ($request->search != '') {
-                $details->where(DB::raw('upper(product_names.name)'), 'like', '%'.trim(mb_strtoupper($request->search)).'%');
+                $details->where(DB::raw('upper(product_names.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
             }
         }
 

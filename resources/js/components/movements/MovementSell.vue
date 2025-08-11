@@ -98,16 +98,19 @@
                     <th class="text-center" width="20%">
                       TALLA
                     </th>
-                    <th class="text-center" width="15%">
+                    <th class="text-center" width="10%">
                       STOCK ACTUAL
                     </th>
-                    <th class="text-right" width="15%">
+                    <th class="text-right" width="10%">
                       PRECIO UNITARIO
+                    </th>
+                    <th class="text-right" width="15%">
+                      DESCUENTO
                     </th>
                     <th class="text-center" width="15%">
                       CANTIDAD
                     </th>
-                    <th class="text-right" width="15%">
+                    <th class="text-right" width="10%">
                       SUBTOTAL
                     </th>
                     <th class="text-center" width="10%">
@@ -122,11 +125,18 @@
                     <td class="text-center">{{ product.total_stock }}</td>
                     <td class="text-right">{{ product.sell_price.toFixed(2) }}</td>
                     <td>
+                      <v-text-field v-model="product.discount" type="number" min="0"
+                        :max="parseFloat(product.sell_price.toFixed(2))" hide-details="auto" outlined dense
+                        minlength="1" required
+                        :class="$helpers.discountExceded(product) ? 'text-input-red' : ''"></v-text-field>
+                    </td>
+                    <td>
                       <v-text-field v-model="product.stock" type="number" min="1" :max="product.total_stock"
-                        hide-details outlined dense minlength="1" required
+                        hide-details="auto" outlined dense minlength="1" required
                         :class="$helpers.stockExceded(product) ? 'text-input-red' : ''"></v-text-field>
                     </td>
-                    <td class="text-right">{{ (product.sell_price * product.stock).toFixed(2) }}</td>
+                    <td class="text-right">{{ ((product.sell_price - product.discount) * product.stock).toFixed(2) }}
+                    </td>
                     <td class="text-center">
                       <v-btn icon color="error" @click="removeProduct(index, i)">
                         <v-icon dense>
@@ -148,7 +158,8 @@
                   <tr>
                     <td colspan="6" class="text-right font-weight-bold" width="75%">TOTAL</td>
                     <td class="text-right font-weight-bold" width="15%">{{products.map(o => o.products.map(i =>
-                      i.sell_price * i.stock).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b, 0).toFixed(2) }}</td>
+                      (i.sell_price - i.discount) * i.stock).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b,
+                        0).toFixed(2)}}</td>
                     <td width="10%"></td>
                   </tr>
                 </tbody>
@@ -198,9 +209,17 @@ export default {
       try {
         this.$store.dispatch('loading', true)
         let valid = true
+        let message = ''
         this.products.forEach(item => {
           item.products.forEach(product => {
-            if (this.$helpers.stockExceded(product)) {
+            let stockExceded = this.$helpers.stockExceded(product)
+            let discountExceded = this.$helpers.discountExceded(product)
+            if (stockExceded || discountExceded) {
+              if (stockExceded) {
+                message = `La cantidad no puede exceder el stock actual`
+              } else if (discountExceded) {
+                message = `El descuento no puede exceder el precio unitario`
+              }
               valid = false
             }
           })
@@ -218,7 +237,7 @@ export default {
             this.$toast.success(response.data.message)
             this.$router.push({ path: '/sells' })
           } else {
-            this.$toast.error(`La cantidad no puede exceder el stock actual`)
+            this.$toast.error(message)
           }
         })
       } catch (error) {

@@ -1,10 +1,10 @@
 import Vue from 'vue'
 
 Vue.prototype.$helpers = {
-  listIndex: function(index, options) {
-    return index + 1 + (options.itemsPerPage * (options.page-1))
+  listIndex: function (index, options) {
+    return index + 1 + (options.itemsPerPage * (options.page - 1))
   },
-  stockExceded: function(product) {
+  stockExceded: function (product) {
     try {
       const total = parseInt(product.total_stock)
       const stock = parseInt(product.stock)
@@ -13,7 +13,20 @@ Vue.prototype.$helpers = {
       } else {
         return false
       }
-    } catch(error) {
+    } catch (error) {
+      return true
+    }
+  },
+  discountExceded: function (product) {
+    try {
+      const maxPrice = product.sell_price
+      const discount = product.discount
+      if (maxPrice < discount || discount < 0) {
+        return true
+      } else {
+        return false
+      }
+    } catch (error) {
       return true
     }
   },
