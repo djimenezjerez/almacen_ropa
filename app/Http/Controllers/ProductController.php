@@ -289,8 +289,9 @@ class ProductController extends Controller
 
     public function stock(ProductName $product_name, SizeTypeRequest $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'store_id' => 'nullable|sometimes|required|exists:stores,id',
+            'size_type_id' => 'nullable|sometimes|required|exists:size_types,id',
         ]);
 
         $store = false;

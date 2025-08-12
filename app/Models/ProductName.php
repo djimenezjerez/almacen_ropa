@@ -33,4 +33,9 @@ class ProductName extends Model
     {
         return $this->images()->where('color_id', $color->id)->first();
     }
+
+    public function brands()
+    {
+        return $this->hasManyThrough(Brand::class, Product::class, 'product_name_id', 'id', 'id', 'brand_id')->distinct('id')->orderBy('id');
+    }
 }

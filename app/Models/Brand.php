@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Brand extends Model
 {
+    protected $hidden = [
+        'laravel_through_key',
+    ];
+
     protected $fillable = [
         'name',
     ];
