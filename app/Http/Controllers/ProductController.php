@@ -304,7 +304,6 @@ class ProductController extends Controller
             }
         }
 
-        $details = [];
         $colors = DB::table('products')->select('colors.id', 'colors.name')->distinct();
         if ($store) {
             $colors->joinSub($movements, 'md', function ($join) {
@@ -313,27 +312,32 @@ class ProductController extends Controller
         }
         $colors->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null)->orderBy('colors.name');
         $colors = $colors->get();
+        $details = DB::table('brands')->select('brands.*')->where('products.product_name_id', $product_name->id)->leftJoin('products', 'brands.id', '=', 'products.brand_id')->distinct('products.brand_id')->get();
 
-        foreach ($colors as $color) {
-            $sizes = DB::table('products')->select('sizes.id', 'sizes.name');
-            if ($store) {
-                $sizes->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function ($join) {
-                    $join->on('products.id', '=', 'md.product_id');
-                });
-            } else {
-                $sizes->selectRaw('cast(sum(products.stock) as INTEGER) as stock');
-            }
-            $sizes->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('colors.id', $color->id)->where('products.deleted_at', null)->groupBy('products.size_id')->orderBy('sizes.numeric')->orderBy('sizes.order')->orderBy('sizes.id');
-            $sizes = $sizes->get();
-            if (count($sizes) > 0) {
-                $details[] = [
-                    'color_id' => $color->id,
-                    'color_name' => $color->name,
-                    'subtotal' => $sizes->sum('stock'),
-                    'sizes' => $sizes,
-                ];
+        foreach ($details as $brand) {
+            $brand->sizes = [];
+            foreach ($colors as $color) {
+                $sizes = DB::table('products')->where('products.brand_id', $brand->id)->select('sizes.id', 'sizes.name');
+                if ($store) {
+                    $sizes->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function ($join) {
+                        $join->on('products.id', '=', 'md.product_id');
+                    });
+                } else {
+                    $sizes->selectRaw('cast(sum(products.stock) as INTEGER) as stock');
+                }
+                $sizes->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('colors.id', $color->id)->where('products.deleted_at', null)->groupBy('products.size_id')->orderBy('sizes.numeric')->orderBy('sizes.order')->orderBy('sizes.id');
+                $sizes = $sizes->get();
+                if (count($sizes) > 0) {
+                    $brand->sizes[] = [
+                        'color_id' => $color->id,
+                        'color_name' => $color->name,
+                        'subtotal' => $sizes->sum('stock'),
+                        'sizes' => $sizes,
+                    ];
+                }
             }
         }
+
         return [
             'message' => 'Stock de producto por color',
             'payload' => [
@@ -345,8 +349,9 @@ class ProductController extends Controller
 
     public function sells(ProductName $product_name, SizeTypeRequest $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'store_id' => 'nullable|sometimes|required|exists:stores,id',
+            'size_type_id' => 'nullable|sometimes|required|exists:size_types,id',
         ]);
 
         $store = false;
@@ -361,26 +366,30 @@ class ProductController extends Controller
         }
         $movements->groupBy('movement_details.product_id');
 
-        $details = [];
         $colors = DB::table('products')->select('colors.id', 'colors.name')->distinct()->joinSub($movements, 'md', function ($join) {
             $join->on('products.id', '=', 'md.product_id');
         })->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('products.deleted_at', null)->orderBy('colors.name');
         $colors = $colors->get();
+        $details = DB::table('brands')->select('brands.*')->where('products.product_name_id', $product_name->id)->leftJoin('products', 'brands.id', '=', 'products.brand_id')->distinct('products.brand_id')->get();
 
-        foreach ($colors as $color) {
-            $sizes = DB::table('products')->select('sizes.id', 'sizes.name')->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function ($join) {
-                $join->on('products.id', '=', 'md.product_id');
-            })->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('colors.id', $color->id)->where('products.deleted_at', null)->groupBy('products.size_id')->orderBy('sizes.numeric')->orderBy('sizes.order')->orderBy('sizes.id');
-            $sizes = $sizes->get();
-            if (count($sizes) > 0) {
-                $details[] = [
-                    'color_id' => $color->id,
-                    'color_name' => $color->name,
-                    'subtotal' => $sizes->sum('stock'),
-                    'sizes' => $sizes,
-                ];
+        foreach ($details as $brand) {
+            $brand->sizes = [];
+            foreach ($colors as $color) {
+                $sizes = DB::table('products')->where('products.brand_id', $brand->id)->select('sizes.id', 'sizes.name')->selectRaw('cast(sum(md.stock) as INTEGER) as stock')->joinSub($movements, 'md', function ($join) {
+                    $join->on('products.id', '=', 'md.product_id');
+                })->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.product_name_id', $product_name->id)->where('size_types.id', (int)$request->size_type_id)->where('colors.id', $color->id)->where('products.deleted_at', null)->groupBy('products.size_id')->orderBy('sizes.numeric')->orderBy('sizes.order')->orderBy('sizes.id');
+                $sizes = $sizes->get();
+                if (count($sizes) > 0) {
+                    $brand->sizes[] = [
+                        'color_id' => $color->id,
+                        'color_name' => $color->name,
+                        'subtotal' => $sizes->sum('stock'),
+                        'sizes' => $sizes,
+                    ];
+                }
             }
         }
+
         return [
             'message' => 'Stock de producto por color',
             'payload' => [

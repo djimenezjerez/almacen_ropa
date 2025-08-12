@@ -1,33 +1,20 @@
 <template>
-  <v-dialog
-    v-model="dialog"
-    persistent
-    max-width="800"
-    @keydown.esc="dialog = false"
-  >
+  <v-dialog v-model="dialog" persistent max-width="800" @keydown.esc="dialog = false">
     <v-card>
       <template slot="progress">
         <progress-bar />
       </template>
       <v-toolbar dense dark color="secondary">
-        <tool-bar-title title="Reporte de stock por colores"/>
+        <tool-bar-title title="Reporte de stock por colores" />
         <v-spacer></v-spacer>
-        <v-btn
-          icon
-          @click.stop="dialog = false"
-        >
+        <v-btn icon @click.stop="dialog = false">
           <v-icon>
             mdi-close
           </v-icon>
         </v-btn>
       </v-toolbar>
       <div class="px-5 pb-5">
-        <v-row
-          class="pb-3 pt-2 mx-0"
-          align="center"
-          justify="start"
-          dense
-        >
+        <v-row class="pb-3 pt-2 mx-0" align="center" justify="start" dense>
           <v-col cols="4" md="2">
             <div class="text-right">Producto: </div>
           </v-col>
@@ -53,21 +40,20 @@
             <div class="font-weight-bold">{{ sizeType.name }}</div>
           </v-col>
         </v-row>
-        <v-row
-          class="pb-4 mx-0"
-          align="center"
-          justify="center"
-          dense
-          v-show="details.length > 0 && sizes.length > 0"
-        >
+        <v-row class="pb-4 mx-0" align="center" justify="center" dense v-show="details.length > 0 && sizes.length > 0">
           <v-simple-table style="border: 1px solid lightgray !important">
             <template v-slot:default>
               <thead>
                 <tr>
                   <th :class="`text-center ${$headerClass}`" style="border-right: 1px solid white !important;">
+                    Marca
+                  </th>
+                  <th :class="`text-center ${$headerClass}`" style="border-right: 1px solid white !important;">
                     Color / Talla
                   </th>
-                  <th :class="`text-right ${size.numeric ? 'blue-grey darken-4 white--text body' : 'blue-grey darken-1 white--text body'}`" style="border-right: 1px solid white !important;" v-for="size in sizes" :key="size.id">
+                  <th
+                    :class="`text-right ${size.numeric ? 'blue-grey darken-4 white--text body' : 'blue-grey darken-1 white--text body'}`"
+                    style="border-right: 1px solid white !important;" v-for="size in sizes" :key="size.id">
                     {{ size.name }}
                   </th>
                   <th :class="`text-right ${$headerClass}`">
@@ -76,18 +62,27 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="detail in details"
-                  :key="detail.color_id"
-                >
-                  <td class="text-center" style="border-right: 1px solid lightgray !important;">{{ detail.color_name }}</td>
-                  <td class="text-right" style="border-right: 1px solid lightgray !important;" v-for="size in sizes" :key="size.id">
-                    {{ getStock(size, detail) }}
-                  </td>
-                  <td class="text-right font-weight-bold">{{ detail.subtotal }}</td>
-                </tr>
+                <template v-for="brand in details">
+                  <tr v-for="(detail, index) in brand.sizes" :key="`${brand.id}-${detail.color_id}`">
+                    <td :rowspan="brand.sizes.length" class="text-center"
+                      style="border-right: 1px solid lightgray !important;" v-if="index == 0">
+                      {{ brand.name }}
+                    </td>
+                    <td class="text-center" style="border-right: 1px solid lightgray !important;">
+                      {{ detail.color_name }}
+                    </td>
+                    <td class="text-right" style="border-right: 1px solid lightgray !important;" v-for="size in sizes"
+                      :key="size.id">
+                      {{ getStock(size, detail) }}
+                    </td>
+                    <td class="text-right font-weight-bold">{{ detail.subtotal }}</td>
+                  </tr>
+                </template>
                 <tr>
-                  <td class="text-right" style="border-right: 1px solid lightgray !important;" :colspan="sizes.length+1"><v-icon>mdi-sigma</v-icon></td>
+                  <td class="text-right" style="border-right: 1px solid lightgray !important;"
+                    :colspan="sizes.length + 2">
+                    <v-icon>mdi-sigma</v-icon>
+                  </td>
                   <td class="text-right font-weight-black">{{ productName.total_stock }}</td>
                 </tr>
               </tbody>
@@ -96,11 +91,7 @@
         </v-row>
         <v-row dense justify="end">
           <v-col cols="12" md="6">
-            <v-btn
-              block
-              color="error"
-              @click.stop="dialog = false"
-            >
+            <v-btn block color="error" @click.stop="dialog = false">
               Cerrar
             </v-btn>
           </v-col>
@@ -113,7 +104,7 @@
 <script>
 export default {
   name: 'ReportProduct',
-  data: function() {
+  data: function () {
     return {
       dialog: false,
       sizeType: {
@@ -158,7 +149,7 @@ export default {
         })
         this.details = response.data.payload.details
         this.sizes = response.data.payload.sizes
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.$store.dispatch('loading', false)
