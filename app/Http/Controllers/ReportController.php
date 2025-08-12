@@ -176,6 +176,28 @@ class ReportController extends Controller
             }
         }
         $details->where('size_types.id', (int)$request->size_type_id)->groupBy('products.product_name_id')->groupBy('size_id');
+        foreach ($products['data'] as $i => $product) {
+            $product->brands = DB::table('brands')->select('brands.*')->where('products.product_name_id', $product->product_name_id)->leftJoin('products', 'brands.id', '=', 'products.brand_id')->distinct('products.brand_id')->get();
+            foreach ($product->brands as $j => $brand) {
+                $details_brand = clone $details;
+                $details_brand = $details_brand->addSelect('products.brand_id')->where('products.brand_id', $brand->id)->get();
+                $stock = [];
+                $product_details = $details_brand->where('product_name_id', $product->product_name_id)->where('brand_id', $brand->id);
+                foreach ($sizes as $size) {
+                    $detail = $product_details->filter(function ($item) use ($size, $brand) {
+                        return $item->size_id == $size->id && $item->brand_id == $brand->id;
+                    })->first();
+                    if ($detail) {
+                        $stock[] = $detail->stock;
+                    } else {
+                        $stock[] = 0;
+                    }
+                }
+                $products['data'][$i]->brands[$j]->stock = $stock;
+                $products['data'][$i]->brands[$j]->total_stock = collect($stock)->sum();
+            }
+        }
+
         $details = $details->get();
 
         foreach ($products['data'] as $i => $product) {
@@ -210,6 +232,9 @@ class ReportController extends Controller
             array_splice($sizes, $i, 1);
             foreach ($products['data'] as $j => $product) {
                 array_splice($products['data'][$j]->stock, $i, 1);
+                foreach ($product->brands as $k => $brand) {
+                    array_splice($products['data'][$j]->brands[$k]->stock, $i, 1);
+                }
             }
         }
 
