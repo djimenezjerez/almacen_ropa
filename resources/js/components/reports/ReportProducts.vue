@@ -30,6 +30,7 @@
                     <th rowspan="2" class="text-center blue-grey darken-2 white--text">NRO</th>
                     <th rowspan="2" class="text-center blue-grey darken-2 white--text">CATEGORÍA</th>
                     <th rowspan="2" class="text-center blue-grey darken-2 white--text">NOMBRE</th>
+                    <th rowspan="2" class="text-center blue-grey darken-2 white--text">MARCA</th>
                     <th v-if="alphabeticSizes > 0" :colspan="alphabeticSizes"
                       class="text-center blue-grey darken-1 white--text body">TALLAS ALFABETICAS</th>
                     <th v-if="numericSizes > 0" :colspan="numericSizes" class="text-center blue-grey white--text">TALLAS
@@ -46,35 +47,45 @@
               </template>
               <template v-slot:body="{ items }">
                 <tbody v-if="items.length > 0">
-                  <tr v-for="(item, index) in items" :key="index">
-                    <td class="text-center">{{ $helpers.listIndex(index, options) }}</td>
-                    <td class="text-center">{{ item.category_name }}</td>
-                    <td class="text-center">{{ item.product_name }}</td>
-                    <td class="text-center" v-for="(size, i) in sizes" :key="`${item.product_name_id}-${size.id}`">{{
-                      item.stock[i] }}</td>
-                    <td class="text-center">{{ item.total_stock }}</td>
-                    <td class="text-center">
-                      <v-row dense no-gutters justify="space-around" align="center">
-                        <v-col cols="12">
-                          <v-tooltip bottom>
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-btn icon v-bind="attrs" v-on="on" color="warning"
-                                @click="$refs.reportProduct.showDialog(sizeType, item, store, 'stock')">
-                                <v-icon dense>
-                                  mdi-eye
-                                </v-icon>
-                              </v-btn>
-                            </template>
-                            <span>Detalle</span>
-                          </v-tooltip>
-                        </v-col>
-                      </v-row>
-                    </td>
-                  </tr>
+                  <template v-for="(item, index) in items">
+                    <tr v-for="(brand, j) in item.brands" :key="`${item.product_name_id}-${brand.id}`">
+                      <template v-if="j == 0">
+                        <td :rowspan="item.brands.length" class="text-center">{{ $helpers.listIndex(index, options) }}
+                        </td>
+                        <td :rowspan="item.brands.length" class="text-center">{{ item.category_name }}</td>
+                        <td :rowspan="item.brands.length" class="text-center">{{ item.product_name }}</td>
+                      </template>
+                      <td class="text-center">{{ brand.name }}</td>
+                      <td class="text-end" v-for="(size, i) in sizes"
+                        :key="`${item.product_name_id}-${brand.id}-${size.id}`">
+                        {{ brand.stock[i] }}
+                      </td>
+                      <td class="text-end">{{ brand.total_stock }}</td>
+                      <template v-if="j == 0">
+                        <td :rowspan="item.brands.length" class="text-center">
+                          <v-row dense no-gutters justify="space-around" align="center">
+                            <v-col cols="12">
+                              <v-tooltip bottom>
+                                <template v-slot:activator="{ on, attrs }">
+                                  <v-btn icon v-bind="attrs" v-on="on" color="warning"
+                                    @click="$refs.reportProduct.showDialog(sizeType, item, store, 'stock')">
+                                    <v-icon dense>
+                                      mdi-eye
+                                    </v-icon>
+                                  </v-btn>
+                                </template>
+                                <span>Detalle</span>
+                              </v-tooltip>
+                            </v-col>
+                          </v-row>
+                        </td>
+                      </template>
+                    </tr>
+                  </template>
                 </tbody>
                 <tbody v-else>
                   <tr>
-                    <td class="text-center" :colspan="sizes.length + 5">No hay datos disponibles</td>
+                    <td class="text-center" :colspan="sizes.length + 6">No hay datos disponibles</td>
                   </tr>
                 </tbody>
               </template>

@@ -78,6 +78,7 @@ class ReportController extends Controller
                     }
                 }
                 $products['data'][$i]->brands[$j]->stock = $stock;
+                $products['data'][$i]->brands[$j]->total_stock = collect($stock)->sum();
             }
         }
 
