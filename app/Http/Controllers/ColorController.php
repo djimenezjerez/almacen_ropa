@@ -63,6 +63,7 @@ class ColorController extends Controller
         } else {
             $color = Color::create([
                 'name' => $request->name,
+                'hex' => $request->hex,
             ]);
             return [
                 'message' => 'Color registrado',

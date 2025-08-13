@@ -68,6 +68,7 @@
           <add-button text="Agregar imagen" :block="$vuetify.breakpoint.xs" @click="$refs.dialogImage.showDialog({
             id: null,
             productNameId: product.product_name_id,
+            brandId: product.brand_id,
             colorId: product.color_id,
             file: null,
             url: null,
@@ -91,6 +92,7 @@
               <v-btn x-small fab icon color="info" class="mr-1 mb-1" @click="$refs.dialogImage.showDialog({
                 ...item,
                 productNameId: item.product_name_id,
+                brandId: item.brand_id,
                 colorId: item.color_id,
                 path: null,
                 url: item.path ? null : item.url,
@@ -115,6 +117,7 @@
               <v-btn x-small fab icon color="info" class="mr-1 mb-1" @click="$refs.dialogImage.showDialog({
                 ...item,
                 productNameId: item.product_name_id,
+                brandId: item.brand_id,
                 colorId: item.color_id,
                 path: null,
                 url: item.path ? null : item.url,
@@ -248,7 +251,7 @@ export default {
           this.images[i].order = i + 1
         }
         await axios.post(
-          `product/${this.$route.params.productId}/color/${this.$route.params.colorId}/images/order`,
+          `product/${this.$route.params.productId}/brand/${this.$route.params.brandId}/color/${this.$route.params.colorId}/images/order`,
           {
             images: this.images,
           },
@@ -296,7 +299,7 @@ export default {
       try {
         this.$store.dispatch("loading", true);
         let response = await axios.get(
-          `product/${this.$route.params.productId}/color/${this.$route.params.colorId}/images`,
+          `product/${this.$route.params.productId}/brand/${this.$route.params.brandId}/color/${this.$route.params.colorId}/images`,
         );
         this.images = response.data.payload.data;
       } catch (error) {

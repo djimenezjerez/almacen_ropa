@@ -126,11 +126,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('product/{product}/sizes', [ProductController::class, 'sizes']);
         Route::delete('product/{product}/sizes', [ProductController::class, 'destroy_size']);
         Route::get('product/{product}/details', [ProductController::class, 'details']);
-        Route::get('product/{product}/color/{color}/images', [ProductController::class, 'images']);
-        Route::post('product/{product}/color/{color}/images', [ProductController::class, 'store_image']);
-        Route::post('product/{product}/color/{color}/images/order', [ProductController::class, 'image_order']);
-        Route::patch('product/{product}/color/{color}/images/{image}', [ProductController::class, 'update_image']);
-        Route::delete('product/{product}/color/{color}/images/{image}', [ProductController::class, 'destroy_image']);
+        Route::get('product/{product}/brand/{brand}/color/{color}/images', [ProductController::class, 'images']);
+        Route::post('product/{product}/brand/{brand}/color/{color}/images', [ProductController::class, 'store_image']);
+        Route::post('product/{product}/brand/{brand}/color/{color}/images/order', [ProductController::class, 'image_order']);
+        Route::patch('product/{product}/brand/{brand}/color/{color}/images/{image}', [ProductController::class, 'update_image']);
+        Route::delete('product/{product}/brand/{brand}/color/{color}/images/{image}', [ProductController::class, 'destroy_image']);
         // Nombres de productos
         Route::get('product_name', [ProductNameController::class, 'index']);
         Route::get('product_name/{product_name}', [ProductNameController::class, 'show']);

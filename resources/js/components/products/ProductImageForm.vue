@@ -110,7 +110,7 @@ export default {
           if (this.form.id > 0) {
             formData.append('_method', 'PATCH');
             response = await axios.post(
-              `product/${this.form.productNameId}/color/${this.form.colorId}/images/${this.form.id}`,
+              `product/${this.form.productNameId}/brand/${this.form.brandId}/color/${this.form.colorId}/images/${this.form.id}`,
               formData,
               {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -118,7 +118,7 @@ export default {
             );
           } else {
             response = await axios.post(
-              `product/${this.form.productNameId}/color/${this.form.colorId}/images`,
+              `product/${this.form.productNameId}/brand/${this.form.brandId}/color/${this.form.colorId}/images`,
               formData,
               {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -126,7 +126,7 @@ export default {
             );
           }
           this.$toast.success(response.data.message);
-          this.$emit("updateImage", response.data.color);
+          this.$emit("updateImage");
           this.dialog = false;
         }
       } catch (error) {

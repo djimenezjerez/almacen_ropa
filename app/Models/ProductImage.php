@@ -10,6 +10,7 @@ class ProductImage extends Model
         'path',
         'product_name_id',
         'color_id',
+        'brand_id',
         'url',
         'video',
         'order',
@@ -27,5 +28,10 @@ class ProductImage extends Model
     public function color()
     {
         return $this->belongsTo(Color::class);
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
     }
 }

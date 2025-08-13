@@ -82,7 +82,7 @@
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn icon v-bind="attrs" v-on="on" color="info"
-                      @click="gotoProductImages(item.id, item.color_id)">
+                      @click="gotoProductImages(item.id, item.brand_id, item.color_id)">
                       <v-icon dense> mdi-image </v-icon>
                     </v-btn>
                   </template>
@@ -262,11 +262,11 @@ export default {
     },
   },
   methods: {
-    gotoProductImages(productId, colorId) {
+    gotoProductImages(productId, brandId, colorId) {
       this.$router.push({
         path: this.isBuilding
-          ? `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}/color/${colorId}/images/${productId}`
-          : `/products/${this.$route.params.productNameId}/color/${colorId}/images/${productId}`,
+          ? `/${this.$route.params.storeType}/${this.$route.params.storeId}/products/${this.$route.params.productNameId}/brand/${brandId}/color/${colorId}/images/${productId}`
+          : `/products/${this.$route.params.productNameId}/brand/${brandId}/color/${colorId}/images/${productId}`,
         query: {
           size_type_id: this.sizeType.id,
         },

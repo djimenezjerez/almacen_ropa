@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Brand;
 use App\Models\Color;
 use App\Models\Product;
 use App\Models\Category;
@@ -172,10 +173,9 @@ class ProductController extends Controller
         ];
     }
 
-    public function images(Product $product, Color $color, Request $request)
+    public function images(Product $product, Brand $brand, Color $color, Request $request)
     {
-        $query = DB::table('product_images')->select('id', 'product_name_id', 'color_id', 'path', 'url', 'order', 'video')->orderBy('order');
-        $query = $query->where('product_name_id', $product->product_name_id)->where('color_id', $color->id)->get();
+        $query = DB::table('product_images')->select('id', 'product_name_id', 'brand_id', 'color_id', 'path', 'url', 'order', 'video')->where('product_name_id', $product->product_name_id)->where('brand_id', $product->brand_id)->where('brand_id', $brand->id)->where('color_id', $color->id)->orderBy('order')->get();
         foreach ($query as $item) {
             $item->video = boolval($item->video);
         }
@@ -187,7 +187,7 @@ class ProductController extends Controller
         ];
     }
 
-    public function image_order(Product $product, Color $color, UpdateProductImageOrderRequest $request)
+    public function image_order(Product $product, Brand $brand, Color $color, UpdateProductImageOrderRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -212,9 +212,10 @@ class ProductController extends Controller
         }
     }
 
-    public function update_image(ProductName $product, Color $color, ProductImage $image, UpdateProductImageRequest $request)
+    public function update_image(ProductName $product, Brand $brand, Color $color, ProductImage $image, UpdateProductImageRequest $request)
     {
         $image->product_name_id = $product->id;
+        $image->brand_id = $brand->id;
         $image->color_id = $color->id;
         $image->video = $request->boolean('video');
         $image->order = $request->order ?? 0;
@@ -230,7 +231,7 @@ class ProductController extends Controller
             $image->path = null;
             $image->url = $request->url;
         } else {
-            $file = str($product->id) . '_' . str($color->id) . '_' . uniqid() . '.' . $request->file->getClientOriginalExtension();
+            $file = str($product->id) . '_' . str($brand->id) . '_' . str($color->id) . '_' . uniqid() . '.' . $request->file->getClientOriginalExtension();
             $file = $request->file->storeAs('products', $file, 'public');
             $image->path = 'storage/' . $file;
             $image->url = asset('storage/' . $file);
@@ -241,16 +242,17 @@ class ProductController extends Controller
         ];
     }
 
-    public function store_image(ProductName $product, Color $color, StoreProductImageRequest $request)
+    public function store_image(ProductName $product, Brand $brand, Color $color, StoreProductImageRequest $request)
     {
         $image = new ProductImage();
         $image->product_name_id = $product->id;
+        $image->brand_id = $brand->id;
         $image->color_id = $color->id;
         $image->video = $request->boolean('video');
         if ($request->order > 0) {
             $image->order = $request->order;
         } else {
-            $ultimo = ProductImage::where('product_name_id', $product->id)->where('color_id', $color->id)->orderBy('order')->last();
+            $ultimo = ProductImage::where('product_name_id', $product->id)->where('brand_id', $brand->id)->where('color_id', $color->id)->orderBy('order', 'desc')->first();
             if ($ultimo) {
                 $image->order = $ultimo->order;
             } else {
@@ -261,7 +263,7 @@ class ProductController extends Controller
             $image->path = null;
             $image->url = $request->url;
         } else {
-            $file = str($product->id) . '_' . str($color->id) . '_' . uniqid() . '.' . $request->file->getClientOriginalExtension();
+            $file = str($product->id) . '_' . str($brand->id) . '_' . str($color->id) . '_' . uniqid() . '.' . $request->file->getClientOriginalExtension();
             $file = $request->file->storeAs('products', $file, 'public');
             $image->path = 'storage/' . $file;
             $image->url = asset('storage/' . $file);
@@ -272,7 +274,7 @@ class ProductController extends Controller
         ];
     }
 
-    public function destroy_image(Product $product, Color $color, ProductImage $image)
+    public function destroy_image(Product $product, Brand $brand, Color $color, ProductImage $image)
     {
         if (is_null($image->url)) {
             try {

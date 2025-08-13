@@ -20,17 +20,17 @@ class ShowcaseController extends Controller
         $images = DB::table('product_images')
             ->select(
                 '*',
-                DB::raw('ROW_NUMBER() OVER (PARTITION BY `product_name_id` ORDER BY `order` ASC) AS rn')
+                DB::raw('ROW_NUMBER() OVER (PARTITION BY `product_name_id`, `brand_id` ORDER BY `order` ASC) AS rn')
             )
             ->when(true, function ($query) {
-                return DB::table(DB::raw('(' . $query->toSql() . ') as sq'))
+                return DB::table(DB::raw('(' . $query->toSql() . ' WHERE `video`=0) as sq'))
                     ->mergeBindings($query)
-                    ->select('product_name_id', 'path', 'url', 'video')
+                    ->select('product_name_id', 'path', 'url', 'video', 'brand_id')
                     ->where('rn', 1);
             });
 
-        $query = DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name',  'products.brand_id', 'brands.name as brand_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'products.gender_id', 'genders.name as gender_name', 'product_names.sell_price', 'images.url as image')->selectRaw('cast(sum(movement_details.stock) as INTEGER) as total_stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->joinSub($images, 'images', function ($join) {
-            $join->on('images.product_name_id', '=', 'product_names.id');
+        $query = DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name', 'products.brand_id', 'brands.name as brand_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'products.gender_id', 'genders.name as gender_name', 'product_names.sell_price', 'images.url as image')->selectRaw('cast(sum(movement_details.stock) as INTEGER) as total_stock')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->joinSub($images, 'images', function ($join) {
+            $join->on('images.product_name_id', '=', 'product_names.id')->on('images.brand_id', '=', 'products.brand_id');
         })->where('products.deleted_at', null)->where('movement_details.store_id', $request->store_id);
 
         if ($request->has('size_type_id')) {
@@ -66,6 +66,10 @@ class ShowcaseController extends Controller
                 $query->orWhere(DB::raw('upper(product_names.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%')->orWhere(DB::raw('upper(brands.name)'), 'like', '%' . trim(mb_strtoupper($request->search)) . '%');
             }
         }
+
+        logger($query->toSql());
+        logger($query->getBindings());
+
         return [
             'message' => 'Lista de productos',
             'payload' => $query->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1),
@@ -74,11 +78,11 @@ class ShowcaseController extends Controller
 
     public function show(ProductName $product_name, Request $request)
     {
-        $images = DB::table('product_images')->select('product_name_id', 'path', 'url')->groupBy('product_name_id');
+        $images = DB::table('product_images')->select('product_name_id', 'path', 'url', 'video', 'brand_id')->groupBy('product_name_id');
         return [
             'message' => 'Detalle de producto',
             'payload' => DB::table('movement_details')->select('products.product_name_id', 'product_names.name as product_name',  'products.brand_id', 'brands.name as brand_name', 'product_names.category_id', 'categories.name as category_name', 'sizes.size_type_id', 'size_types.name as size_type_name', 'products.gender_id', 'genders.name as gender_name', 'product_names.sell_price', 'images.url as image')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('categories', 'categories.id', '=', 'product_names.category_id')->leftJoin('size_types', 'size_types.id', '=', 'sizes.size_type_id')->leftJoin('genders', 'genders.id', '=', 'products.gender_id')->joinSub($images, 'images', function ($join) {
-                $join->on('images.product_name_id', '=', 'product_names.id');
+                $join->on('images.product_name_id', '=', 'product_names.id')->on('images.brand_id', '=', 'products.brand_id');
             })->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('sizes.size_type_id', $request->size_type_id)->where('products.gender_id', $request->gender_id)->first(),
         ];
     }
@@ -88,7 +92,7 @@ class ShowcaseController extends Controller
         return [
             'message' => 'Tallas de producto',
             'payload' => [
-                'data' => DB::table('movement_details')->distinct()->select('sizes.id', 'sizes.name', 'sizes.numeric')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('sizes.size_type_id', $request->size_type_id)->where('products.gender_id', $request->gender_id)->get(),
+                'data' => DB::table('movement_details')->distinct()->select('sizes.id', 'sizes.name', 'sizes.numeric')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('products.color_id', $request->color_id)->where('sizes.size_type_id', $request->size_type_id)->where('products.gender_id', $request->gender_id)->get(),
             ],
         ];
     }
@@ -97,7 +101,7 @@ class ShowcaseController extends Controller
     {
         $colores = DB::table('movement_details')->distinct()->select('colors.id', 'colors.name', 'colors.hex')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->where('products.deleted_at', null)->where('products.product_name_id', $product_name->id)->where('movement_details.store_id', $request->store_id)->where('products.brand_id', $request->brand_id)->where('sizes.size_type_id', $request->size_type_id)->where('products.gender_id', $request->gender_id)->orderBy('colors.name')->get();
         foreach ($colores as $color) {
-            $color->images = ProductImage::select('id', 'url', 'video')->where('product_name_id', $product_name->id)->where('color_id', $color->id)->orderBy('order')->get();
+            $color->images = ProductImage::select('id', 'url', 'video')->where('product_name_id', $product_name->id)->where('brand_id', $request->brand_id)->where('color_id', $color->id)->orderBy('order')->get();
             $color->image = null;
             if ($color->images->count() > 0) {
                 $image = $color->images->where('video', false)->first();
