@@ -271,7 +271,7 @@ class ReportController extends Controller
             $counter->limit($request->per_page ?? 100);
         }
 
-        $query = DB::table('movements')->select('movement_details.product_id', 'movements.created_at', 'product_names.name as product_name', 'colors.name as color_name', 'sizes.name as size_name')->selectRaw('product_names.sell_price - movement_details.discount AS sell_price')->leftJoin('movement_details', 'movement_details.movement_id', '=', 'movements.id')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->joinSub($counter, 'counter', function ($join) {
+        $query = DB::table('movements')->select('movement_details.product_id', 'movements.created_at', 'product_names.name as product_name', 'brands.name as brand_name', 'colors.name as color_name', 'sizes.name as size_name')->selectRaw('product_names.sell_price - movement_details.discount AS sell_price')->leftJoin('movement_details', 'movement_details.movement_id', '=', 'movements.id')->leftJoin('products', 'products.id', '=', 'movement_details.product_id')->leftJoin('product_names', 'product_names.id', '=', 'products.product_name_id')->leftJoin('brands', 'brands.id', '=', 'products.brand_id')->leftJoin('colors', 'colors.id', '=', 'products.color_id')->leftJoin('sizes', 'sizes.id', '=', 'products.size_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->joinSub($counter, 'counter', function ($join) {
             $join->on(DB::raw('abs(movement_details.stock)'), '>=', 'counter.count');
         });
 
@@ -281,7 +281,7 @@ class ReportController extends Controller
             }
         }
 
-        $query->where('movement_types.code', 'SELL')->where('movements.deleted_at', null)->where('movements.from_store_id', (int)$request->store_id)->whereDate('movements.created_at', '>=', $date_from->toDateTimeString())->whereDate('movements.created_at', '<=', $date_to->toDateTimeString())->orderBy('movements.created_at')->orderBy('product_names.name')->orderBy('colors.name')->orderBy('sizes.numeric')->orderBy('sizes.order');
+        $query->where('movement_types.code', 'SELL')->where('movements.deleted_at', null)->where('movements.from_store_id', (int)$request->store_id)->whereDate('movements.created_at', '>=', $date_from->toDateTimeString())->whereDate('movements.created_at', '<=', $date_to->toDateTimeString())->orderBy('movements.created_at')->orderBy('product_names.name')->orderBy('brands.name')->orderBy('colors.name')->orderBy('sizes.numeric')->orderBy('sizes.order');
 
         if ((int)$request->pdf == 1) {
             try {

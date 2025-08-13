@@ -1,141 +1,55 @@
 <template>
   <v-container>
     <v-card class="pb-2">
-      <v-toolbar
-        color="secondary"
-      >
-        <tool-bar-title title="Ventas detalladas"/>
+      <v-toolbar color="secondary">
+        <tool-bar-title title="Ventas detalladas" />
       </v-toolbar>
       <v-row class="pt-5 px-4">
-        <v-col
-          cols="12"
-          sm="6"
-          lg="2"
-        >
-          <v-menu
-            v-model="menuDateFrom"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="auto"
-          >
+        <v-col cols="12" sm="6" lg="2">
+          <v-menu v-model="menuDateFrom" :close-on-content-click="false" transition="scale-transition" offset-y
+            max-width="290px" min-width="auto">
             <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="computedDateFrom"
-                label="Fecha inicial"
-                prepend-icon="mdi-calendar"
-                dense
-                hide-details
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field>
+              <v-text-field v-model="computedDateFrom" label="Fecha inicial" prepend-icon="mdi-calendar" dense
+                hide-details readonly v-bind="attrs" v-on="on"></v-text-field>
             </template>
-            <v-date-picker
-              v-model="dateFrom"
-              no-title
-              @input="menuDateFrom = false"
-              @change="fetchProducts(0)"
-              :max="$moment().format('YYYY-MM-DD')"
-            ></v-date-picker>
+            <v-date-picker v-model="dateFrom" no-title @input="menuDateFrom = false" @change="fetchProducts(0)"
+              :max="$moment().format('YYYY-MM-DD')"></v-date-picker>
           </v-menu>
         </v-col>
-        <v-col
-          cols="12"
-          sm="6"
-          lg="2"
-        >
-          <v-menu
-            v-model="menuDateTo"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="auto"
-          >
+        <v-col cols="12" sm="6" lg="2">
+          <v-menu v-model="menuDateTo" :close-on-content-click="false" transition="scale-transition" offset-y
+            max-width="290px" min-width="auto">
             <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="computedDateTo"
-                label="Fecha final"
-                prepend-icon="mdi-calendar"
-                dense
-                hide-details
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field>
+              <v-text-field v-model="computedDateTo" label="Fecha final" prepend-icon="mdi-calendar" dense hide-details
+                readonly v-bind="attrs" v-on="on"></v-text-field>
             </template>
-            <v-date-picker
-              v-model="dateTo"
-              no-title
-              @input="menuDateTo = false"
-              @change="fetchProducts(0)"
-              :max="$moment().format('YYYY-MM-DD')"
-            ></v-date-picker>
+            <v-date-picker v-model="dateTo" no-title @input="menuDateTo = false" @change="fetchProducts(0)"
+              :max="$moment().format('YYYY-MM-DD')"></v-date-picker>
           </v-menu>
         </v-col>
-        <v-col
-          cols="12"
-          md="6"
-          lg="2"
-          offset-lg="5"
-          xl="2"
-          offset-xl="6"
-        >
-          <v-btn
-            color="success"
-            block
-            @click="fetchProducts(1)"
-          >
+        <v-col cols="12" md="6" lg="2" offset-lg="5" xl="2" offset-xl="6">
+          <v-btn color="success" block @click="fetchProducts(1)">
             <v-icon left>
               mdi-printer
             </v-icon>
             IMPRIMIR
           </v-btn>
         </v-col>
-        <v-col
-          cols="12"
-          sm="8"
-          md="9"
-          lg="10"
-        >
-          <search-input
-            v-model="search"
-            label="Texto o parámetro de búsqueda"
-          />
+        <v-col cols="12" sm="8" md="9" lg="10">
+          <search-input v-model="search" label="Texto o parámetro de búsqueda" />
         </v-col>
-        <v-col
-          cols="12"
-          sm="4"
-          md="3"
-          lg="2"
-        >
-          <v-text-field
-            :value="'Bs. ' + total.toFixed(2)"
-            label="Total"
-            class="right-input"
-            dense
-            hide-details
-            readonly
-            outlined
-          ></v-text-field>
+        <v-col cols="12" sm="4" md="3" lg="2">
+          <v-text-field :value="'Bs. ' + total.toFixed(2)" label="Total" class="right-input" dense hide-details readonly
+            outlined></v-text-field>
         </v-col>
       </v-row>
     </v-card>
     <v-row>
       <v-col cols="12">
-        <v-data-table
-          id="datatable"
-          :headers="headers"
-          :items="products"
-          :options.sync="options"
-          :server-items-length="totalItems"
-          :footer-props="{
+        <v-data-table id="datatable" :headers="headers" :items="products" :options.sync="options"
+          :server-items-length="totalItems" :footer-props="{
             itemsPerPageOptions: [100, 200, 300]
-          }"
-          :calculate-widths="true"
-        >
+          }" :calculate-widths="true">
           <template v-slot:[`item.product_id`]="{ index }">
             {{ $helpers.listIndex(index, options) }}
           </template>
@@ -190,6 +104,12 @@ export default {
           value: 'product_name',
           class: this.$headerClass,
         }, {
+          text: 'MARCA',
+          align: 'center',
+          sortable: false,
+          value: 'brand_name',
+          class: this.$headerClass,
+        }, {
           text: 'COLOR',
           align: 'center',
           sortable: false,
@@ -212,10 +132,10 @@ export default {
     }
   },
   computed: {
-    computedDateFrom () {
+    computedDateFrom() {
       return this.$moment(this.dateFrom).format('DD/MM/YYYY')
     },
-    computedDateTo () {
+    computedDateTo() {
       return this.$moment(this.dateTo).format('DD/MM/YYYY')
     },
   },
@@ -223,12 +143,12 @@ export default {
     this.fetchProducts(0)
   },
   watch: {
-    options: function(newVal, oldVal) {
+    options: function (newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
         this.fetchProducts(0)
       }
     },
-    search: function() {
+    search: function () {
       this.options.page = 1
       this.fetchProducts(0)
     }
@@ -261,7 +181,7 @@ export default {
           this.options.page = response.data.payload.products.current_page
           this.options.itemsPerPage = parseInt(response.data.payload.products.per_page)
         }
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       } finally {
         this.$store.dispatch('loading', false)
