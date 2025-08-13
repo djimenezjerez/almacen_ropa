@@ -67,9 +67,6 @@ class ShowcaseController extends Controller
             }
         }
 
-        logger($query->toSql());
-        logger($query->getBindings());
-
         return [
             'message' => 'Lista de productos',
             'payload' => $query->paginate($request->per_page ?? 8, ['*'], 'page', $request->page ?? 1),
