@@ -247,7 +247,16 @@ class ProductController extends Controller
         $image->product_name_id = $product->id;
         $image->color_id = $color->id;
         $image->video = $request->boolean('video');
-        $image->order = $request->order ?? 0;
+        if ($request->order > 0) {
+            $image->order = $request->order;
+        } else {
+            $ultimo = ProductImage::where('product_name_id', $product->id)->where('color_id', $color->id)->orderBy('order')->last();
+            if ($ultimo) {
+                $image->order = $ultimo->order;
+            } else {
+                $image->order = 0;
+            }
+        }
         if (!is_null($request->url) && $request->url != '') {
             $image->path = null;
             $image->url = $request->url;
