@@ -102,7 +102,7 @@
       </v-col>
     </v-row>
     <store-form ref="storeForm" :warehouse="true" :cities="cities" @updateList="fetchWarehouses" />
-    <dialog-remove ref="dialogRemove" type="almacén" url="warehouse" @updateList="fetchWarehouses" />
+    <dialog-remove ref="dialogRemove" type="almacén" url="store" @updateList="fetchWarehouses" />
   </v-container>
 </template>
 
