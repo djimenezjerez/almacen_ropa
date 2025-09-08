@@ -20,7 +20,7 @@
                   <validation-provider v-slot="{ errors }" name="video" rules="required">
                     <v-select :items="types" item-text="text" item-value="value" label="Tipo de medio"
                       v-model="form.video" data-vv-name="video" :error-messages="errors"
-                      :prepend-icon="form.video ? 'mdi-image' : 'mdi-video'"
+                      :prepend-icon="form.video ? 'mdi-video' : 'mdi-image'"
                       @change="form.url = null; form.file = null;"></v-select>
                   </validation-provider>
                 </v-col>

@@ -52,7 +52,7 @@ export default {
     async removeItem() {
       try {
         this.$store.dispatch('loading', true)
-        const response = await axios.delete(`product/${this.item.product_name_id}/color/${this.item.color_id}/images/${this.item.id}`)
+        const response = await axios.delete(`product/${this.item.product_name_id}/brand/${this.item.brand_id}/color/${this.item.color_id}/images/${this.item.id}`)
         this.$toast.success(response.data.message)
         this.$emit('updateList')
         this.dialog = false
