@@ -70,7 +70,7 @@ class Product extends Model
 
     protected function image(): Attribute
     {
-        $image = ProductImage::where('color_id', $this->color->id)->where('product_name_id', $this->name->id)->first();
+        $image = ProductImage::where('color_id', $this->color->id)->where('product_name_id', $this->name->id)->where('video', false)->first();
         $url = null;
         if ($image) {
             if ($image->url) {
