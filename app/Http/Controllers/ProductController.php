@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\Brand;
 use App\Models\Color;
 use App\Models\Product;
@@ -365,8 +366,26 @@ class ProductController extends Controller
             'size_type_id' => 'nullable|sometimes|required|exists:size_types,id',
         ]);
 
+        $date_from = null;
+        $date_to = null;
+        if ($request->has('date_from') && $request->has('date_to')) {
+            $date_from = Carbon::parse($request->date_from)->startOfDay();
+            $date_to = Carbon::parse($request->date_to)->endOfDay();
+            if ($date_from->greaterThanOrEqualTo($date_to)) {
+                return response()->json([
+                    'message' => 'La fecha inicial debe ser anterior a la fecha final'
+                ], 422);
+            }
+        }
+
+
         $store = false;
         $movements = DB::table('movement_details')->select('movement_details.product_id')->selectRaw('cast(abs(coalesce(sum(movement_details.stock), 0)) as INTEGER) as stock')->leftJoin('movements', 'movements.id', '=', 'movement_details.movement_id')->leftJoin('movement_types', 'movement_types.id', '=', 'movements.movement_type_id')->where('movement_types.active', false);
+
+        if (!is_null($date_from) && !is_null($date_to)) {
+            $movements = $movements->whereDate('movements.created_at', '>=', $date_from->toDateTimeString())->whereDate('movements.created_at', '<=', $date_to->toDateTimeString());
+        }
+
         if ($request->has('store_id')) {
             if ($request->store_id !== null) {
                 $store = DB::table('stores')->where('id', $request->store_id)->exists();

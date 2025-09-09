@@ -128,7 +128,7 @@ export default {
         return 0
       }
     },
-    showDialog(sizeType, productName, store, requestType) {
+    showDialog(sizeType, productName, store, requestType, dateFrom = null, dateTo = null) {
       this.details = []
       this.sizes = []
       this.sizeType = sizeType
@@ -136,15 +136,22 @@ export default {
       this.store = store
       this.requestType = requestType
       this.dialog = true
-      this.fetchProduct(productName.product_name_id, sizeType.id, store.id)
+      this.fetchProduct(productName.product_name_id, sizeType.id, store.id, dateFrom, dateTo)
     },
-    async fetchProduct(productNameId, sizeTypeId, storeId) {
+    async fetchProduct(productNameId, sizeTypeId, storeId, dateFrom = null, dateTo = null) {
+
+      console.log(dateFrom);
+      console.log(dateTo);
+
+
       try {
         this.$store.dispatch('loading', true)
         let response = await axios.get(`product/${productNameId}/${this.requestType}`, {
           params: {
             size_type_id: sizeTypeId,
             store_id: storeId == 0 ? null : storeId,
+            date_from: dateFrom,
+            date_to: dateTo,
           }
         })
         this.details = response.data.payload.details

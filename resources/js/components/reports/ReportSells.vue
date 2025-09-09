@@ -90,7 +90,7 @@
                               <v-tooltip bottom>
                                 <template v-slot:activator="{ on, attrs }">
                                   <v-btn icon v-bind="attrs" v-on="on" color="warning"
-                                    @click="$refs.reportProduct.showDialog(sizeType, item, store, 'sells')">
+                                    @click="$refs.reportProduct.showDialog(sizeType, item, store, 'sells', dateFrom, dateTo)">
                                     <v-icon dense>
                                       mdi-eye
                                     </v-icon>
